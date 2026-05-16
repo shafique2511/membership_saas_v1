@@ -23,6 +23,9 @@ import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { UnauthorizedPage } from '@/pages/auth/UnauthorizedPage'
 import { BookingsPage } from '@/pages/business/BookingsPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
+import { CustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
+import { MembershipDetailsPage } from '@/pages/business/MembershipDetailsPage'
+import { MembershipPlansPage } from '@/pages/business/MembershipPlansPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -36,7 +39,6 @@ import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import type { ModuleKey } from '@/types'
 
 const businessPages = [
-  ['memberships', 'membership', 'Membership module', 'Plans, member cards, renewals, credits, visits, and discounts.'],
   ['loyalty', 'loyalty', 'Loyalty module', 'Points, rewards, vouchers, birthday rewards, and referrals.'],
   ['pos', 'pos', 'POS module', 'Checkout for products, services, memberships, split payments, and receipts.'],
   ['inventory', 'inventory', 'Inventory module', 'Stock, suppliers, transfers, low-stock alerts, and branch inventory.'],
@@ -91,6 +93,11 @@ function App() {
             <Route path="packages" element={<PackageComparisonPage />} />
             <Route element={<ModuleRoute moduleKey="booking" moduleName="Booking module" />}>
               <Route path="bookings" element={<BookingsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="membership" moduleName="Membership module" />}>
+              <Route path="memberships" element={<CustomerMembershipsPage />} />
+              <Route path="memberships/plans" element={<MembershipPlansPage />} />
+              <Route path="memberships/:membershipId" element={<MembershipDetailsPage />} />
             </Route>
             {businessPages.map(([path, moduleKey, title, description]) => (
               <Route key={path} element={<ModuleRoute moduleKey={moduleKey as ModuleKey} moduleName={title} />}>
