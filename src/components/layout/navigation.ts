@@ -4,52 +4,138 @@ import {
   CalendarDays,
   CreditCard,
   Gift,
-  Home,
-  ListChecks,
   Megaphone,
   Package,
   Puzzle,
   Settings,
-  Shield,
   ShoppingCart,
   Store,
   Users,
   WalletCards,
   Warehouse,
   Gauge,
+  UserRound,
+  PiggyBank,
+  FileText,
+  LayoutDashboard,
+  type LucideIcon,
 } from 'lucide-react'
-import type { NavItem } from '@/types'
+import type { ModuleKey } from '@/types'
 
-export const businessNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/business', icon: Home, module: 'core' },
-  { label: 'Bookings', href: '/business/bookings', icon: CalendarDays, module: 'booking' },
-  { label: 'Members', href: '/business/memberships', icon: WalletCards, module: 'membership' },
-  { label: 'Loyalty', href: '/business/loyalty', icon: Gift, module: 'loyalty' },
-  { label: 'POS', href: '/business/pos', icon: ShoppingCart, module: 'pos' },
-  { label: 'Inventory', href: '/business/inventory', icon: Warehouse, module: 'inventory' },
-  { label: 'Staff', href: '/business/staff', icon: Users, module: 'staff_commission' },
-  { label: 'Payments', href: '/business/payments', icon: CreditCard, module: 'payment' },
-  { label: 'Reports', href: '/business/reports', icon: BarChart3, module: 'reports' },
-  { label: 'Marketing', href: '/business/marketing', icon: Megaphone, module: 'marketing' },
-  { label: 'Branches', href: '/business/branches', icon: Store, module: 'multi_branch' },
-  { label: 'Subscription', href: '/business/subscription', icon: CreditCard, module: 'core' },
-  { label: 'Modules', href: '/business/module-access', icon: Puzzle, module: 'core' },
-  { label: 'Add-ons', href: '/business/add-ons', icon: Package, module: 'core' },
-  { label: 'Usage', href: '/business/usage', icon: Gauge, module: 'core' },
-  { label: 'Packages', href: '/business/packages', icon: Package, module: 'core' },
-  { label: 'Settings', href: '/business/settings', icon: Settings, module: 'core' },
+export interface NavItem {
+  label: string
+  href: string
+  icon: LucideIcon
+  module?: ModuleKey
+}
+
+export interface NavSection {
+  title: string
+  items: NavItem[]
+}
+
+export const businessNavSections: NavSection[] = [
+  {
+    title: 'Overview',
+    items: [
+      { label: 'Dashboard', href: '/business', icon: LayoutDashboard, module: 'core' },
+      { label: 'Bookings', href: '/business/bookings', icon: CalendarDays, module: 'booking' },
+    ],
+  },
+  {
+    title: 'Operations',
+    items: [
+      { label: 'POS', href: '/business/pos', icon: ShoppingCart, module: 'pos' },
+      { label: 'Customers', href: '/business/memberships', icon: Users, module: 'membership' },
+      { label: 'Memberships', href: '/business/memberships', icon: WalletCards, module: 'membership' },
+      { label: 'Loyalty', href: '/business/loyalty', icon: Gift, module: 'loyalty' },
+    ],
+  },
+  {
+    title: 'Inventory & Staff',
+    items: [
+      { label: 'Products', href: '/business/inventory', icon: Warehouse, module: 'inventory' },
+      { label: 'Staff', href: '/business/staff', icon: UserRound, module: 'staff_commission' },
+    ],
+  },
+  {
+    title: 'Finance',
+    items: [
+      { label: 'Payments', href: '/business/payments', icon: CreditCard, module: 'payment' },
+      { label: 'Billing', href: '/business/subscription', icon: FileText, module: 'core' },
+    ],
+  },
+  {
+    title: 'Growth',
+    items: [
+      { label: 'Marketing', href: '/business/marketing', icon: Megaphone, module: 'marketing' },
+      { label: 'Reports', href: '/business/reports', icon: BarChart3, module: 'reports' },
+    ],
+  },
+  {
+    title: 'Settings',
+    items: [
+      { label: 'Branches', href: '/business/branches', icon: Store, module: 'multi_branch' },
+      { label: 'Modules', href: '/business/module-access', icon: Puzzle, module: 'core' },
+      { label: 'Add-ons', href: '/business/add-ons', icon: Package, module: 'core' },
+      { label: 'Usage', href: '/business/usage', icon: Gauge, module: 'core' },
+      { label: 'Settings', href: '/business/settings', icon: Settings, module: 'core' },
+    ],
+  },
 ]
 
-export const adminNavItems: NavItem[] = [
-  { label: 'Platform', href: '/admin', icon: Shield },
-  { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
-  { label: 'Packages', href: '/admin/packages', icon: Package },
-  { label: 'Modules', href: '/admin/modules', icon: Store },
-  { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
-  { label: 'Add-ons', href: '/admin/add-ons', icon: Puzzle },
-  { label: 'Invoices', href: '/admin/invoices', icon: CreditCard },
-  { label: 'Payments', href: '/admin/payments', icon: WalletCards },
-  { label: 'Usage', href: '/admin/usage', icon: Gauge },
-  { label: 'Settings', href: '/admin/settings', icon: Settings },
-  { label: 'Audit logs', href: '/admin/audit-logs', icon: ListChecks },
+export const adminNavSections: NavSection[] = [
+  {
+    title: 'Platform',
+    items: [
+      { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+      { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
+    ],
+  },
+  {
+    title: 'Catalog',
+    items: [
+      { label: 'Packages', href: '/admin/packages', icon: Package },
+      { label: 'Modules', href: '/admin/modules', icon: Puzzle },
+    ],
+  },
+  {
+    title: 'Billing',
+    items: [
+      { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+      { label: 'Add-ons', href: '/admin/add-ons', icon: Puzzle },
+      { label: 'Invoices', href: '/admin/invoices', icon: FileText },
+      { label: 'Payments', href: '/admin/payments', icon: PiggyBank },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      { label: 'Usage', href: '/admin/usage', icon: Gauge },
+      { label: 'Audit logs', href: '/admin/audit-logs', icon: FileText },
+      { label: 'Settings', href: '/admin/settings', icon: Settings },
+    ],
+  },
 ]
+
+export function getBusinessNavItems(hasModule: (m: ModuleKey) => boolean): NavItem[] {
+  const items: NavItem[] = []
+  for (const section of businessNavSections) {
+    for (const item of section.items) {
+      if (!item.module || hasModule(item.module)) {
+        items.push(item)
+      }
+    }
+  }
+  return items
+}
+
+export function getAdminNavItems(): NavItem[] {
+  const items: NavItem[] = []
+  for (const section of adminNavSections) {
+    for (const item of section.items) {
+      items.push(item)
+    }
+  }
+  return items
+}

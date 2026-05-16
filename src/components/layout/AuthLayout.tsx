@@ -7,7 +7,7 @@ export function AuthLayout() {
       <section className="flex items-center justify-center p-6">
         <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-700 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-700 text-white">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>

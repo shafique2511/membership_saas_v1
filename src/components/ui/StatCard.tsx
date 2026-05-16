@@ -9,7 +9,7 @@ export function StatCard({ label, value, hint, trend, icon: Icon }: StatItem) {
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
           {Icon ? (
-            <span className="rounded-md bg-teal-50 p-2 text-teal-700 dark:bg-teal-500/10 dark:text-teal-200">
+            <span className="rounded-md bg-emerald-50 p-2 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200">
               <Icon className="h-4 w-4" />
             </span>
           ) : null}

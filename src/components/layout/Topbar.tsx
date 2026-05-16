@@ -1,4 +1,4 @@
-import { Bell, LogOut, Menu, Moon, Sun } from 'lucide-react'
+import { Bell, LogOut, Menu, Moon, Sun, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useAppContext } from '@/context/useAppContext'
@@ -18,12 +18,20 @@ export function Topbar() {
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
           <Menu className="h-5 w-5" />
         </Button>
-        <div>
-          <p className="text-sm font-semibold">Demo Barber House</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Starter package</p>
+        <div className="flex items-center gap-3">
+          <span className="h-5 w-px bg-slate-200 lg:hidden dark:bg-slate-700" />
+          <div>
+            <p className="text-sm font-bold text-slate-900 dark:text-white">
+              {profile?.full_name || 'Business'}
+            </p>
+            <p className="flex items-center gap-1 text-[11px] text-slate-500">
+              <Package className="h-3 w-3" />
+              Starter package
+            </p>
+          </div>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button variant="ghost" size="icon" onClick={toggleDarkMode} aria-label="Toggle dark mode">
           {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
@@ -33,10 +41,11 @@ export function Topbar() {
         <Button variant="ghost" size="icon" aria-label="Logout" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
         </Button>
-        <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-sm font-semibold text-white sm:flex">
+        <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white">
           {profile?.full_name
             ?.split(' ')
-            .map((part) => part[0])
+            .map((p) => p[0])
             .join('')
             .slice(0, 2)
             .toUpperCase() ?? 'LM'}
