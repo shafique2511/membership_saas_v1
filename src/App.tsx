@@ -23,11 +23,11 @@ import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { UnauthorizedPage } from '@/pages/auth/UnauthorizedPage'
 import { BookingsPage } from '@/pages/business/BookingsPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
-import { CustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
+import { CustomerMembershipsPage as BizCustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
 import { MembershipDetailsPage } from '@/pages/business/MembershipDetailsPage'
 import { MembershipPlansPage } from '@/pages/business/MembershipPlansPage'
 import { BirthdayRewardsPage } from '@/pages/business/loyalty/BirthdayRewardsPage'
-import { CustomerPointsPage } from '@/pages/business/loyalty/CustomerPointsPage'
+import { CustomerPointsPage as BizCustomerPointsPage } from '@/pages/business/loyalty/CustomerPointsPage'
 import { LoyaltySettingsPage } from '@/pages/business/loyalty/LoyaltySettingsPage'
 import { PointsHistoryPage } from '@/pages/business/loyalty/PointsHistoryPage'
 import { ReferralRewardsPage } from '@/pages/business/loyalty/ReferralRewardsPage'
@@ -94,6 +94,13 @@ import { UpgradePage } from '@/pages/business/UpgradePage'
 import { UsageLimitsPage } from '@/pages/business/UsageLimitsPage'
 import { CustomerBookingPage } from '@/pages/customer/CustomerBookingPage'
 import { CustomerHomePage } from '@/pages/customer/CustomerHomePage'
+import { CustomerPublicPage } from '@/pages/customer/CustomerPublicPage'
+import { CustomerMembershipsPage } from '@/pages/customer/CustomerMembershipsPage'
+import { CustomerRewardsPage } from '@/pages/customer/CustomerRewardsPage'
+import { CustomerPointsPage } from '@/pages/customer/CustomerPointsPage'
+import { CustomerBookingHistoryPage } from '@/pages/customer/CustomerBookingHistoryPage'
+import { CustomerPaymentHistoryPage } from '@/pages/customer/CustomerPaymentHistoryPage'
+import { CustomerProfilePage } from '@/pages/customer/CustomerProfilePage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 function App() {
@@ -141,7 +148,7 @@ function App() {
               <Route path="bookings" element={<BookingsPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="membership" moduleName="Membership module" />}>
-              <Route path="memberships" element={<CustomerMembershipsPage />} />
+              <Route path="memberships" element={<BizCustomerMembershipsPage />} />
               <Route path="memberships/plans" element={<MembershipPlansPage />} />
               <Route path="memberships/:membershipId" element={<MembershipDetailsPage />} />
             </Route>
@@ -149,7 +156,7 @@ function App() {
               <Route path="loyalty" element={<LoyaltySettingsPage />} />
               <Route path="loyalty/settings" element={<LoyaltySettingsPage />} />
               <Route path="loyalty/rewards" element={<RewardsCatalogPage />} />
-              <Route path="loyalty/points" element={<CustomerPointsPage />} />
+              <Route path="loyalty/points" element={<BizCustomerPointsPage />} />
               <Route path="loyalty/history" element={<PointsHistoryPage />} />
               <Route path="loyalty/birthday" element={<BirthdayRewardsPage />} />
               <Route path="loyalty/referrals" element={<ReferralRewardsPage />} />
@@ -234,11 +241,18 @@ function App() {
             </Route>
           </Route>
         </Route>
+        <Route path="biz/:businessId" element={<CustomerPublicPage />} />
         <Route element={<ProtectedRoute roles={['customer', 'super_admin']} />}>
-          <Route path="customer" element={<CustomerPortalLayout />}>
+          <Route path="customer/:businessId" element={<CustomerPortalLayout />}>
             <Route element={<ModuleRoute moduleKey="customer_portal" moduleName="Customer Portal module" />}>
               <Route index element={<CustomerHomePage />} />
               <Route path="book" element={<CustomerBookingPage />} />
+              <Route path="membership" element={<CustomerMembershipsPage />} />
+              <Route path="rewards" element={<CustomerRewardsPage />} />
+              <Route path="points" element={<CustomerPointsPage />} />
+              <Route path="bookings" element={<CustomerBookingHistoryPage />} />
+              <Route path="payments" element={<CustomerPaymentHistoryPage />} />
+              <Route path="profile" element={<CustomerProfilePage />} />
               <Route
                 path="*"
                 element={<PlaceholderPage title="Customer portal" description="Mobile-first customer pages are scaffolded." />}
