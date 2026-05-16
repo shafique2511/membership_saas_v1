@@ -229,9 +229,21 @@ create index if not exists birthday_rewards_customer_id_idx on public.birthday_r
 create index if not exists birthday_rewards_year_idx on public.birthday_rewards(reward_year);
 
 -- 12. Triggers
-create trigger if not exists set_loyalty_settings_updated_at before update on public.loyalty_settings
-  for each row execute function public.set_updated_at();
-create trigger if not exists set_referral_rewards_updated_at before update on public.referral_rewards
-  for each row execute function public.set_updated_at();
-create trigger if not exists set_birthday_rewards_updated_at before update on public.birthday_rewards
-  for each row execute function public.set_updated_at();
+do $$ begin
+  if not exists (select 1 from pg_trigger where tgname = 'set_loyalty_settings_updated_at') then
+    create trigger set_loyalty_settings_updated_at before update on public.loyalty_settings
+      for each row execute function public.set_updated_at();
+  end if;
+end; $$;
+do $$ begin
+  if not exists (select 1 from pg_trigger where tgname = 'set_referral_rewards_updated_at') then
+    create trigger set_referral_rewards_updated_at before update on public.referral_rewards
+      for each row execute function public.set_updated_at();
+  end if;
+end; $$;
+do $$ begin
+  if not exists (select 1 from pg_trigger where tgname = 'set_birthday_rewards_updated_at') then
+    create trigger set_birthday_rewards_updated_at before update on public.birthday_rewards
+      for each row execute function public.set_updated_at();
+  end if;
+end; $$;
