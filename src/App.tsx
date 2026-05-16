@@ -57,6 +57,16 @@ import { ManualSendPage } from '@/pages/business/notifications/ManualSendPage'
 import { NotificationLogPage } from '@/pages/business/notifications/NotificationLogPage'
 import { BroadcastsPage } from '@/pages/business/notifications/BroadcastsPage'
 import { NotificationSettingsPage } from '@/pages/business/notifications/NotificationSettingsPage'
+import { ReportsDashboardPage } from '@/pages/business/reports/ReportsDashboardPage'
+import { SalesReportPage } from '@/pages/business/reports/SalesReportPage'
+import { BookingReportPage } from '@/pages/business/reports/BookingReportPage'
+import { MembershipReportPage } from '@/pages/business/reports/MembershipReportPage'
+import { CustomerReportPage } from '@/pages/business/reports/CustomerReportPage'
+import { StaffReportPage } from '@/pages/business/reports/StaffReportPage'
+import { InventoryReportPage as InvReportPage } from '@/pages/business/reports/InventoryReportPage'
+import { PaymentReportPage } from '@/pages/business/reports/PaymentReportPage'
+import { ProfitReportPage } from '@/pages/business/reports/ProfitReportPage'
+import { ExportCenterPage } from '@/pages/business/reports/ExportCenterPage'
 import { PaymentsPage } from '@/pages/business/payments/PaymentsPage'
 import { PaymentDetailsPage } from '@/pages/business/payments/PaymentDetailsPage'
 import { PendingVerificationPage } from '@/pages/business/payments/PendingVerificationPage'
@@ -64,7 +74,6 @@ import { InvoicesPage } from '@/pages/business/payments/InvoicesPage'
 import { ReceiptsPage } from '@/pages/business/payments/ReceiptsPage'
 import { RefundsPage } from '@/pages/business/payments/RefundsPage'
 import { PaymentSettingsPage } from '@/pages/business/payments/PaymentSettingsPage'
-import { ReportsPage } from '@/pages/business/reports/ReportsPage'
 import { MarketingPage } from '@/pages/business/marketing/MarketingPage'
 import { BusinessSettingsPage } from '@/pages/business/settings/BusinessSettingsPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
@@ -176,7 +185,16 @@ function App() {
             </Route>
 
             <Route element={<ModuleRoute moduleKey="reports" moduleName="Reports module" />}>
-              <Route path="reports" element={<ReportsPage />} />
+              <Route path="reports" element={<ReportsDashboardPage />} />
+              <Route path="reports/sales" element={<SalesReportPage />} />
+              <Route path="reports/bookings" element={<BookingReportPage />} />
+              <Route path="reports/memberships" element={<MembershipReportPage />} />
+              <Route path="reports/customers" element={<CustomerReportPage />} />
+              <Route path="reports/staff" element={<StaffReportPage />} />
+              <Route path="reports/inventory" element={<InvReportPage />} />
+              <Route path="reports/payments" element={<PaymentReportPage />} />
+              <Route path="reports/profit" element={<ProfitReportPage />} />
+              <Route path="reports/export" element={<ExportCenterPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="notification" moduleName="Notification module" />}>
               <Route path="notifications" element={<NotificationTemplatesPage />} />
