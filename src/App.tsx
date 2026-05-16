@@ -6,8 +6,13 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { CustomerPortalLayout } from '@/components/layout/CustomerPortalLayout'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
+import { BusinessDetailsPage } from '@/pages/admin/BusinessDetailsPage'
+import { BusinessesPage } from '@/pages/admin/BusinessesPage'
 import { ModuleManagementPage } from '@/pages/admin/ModuleManagementPage'
 import { PackageManagementPage } from '@/pages/admin/PackageManagementPage'
+import { PlatformSettingsPage } from '@/pages/admin/PlatformSettingsPage'
+import { PlatformTablePage } from '@/pages/admin/PlatformTablePage'
+import { SubscriptionsPage } from '@/pages/admin/SubscriptionsPage'
 import { AcceptInvitePage } from '@/pages/auth/AcceptInvitePage'
 import { CustomerRegisterPage } from '@/pages/auth/CustomerRegisterPage'
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage'
@@ -59,8 +64,17 @@ function App() {
         <Route element={<ProtectedRoute roles={['super_admin']} />}>
           <Route path="admin" element={<DashboardLayout />}>
             <Route index element={<AdminDashboardPage />} />
+            <Route path="businesses" element={<BusinessesPage />} />
+            <Route path="businesses/:businessId" element={<BusinessDetailsPage />} />
             <Route path="packages" element={<PackageManagementPage />} />
             <Route path="modules" element={<ModuleManagementPage />} />
+            <Route path="subscriptions" element={<SubscriptionsPage />} />
+            <Route path="add-ons" element={<PlatformTablePage table="business_addons" title="Add-ons" description="Paid and manual add-ons across all tenant businesses." />} />
+            <Route path="invoices" element={<PlatformTablePage table="billing_invoices" title="Billing invoices" description="Platform billing invoices, due dates, and paid status." />} />
+            <Route path="payments" element={<PlatformTablePage table="payments" title="Payments" description="All tenant payment records and payment verification status." />} />
+            <Route path="usage" element={<PlatformTablePage table="usage_counters" title="Usage limits" description="Usage counters for package limits and add-on allowances." />} />
+            <Route path="settings" element={<PlatformSettingsPage />} />
+            <Route path="audit-logs" element={<PlatformTablePage table="audit_logs" title="Audit logs" description="Platform and tenant audit history." />} />
             <Route path="*" element={<PlaceholderPage title="Admin page" description="Super admin workspace scaffold." />} />
           </Route>
         </Route>
