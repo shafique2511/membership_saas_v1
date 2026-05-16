@@ -1,7 +1,7 @@
 import { type HTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'muted'
+export type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'muted'
 
 const variants: Record<BadgeVariant, string> = {
   default: 'bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-200',

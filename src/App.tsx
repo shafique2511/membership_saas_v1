@@ -44,6 +44,18 @@ import { ProductDetailsPage } from '@/pages/business/inventory/ProductDetailsPag
 import { ProductsPage } from '@/pages/business/inventory/ProductsPage'
 import { StockAdjustmentPage, StockInPage, StockOutPage } from '@/pages/business/inventory/StockPages'
 import { StockTransferPage } from '@/pages/business/inventory/StockTransferPage'
+import { StaffListPage } from '@/pages/business/staff/StaffListPage'
+import { StaffDetailsPage } from '@/pages/business/staff/StaffDetailsPage'
+import { StaffSchedulePage } from '@/pages/business/staff/StaffSchedulePage'
+import { StaffCalendarPage } from '@/pages/business/staff/StaffCalendarPage'
+import { CommissionSettingsPage } from '@/pages/business/staff/CommissionSettingsPage'
+import { CommissionReportPage } from '@/pages/business/staff/CommissionReportPage'
+import { StaffPerformancePage } from '@/pages/business/staff/StaffPerformancePage'
+import { BranchesPage } from '@/pages/business/BranchesPage'
+import { PaymentsPage } from '@/pages/business/payments/PaymentsPage'
+import { ReportsPage } from '@/pages/business/reports/ReportsPage'
+import { MarketingPage } from '@/pages/business/marketing/MarketingPage'
+import { BusinessSettingsPage } from '@/pages/business/settings/BusinessSettingsPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -53,17 +65,6 @@ import { UsageLimitsPage } from '@/pages/business/UsageLimitsPage'
 import { CustomerBookingPage } from '@/pages/customer/CustomerBookingPage'
 import { CustomerHomePage } from '@/pages/customer/CustomerHomePage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
-
-import type { ModuleKey } from '@/types'
-
-const businessPages = [
-  ['staff', 'staff_commission', 'Staff module', 'Schedules, assigned services, performance, and commission setup.'],
-  ['payments', 'payment', 'Payment module', 'Invoices, receipts, proofs, refunds, partial payments, and gateway-ready records.'],
-  ['reports', 'reports', 'Reports module', 'Sales, booking, membership, loyalty, staff, inventory, and payment reporting.'],
-  ['marketing', 'marketing', 'Marketing module', 'Campaigns, promos, segments, broadcasts, and referral campaigns.'],
-  ['branches', 'multi_branch', 'Multi-branch module', 'Branch staff, bookings, sales, inventory, transfers, and comparisons.'],
-  ['settings', 'core', 'Settings', 'Business profile, booking rules, billing plan, security, and module settings.'],
-] as const
 
 function App() {
   return (
@@ -143,11 +144,31 @@ function App() {
               <Route path="inventory/low-stock" element={<LowStockAlertsPage />} />
               <Route path="inventory/report" element={<InventoryReportPage />} />
             </Route>
-            {businessPages.map(([path, moduleKey, title, description]) => (
-              <Route key={path} element={<ModuleRoute moduleKey={moduleKey as ModuleKey} moduleName={title} />}>
-                <Route path={path} element={<PlaceholderPage title={title} description={description} />} />
-              </Route>
-            ))}
+            <Route element={<ModuleRoute moduleKey="staff_commission" moduleName="Staff & Commission module" />}>
+              <Route path="staff" element={<StaffListPage />} />
+              <Route path="staff/list" element={<StaffListPage />} />
+              <Route path="staff/calendar" element={<StaffCalendarPage />} />
+              <Route path="staff/commissions" element={<CommissionSettingsPage />} />
+              <Route path="staff/commission-report" element={<CommissionReportPage />} />
+              <Route path="staff/performance" element={<StaffPerformancePage />} />
+              <Route path="staff/:staffId" element={<StaffDetailsPage />} />
+              <Route path="staff/:staffId/schedule" element={<StaffSchedulePage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="payment" moduleName="Payment module" />}>
+              <Route path="payments" element={<PaymentsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="reports" moduleName="Reports module" />}>
+              <Route path="reports" element={<ReportsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="marketing" moduleName="Marketing module" />}>
+              <Route path="marketing" element={<MarketingPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="multi_branch" moduleName="Multi-branch module" />}>
+              <Route path="branches" element={<BranchesPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="core" moduleName="Settings" />}>
+              <Route path="settings" element={<BusinessSettingsPage />} />
+            </Route>
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={['customer', 'super_admin']} />}>
