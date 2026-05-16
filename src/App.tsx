@@ -32,6 +32,12 @@ import { LoyaltySettingsPage } from '@/pages/business/loyalty/LoyaltySettingsPag
 import { PointsHistoryPage } from '@/pages/business/loyalty/PointsHistoryPage'
 import { ReferralRewardsPage } from '@/pages/business/loyalty/ReferralRewardsPage'
 import { RewardsCatalogPage } from '@/pages/business/loyalty/RewardsCatalogPage'
+import { POSCheckoutPage } from '@/pages/business/pos/POSCheckoutPage'
+import { POSDailyClosingPage } from '@/pages/business/pos/POSDailyClosingPage'
+import { POSOrderDetailsPage } from '@/pages/business/pos/POSOrderDetailsPage'
+import { POSOrdersPage } from '@/pages/business/pos/POSOrdersPage'
+import { POSReceiptsPage } from '@/pages/business/pos/POSReceiptsPage'
+import { POSRefundsPage } from '@/pages/business/pos/POSRefundsPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -45,7 +51,6 @@ import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import type { ModuleKey } from '@/types'
 
 const businessPages = [
-  ['pos', 'pos', 'POS module', 'Checkout for products, services, memberships, split payments, and receipts.'],
   ['inventory', 'inventory', 'Inventory module', 'Stock, suppliers, transfers, low-stock alerts, and branch inventory.'],
   ['staff', 'staff_commission', 'Staff module', 'Schedules, assigned services, performance, and commission setup.'],
   ['payments', 'payment', 'Payment module', 'Invoices, receipts, proofs, refunds, partial payments, and gateway-ready records.'],
@@ -112,6 +117,15 @@ function App() {
               <Route path="loyalty/history" element={<PointsHistoryPage />} />
               <Route path="loyalty/birthday" element={<BirthdayRewardsPage />} />
               <Route path="loyalty/referrals" element={<ReferralRewardsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="pos" moduleName="POS module" />}>
+              <Route path="pos" element={<POSCheckoutPage />} />
+              <Route path="pos/checkout" element={<POSCheckoutPage />} />
+              <Route path="pos/orders" element={<POSOrdersPage />} />
+              <Route path="pos/orders/:orderId" element={<POSOrderDetailsPage />} />
+              <Route path="pos/receipts" element={<POSReceiptsPage />} />
+              <Route path="pos/closing" element={<POSDailyClosingPage />} />
+              <Route path="pos/refunds" element={<POSRefundsPage />} />
             </Route>
             {businessPages.map(([path, moduleKey, title, description]) => (
               <Route key={path} element={<ModuleRoute moduleKey={moduleKey as ModuleKey} moduleName={title} />}>
