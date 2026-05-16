@@ -21,6 +21,7 @@ import { LoginPage } from '@/pages/auth/LoginPage'
 import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { UnauthorizedPage } from '@/pages/auth/UnauthorizedPage'
+import { BookingsPage } from '@/pages/business/BookingsPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
@@ -28,13 +29,13 @@ import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionP
 import { PackageComparisonPage } from '@/pages/business/PackageComparisonPage'
 import { UpgradePage } from '@/pages/business/UpgradePage'
 import { UsageLimitsPage } from '@/pages/business/UsageLimitsPage'
+import { CustomerBookingPage } from '@/pages/customer/CustomerBookingPage'
 import { CustomerHomePage } from '@/pages/customer/CustomerHomePage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 import type { ModuleKey } from '@/types'
 
 const businessPages = [
-  ['bookings', 'booking', 'Booking module', 'Calendar, resources, services, deposits, approvals, and walk-ins.'],
   ['memberships', 'membership', 'Membership module', 'Plans, member cards, renewals, credits, visits, and discounts.'],
   ['loyalty', 'loyalty', 'Loyalty module', 'Points, rewards, vouchers, birthday rewards, and referrals.'],
   ['pos', 'pos', 'POS module', 'Checkout for products, services, memberships, split payments, and receipts.'],
@@ -88,6 +89,9 @@ function App() {
             <Route path="add-ons" element={<AddOnManagementPage />} />
             <Route path="usage" element={<UsageLimitsPage />} />
             <Route path="packages" element={<PackageComparisonPage />} />
+            <Route element={<ModuleRoute moduleKey="booking" moduleName="Booking module" />}>
+              <Route path="bookings" element={<BookingsPage />} />
+            </Route>
             {businessPages.map(([path, moduleKey, title, description]) => (
               <Route key={path} element={<ModuleRoute moduleKey={moduleKey as ModuleKey} moduleName={title} />}>
                 <Route path={path} element={<PlaceholderPage title={title} description={description} />} />
@@ -99,6 +103,7 @@ function App() {
           <Route path="customer" element={<CustomerPortalLayout />}>
             <Route element={<ModuleRoute moduleKey="customer_portal" moduleName="Customer Portal module" />}>
               <Route index element={<CustomerHomePage />} />
+              <Route path="book" element={<CustomerBookingPage />} />
               <Route
                 path="*"
                 element={<PlaceholderPage title="Customer portal" description="Mobile-first customer pages are scaffolded." />}
