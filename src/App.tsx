@@ -26,6 +26,12 @@ import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
 import { CustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
 import { MembershipDetailsPage } from '@/pages/business/MembershipDetailsPage'
 import { MembershipPlansPage } from '@/pages/business/MembershipPlansPage'
+import { BirthdayRewardsPage } from '@/pages/business/loyalty/BirthdayRewardsPage'
+import { CustomerPointsPage } from '@/pages/business/loyalty/CustomerPointsPage'
+import { LoyaltySettingsPage } from '@/pages/business/loyalty/LoyaltySettingsPage'
+import { PointsHistoryPage } from '@/pages/business/loyalty/PointsHistoryPage'
+import { ReferralRewardsPage } from '@/pages/business/loyalty/ReferralRewardsPage'
+import { RewardsCatalogPage } from '@/pages/business/loyalty/RewardsCatalogPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -39,7 +45,6 @@ import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import type { ModuleKey } from '@/types'
 
 const businessPages = [
-  ['loyalty', 'loyalty', 'Loyalty module', 'Points, rewards, vouchers, birthday rewards, and referrals.'],
   ['pos', 'pos', 'POS module', 'Checkout for products, services, memberships, split payments, and receipts.'],
   ['inventory', 'inventory', 'Inventory module', 'Stock, suppliers, transfers, low-stock alerts, and branch inventory.'],
   ['staff', 'staff_commission', 'Staff module', 'Schedules, assigned services, performance, and commission setup.'],
@@ -98,6 +103,15 @@ function App() {
               <Route path="memberships" element={<CustomerMembershipsPage />} />
               <Route path="memberships/plans" element={<MembershipPlansPage />} />
               <Route path="memberships/:membershipId" element={<MembershipDetailsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="loyalty" moduleName="Loyalty module" />}>
+              <Route path="loyalty" element={<LoyaltySettingsPage />} />
+              <Route path="loyalty/settings" element={<LoyaltySettingsPage />} />
+              <Route path="loyalty/rewards" element={<RewardsCatalogPage />} />
+              <Route path="loyalty/points" element={<CustomerPointsPage />} />
+              <Route path="loyalty/history" element={<PointsHistoryPage />} />
+              <Route path="loyalty/birthday" element={<BirthdayRewardsPage />} />
+              <Route path="loyalty/referrals" element={<ReferralRewardsPage />} />
             </Route>
             {businessPages.map(([path, moduleKey, title, description]) => (
               <Route key={path} element={<ModuleRoute moduleKey={moduleKey as ModuleKey} moduleName={title} />}>
