@@ -85,7 +85,12 @@ import { PromoCodesPage } from '@/pages/business/marketing/PromoCodesPage'
 import { SegmentsPage } from '@/pages/business/marketing/SegmentsPage'
 import { BroadcastPage } from '@/pages/business/marketing/BroadcastPage'
 import { CampaignReportPage } from '@/pages/business/marketing/CampaignReportPage'
-import { BusinessSettingsPage } from '@/pages/business/settings/BusinessSettingsPage'
+import { BusinessProfilePage } from '@/pages/business/settings/BusinessProfilePage'
+import { BookingRulesPage } from '@/pages/business/settings/BookingRulesPage'
+import { MembershipSettingsPage } from '@/pages/business/settings/MembershipSettingsPage'
+import { StaffPermissionsPage } from '@/pages/business/settings/StaffPermissionsPage'
+import { AccountSettingsPage } from '@/pages/business/settings/AccountSettingsPage'
+import { SecuritySettingsPage } from '@/pages/business/settings/SecuritySettingsPage'
 import { WhiteLabelSettingsPage } from '@/pages/business/settings/WhiteLabelSettingsPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
@@ -238,8 +243,20 @@ function App() {
               <Route path="branches/:branchId/inventory" element={<BranchInventoryPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="core" moduleName="Settings" />}>
-              <Route path="settings" element={<BusinessSettingsPage />} />
+              <Route path="settings" element={<BusinessProfilePage />} />
+              <Route path="settings/profile" element={<BusinessProfilePage />} />
+              <Route path="settings/branches" element={<BranchesPage />} />
+              <Route path="settings/booking-rules" element={<BookingRulesPage />} />
+              <Route path="settings/membership" element={<MembershipSettingsPage />} />
+              <Route path="settings/loyalty" element={<LoyaltySettingsPage />} />
+              <Route path="settings/payment" element={<PaymentSettingsPage />} />
+              <Route path="settings/notifications" element={<NotificationTemplatesPage />} />
+              <Route path="settings/staff-permissions" element={<StaffPermissionsPage />} />
+              <Route path="settings/module-access" element={<BusinessModuleAccessPage />} />
+              <Route path="settings/billing" element={<BusinessSubscriptionPage />} />
               <Route path="settings/white-label" element={<WhiteLabelSettingsPage />} />
+              <Route path="settings/account" element={<AccountSettingsPage />} />
+              <Route path="settings/security" element={<SecuritySettingsPage />} />
             </Route>
           </Route>
         </Route>
