@@ -38,6 +38,12 @@ import { POSOrderDetailsPage } from '@/pages/business/pos/POSOrderDetailsPage'
 import { POSOrdersPage } from '@/pages/business/pos/POSOrdersPage'
 import { POSReceiptsPage } from '@/pages/business/pos/POSReceiptsPage'
 import { POSRefundsPage } from '@/pages/business/pos/POSRefundsPage'
+import { InventoryReportPage } from '@/pages/business/inventory/InventoryReportPage'
+import { LowStockAlertsPage } from '@/pages/business/inventory/LowStockAlertsPage'
+import { ProductDetailsPage } from '@/pages/business/inventory/ProductDetailsPage'
+import { ProductsPage } from '@/pages/business/inventory/ProductsPage'
+import { StockAdjustmentPage, StockInPage, StockOutPage } from '@/pages/business/inventory/StockPages'
+import { StockTransferPage } from '@/pages/business/inventory/StockTransferPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -51,7 +57,6 @@ import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import type { ModuleKey } from '@/types'
 
 const businessPages = [
-  ['inventory', 'inventory', 'Inventory module', 'Stock, suppliers, transfers, low-stock alerts, and branch inventory.'],
   ['staff', 'staff_commission', 'Staff module', 'Schedules, assigned services, performance, and commission setup.'],
   ['payments', 'payment', 'Payment module', 'Invoices, receipts, proofs, refunds, partial payments, and gateway-ready records.'],
   ['reports', 'reports', 'Reports module', 'Sales, booking, membership, loyalty, staff, inventory, and payment reporting.'],
@@ -126,6 +131,17 @@ function App() {
               <Route path="pos/receipts" element={<POSReceiptsPage />} />
               <Route path="pos/closing" element={<POSDailyClosingPage />} />
               <Route path="pos/refunds" element={<POSRefundsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="inventory" moduleName="Inventory module" />}>
+              <Route path="inventory" element={<ProductsPage />} />
+              <Route path="inventory/products" element={<ProductsPage />} />
+              <Route path="inventory/products/:productId" element={<ProductDetailsPage />} />
+              <Route path="inventory/stock-in" element={<StockInPage />} />
+              <Route path="inventory/stock-out" element={<StockOutPage />} />
+              <Route path="inventory/adjustments" element={<StockAdjustmentPage />} />
+              <Route path="inventory/transfers" element={<StockTransferPage />} />
+              <Route path="inventory/low-stock" element={<LowStockAlertsPage />} />
+              <Route path="inventory/report" element={<InventoryReportPage />} />
             </Route>
             {businessPages.map(([path, moduleKey, title, description]) => (
               <Route key={path} element={<ModuleRoute moduleKey={moduleKey as ModuleKey} moduleName={title} />}>
