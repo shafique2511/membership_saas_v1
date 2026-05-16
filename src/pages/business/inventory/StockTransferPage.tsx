@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
 import { getProducts, transferStock, type Product } from '@/services/inventory'
-import { getBranches } from '@/pages/business/inventory/StockPages'
+import { getBranches } from '@/services/branches'
 
 export function StockTransferPage() {
   const { profile, hasModule } = useAppContext()

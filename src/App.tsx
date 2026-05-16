@@ -52,6 +52,12 @@ import { CommissionSettingsPage } from '@/pages/business/staff/CommissionSetting
 import { CommissionReportPage } from '@/pages/business/staff/CommissionReportPage'
 import { StaffPerformancePage } from '@/pages/business/staff/StaffPerformancePage'
 import { BranchesPage } from '@/pages/business/BranchesPage'
+import { BranchDetailsPage } from '@/pages/business/branches/BranchDetailsPage'
+import { BranchDashboardPage } from '@/pages/business/branches/BranchDashboardPage'
+import { BranchStaffPage } from '@/pages/business/branches/BranchStaffPage'
+import { BranchBookingsPage } from '@/pages/business/branches/BranchBookingsPage'
+import { BranchInventoryPage } from '@/pages/business/branches/BranchInventoryPage'
+import { BranchComparisonReportPage } from '@/pages/business/branches/BranchComparisonReportPage'
 import { NotificationTemplatesPage } from '@/pages/business/notifications/NotificationTemplatesPage'
 import { ManualSendPage } from '@/pages/business/notifications/ManualSendPage'
 import { NotificationLogPage } from '@/pages/business/notifications/NotificationLogPage'
@@ -216,6 +222,12 @@ function App() {
             </Route>
             <Route element={<ModuleRoute moduleKey="multi_branch" moduleName="Multi-branch module" />}>
               <Route path="branches" element={<BranchesPage />} />
+              <Route path="branches/comparison" element={<BranchComparisonReportPage />} />
+              <Route path="branches/:branchId" element={<BranchDetailsPage />} />
+              <Route path="branches/:branchId/dashboard" element={<BranchDashboardPage />} />
+              <Route path="branches/:branchId/staff" element={<BranchStaffPage />} />
+              <Route path="branches/:branchId/bookings" element={<BranchBookingsPage />} />
+              <Route path="branches/:branchId/inventory" element={<BranchInventoryPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="core" moduleName="Settings" />}>
               <Route path="settings" element={<BusinessSettingsPage />} />
