@@ -6,6 +6,8 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { CustomerPortalLayout } from '@/components/layout/CustomerPortalLayout'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
+import { ModuleManagementPage } from '@/pages/admin/ModuleManagementPage'
+import { PackageManagementPage } from '@/pages/admin/PackageManagementPage'
 import { AcceptInvitePage } from '@/pages/auth/AcceptInvitePage'
 import { CustomerRegisterPage } from '@/pages/auth/CustomerRegisterPage'
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage'
@@ -14,7 +16,12 @@ import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { UnauthorizedPage } from '@/pages/auth/UnauthorizedPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
+import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
+import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
+import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
+import { PackageComparisonPage } from '@/pages/business/PackageComparisonPage'
 import { UpgradePage } from '@/pages/business/UpgradePage'
+import { UsageLimitsPage } from '@/pages/business/UsageLimitsPage'
 import { CustomerHomePage } from '@/pages/customer/CustomerHomePage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
@@ -52,6 +59,8 @@ function App() {
         <Route element={<ProtectedRoute roles={['super_admin']} />}>
           <Route path="admin" element={<DashboardLayout />}>
             <Route index element={<AdminDashboardPage />} />
+            <Route path="packages" element={<PackageManagementPage />} />
+            <Route path="modules" element={<ModuleManagementPage />} />
             <Route path="*" element={<PlaceholderPage title="Admin page" description="Super admin workspace scaffold." />} />
           </Route>
         </Route>
@@ -59,6 +68,11 @@ function App() {
           <Route path="business" element={<DashboardLayout />}>
             <Route index element={<BusinessDashboardPage />} />
             <Route path="upgrade" element={<UpgradePage />} />
+            <Route path="subscription" element={<BusinessSubscriptionPage />} />
+            <Route path="module-access" element={<BusinessModuleAccessPage />} />
+            <Route path="add-ons" element={<AddOnManagementPage />} />
+            <Route path="usage" element={<UsageLimitsPage />} />
+            <Route path="packages" element={<PackageComparisonPage />} />
             {businessPages.map(([path, moduleKey, title, description]) => (
               <Route key={path} element={<ModuleRoute moduleKey={moduleKey as ModuleKey} moduleName={title} />}>
                 <Route path={path} element={<PlaceholderPage title={title} description={description} />} />

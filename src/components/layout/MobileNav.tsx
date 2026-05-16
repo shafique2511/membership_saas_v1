@@ -1,12 +1,14 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { businessNavItems } from '@/components/layout/navigation'
+import { adminNavItems, businessNavItems } from '@/components/layout/navigation'
 import { useAppContext } from '@/context/useAppContext'
 import { cn } from '@/lib/utils'
 
 export function MobileNav() {
   const { hasModule, setSidebarOpen, sidebarOpen } = useAppContext()
+  const location = useLocation()
+  const navItems = location.pathname.startsWith('/admin') ? adminNavItems : businessNavItems
 
   if (!sidebarOpen) {
     return null
@@ -27,7 +29,7 @@ export function MobileNav() {
           </Button>
         </div>
         <nav className="space-y-1 p-4">
-          {businessNavItems.map((item) => {
+          {navItems.map((item) => {
             const enabled = item.module ? hasModule(item.module) : true
             if (!enabled) {
               return null

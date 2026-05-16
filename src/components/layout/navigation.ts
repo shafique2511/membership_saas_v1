@@ -7,6 +7,7 @@ import {
   Home,
   Megaphone,
   Package,
+  Puzzle,
   Settings,
   Shield,
   ShoppingCart,
@@ -14,6 +15,7 @@ import {
   Users,
   WalletCards,
   Warehouse,
+  Gauge,
 } from 'lucide-react'
 import type { NavItem } from '@/types'
 
@@ -29,6 +31,11 @@ export const businessNavItems: NavItem[] = [
   { label: 'Reports', href: '/business/reports', icon: BarChart3, module: 'reports' },
   { label: 'Marketing', href: '/business/marketing', icon: Megaphone, module: 'marketing' },
   { label: 'Branches', href: '/business/branches', icon: Store, module: 'multi_branch' },
+  { label: 'Subscription', href: '/business/subscription', icon: CreditCard, module: 'core' },
+  { label: 'Modules', href: '/business/module-access', icon: Puzzle, module: 'core' },
+  { label: 'Add-ons', href: '/business/add-ons', icon: Package, module: 'core' },
+  { label: 'Usage', href: '/business/usage', icon: Gauge, module: 'core' },
+  { label: 'Packages', href: '/business/packages', icon: Package, module: 'core' },
   { label: 'Settings', href: '/business/settings', icon: Settings, module: 'core' },
 ]
 

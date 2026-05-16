@@ -1,11 +1,13 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { businessNavItems } from '@/components/layout/navigation'
+import { adminNavItems, businessNavItems } from '@/components/layout/navigation'
 import { useAppContext } from '@/context/useAppContext'
 
 export function Sidebar() {
   const { hasModule } = useAppContext()
+  const location = useLocation()
+  const navItems = location.pathname.startsWith('/admin') ? adminNavItems : businessNavItems
 
   return (
     <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white lg:block dark:border-slate-800 dark:bg-slate-950">
@@ -19,7 +21,7 @@ export function Sidebar() {
         </div>
       </div>
       <nav className="space-y-1 p-4">
-        {businessNavItems.map((item) => {
+        {navItems.map((item) => {
           const enabled = item.module ? hasModule(item.module) : true
           if (!enabled) {
             return null
