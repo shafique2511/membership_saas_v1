@@ -74,7 +74,11 @@ import { InvoicesPage } from '@/pages/business/payments/InvoicesPage'
 import { ReceiptsPage } from '@/pages/business/payments/ReceiptsPage'
 import { RefundsPage } from '@/pages/business/payments/RefundsPage'
 import { PaymentSettingsPage } from '@/pages/business/payments/PaymentSettingsPage'
-import { MarketingPage } from '@/pages/business/marketing/MarketingPage'
+import { CampaignsPage } from '@/pages/business/marketing/CampaignsPage'
+import { PromoCodesPage } from '@/pages/business/marketing/PromoCodesPage'
+import { SegmentsPage } from '@/pages/business/marketing/SegmentsPage'
+import { BroadcastPage } from '@/pages/business/marketing/BroadcastPage'
+import { CampaignReportPage } from '@/pages/business/marketing/CampaignReportPage'
 import { BusinessSettingsPage } from '@/pages/business/settings/BusinessSettingsPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
@@ -204,7 +208,11 @@ function App() {
               <Route path="notifications/settings" element={<NotificationSettingsPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="marketing" moduleName="Marketing module" />}>
-              <Route path="marketing" element={<MarketingPage />} />
+              <Route path="marketing" element={<CampaignsPage />} />
+              <Route path="marketing/promos" element={<PromoCodesPage />} />
+              <Route path="marketing/segments" element={<SegmentsPage />} />
+              <Route path="marketing/broadcast" element={<BroadcastPage />} />
+              <Route path="marketing/report" element={<CampaignReportPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="multi_branch" moduleName="Multi-branch module" />}>
               <Route path="branches" element={<BranchesPage />} />
