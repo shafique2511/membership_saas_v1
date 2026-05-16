@@ -1,0 +1,41 @@
+import {
+  BarChart3,
+  Building2,
+  CalendarDays,
+  CreditCard,
+  Gift,
+  Home,
+  Megaphone,
+  Package,
+  Settings,
+  Shield,
+  ShoppingCart,
+  Store,
+  Users,
+  WalletCards,
+  Warehouse,
+} from 'lucide-react'
+import type { NavItem } from '@/types'
+
+export const businessNavItems: NavItem[] = [
+  { label: 'Dashboard', href: '/business', icon: Home, module: 'core' },
+  { label: 'Bookings', href: '/business/bookings', icon: CalendarDays, module: 'booking' },
+  { label: 'Members', href: '/business/memberships', icon: WalletCards, module: 'membership' },
+  { label: 'Loyalty', href: '/business/loyalty', icon: Gift, module: 'loyalty' },
+  { label: 'POS', href: '/business/pos', icon: ShoppingCart, module: 'pos' },
+  { label: 'Inventory', href: '/business/inventory', icon: Warehouse, module: 'inventory' },
+  { label: 'Staff', href: '/business/staff', icon: Users, module: 'staff_commission' },
+  { label: 'Payments', href: '/business/payments', icon: CreditCard, module: 'payment' },
+  { label: 'Reports', href: '/business/reports', icon: BarChart3, module: 'reports' },
+  { label: 'Marketing', href: '/business/marketing', icon: Megaphone, module: 'marketing' },
+  { label: 'Branches', href: '/business/branches', icon: Store, module: 'multi_branch' },
+  { label: 'Settings', href: '/business/settings', icon: Settings, module: 'core' },
+]
+
+export const adminNavItems: NavItem[] = [
+  { label: 'Platform', href: '/admin', icon: Shield },
+  { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
+  { label: 'Packages', href: '/admin/packages', icon: Package },
+  { label: 'Modules', href: '/admin/modules', icon: Store },
+  { label: 'Billing', href: '/admin/billing', icon: CreditCard },
+]
