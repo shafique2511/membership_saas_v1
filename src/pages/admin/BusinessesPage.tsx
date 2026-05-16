@@ -7,12 +7,12 @@ import { DataTable } from '@/components/ui/DataTable'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { activateBusiness, createBusiness, listBusinesses, suspendBusiness, type BusinessRow } from '@/services/admin'
+import { activateBusiness, createBusinessWithSubscription, listBusinesses, suspendBusiness, type BusinessRow } from '@/services/admin'
 
 export function BusinessesPage() {
   const [businesses, setBusinesses] = useState<BusinessRow[]>([])
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState({ name: '', business_type: 'barber_shop', email: '', phone: '' })
+  const [form, setForm] = useState({ name: '', business_type: 'barber_shop', email: '', phone: '', package_slug: 'starter', skip_trial: false })
 
   async function load() {
     setBusinesses(await listBusinesses())
@@ -24,9 +24,16 @@ export function BusinessesPage() {
   }, [])
 
   async function handleCreate() {
-    await createBusiness(form)
+    await createBusinessWithSubscription({
+      name: form.name,
+      business_type: form.business_type,
+      email: form.email || undefined,
+      phone: form.phone || undefined,
+      package_slug: form.package_slug,
+      skip_trial: form.skip_trial,
+    })
     setOpen(false)
-    setForm({ name: '', business_type: 'barber_shop', email: '', phone: '' })
+    setForm({ name: '', business_type: 'barber_shop', email: '', phone: '', package_slug: 'starter', skip_trial: false })
     await load()
   }
 
@@ -75,6 +82,14 @@ export function BusinessesPage() {
           </select>
           <Input placeholder="Email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
           <Input placeholder="Phone" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
+          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.package_slug} onChange={(event) => setForm({ ...form, package_slug: event.target.value })}>
+            <option value="starter">Starter</option>
+            <option value="growth">Growth</option>
+            <option value="pro">Pro</option>
+            <option value="business_suite">Business Suite</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.skip_trial} onChange={(event) => setForm({ ...form, skip_trial: event.target.checked })} /> Skip trial (activate immediately)</label>
         </form>
       </FormModal>
     </div>

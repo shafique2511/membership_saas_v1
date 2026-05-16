@@ -8,23 +8,41 @@ import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { packageCatalog } from '@/services/packageCatalog'
-import { getPackages, type PackageRow } from '@/services/packageSystem'
-import { createPackage, deletePackage, updatePackage } from '@/services/admin'
+import { getPackages, getModules } from '@/services/packageSystem'
+import { createPackage, deletePackage, updatePackage, listPackageModulesByPackage, assignModuleToPackage, removeModuleFromPackage } from '@/services/admin'
 
 export function PackageManagementPage() {
-  const [packages, setPackages] = useState<PackageRow[]>([])
+  const [packages, setPackages] = useState<Record<string, unknown>[]>([])
+  const [modules, setModules] = useState<Record<string, unknown>[]>([])
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', slug: '', description: '', monthly_price: '0', yearly_price: '0', setup_fee: '0', sort_order: '0' })
 
+  const [selectedPkgId, setSelectedPkgId] = useState<string | null>(null)
+  const [packageModules, setPackageModules] = useState<Record<string, unknown>[]>([])
+  const [openModuleAssign, setOpenModuleAssign] = useState(false)
+  const [moduleAssignForm, setModuleAssignForm] = useState({ module_key: 'booking', access_level: 'basic' })
+
   async function load() {
-    setPackages(await getPackages())
+    setPackages(await getPackages() as unknown as Record<string, unknown>[])
+  }
+
+  async function loadModules() {
+    setModules(await getModules() as unknown as Record<string, unknown>[])
   }
 
   useEffect(() => {
-    const task = window.setTimeout(() => void load().catch(() => setPackages([])), 0)
+    const task = window.setTimeout(() => { void load().catch(() => setPackages([])); void loadModules().catch(() => setModules([])) }, 0)
     return () => window.clearTimeout(task)
   }, [])
+
+  useEffect(() => {
+    if (selectedPkgId) {
+      void listPackageModulesByPackage(selectedPkgId).then((data) => setPackageModules(data as unknown as Record<string, unknown>[])).catch(() => setPackageModules([]))
+    } else {
+      setPackageModules([])
+    }
+  }, [selectedPkgId])
 
   const displayPackages = packages.length
     ? packages
@@ -40,11 +58,30 @@ export function PackageManagementPage() {
         sort_order: index,
       }))
 
+  const assignedModuleKeys = new Set(packageModules.map((pm) => String((pm.modules as Record<string, unknown> | undefined)?.module_key ?? '')))
+  const availableModules = modules.filter((m) => !assignedModuleKeys.has(String(m.module_key)))
+
+  async function handleAssignModule() {
+    await assignModuleToPackage(selectedPkgId!, moduleAssignForm.module_key, moduleAssignForm.access_level)
+    setOpenModuleAssign(false)
+    if (selectedPkgId) {
+      setPackageModules(await listPackageModulesByPackage(selectedPkgId) as unknown as Record<string, unknown>[])
+    }
+  }
+
+  async function handleRemoveModule(moduleKey: string) {
+    if (!selectedPkgId) return
+    await removeModuleFromPackage(selectedPkgId, moduleKey)
+    setPackageModules(await listPackageModulesByPackage(selectedPkgId) as unknown as Record<string, unknown>[])
+  }
+
+  const selectedPackage = selectedPkgId ? packages.find((p) => String(p.id) === selectedPkgId) : null
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Package management"
-        description="Create packages, set monthly/yearly prices, assign package rules, and manage sellable package order."
+        description="Create packages, set monthly/yearly prices, assign module rules, and manage package order."
         actions={<Button onClick={() => { setEditingId(null); setOpen(true) }}>Create package</Button>}
       />
       <DataTable
@@ -59,6 +96,9 @@ export function PackageManagementPage() {
             header: 'Actions',
             render: (row) => (
               <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => {
+                  setSelectedPkgId(String(row.id))
+                }}>{selectedPkgId === String(row.id) ? 'Selected' : 'Modules'}</Button>
                 <Button size="sm" variant="outline" onClick={() => {
                   setEditingId(String(row.id))
                   setForm({
@@ -79,6 +119,30 @@ export function PackageManagementPage() {
         ]}
         data={displayPackages as unknown as Record<string, unknown>[]}
       />
+      {selectedPkgId && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Module rules: {String(selectedPackage?.name ?? '') || selectedPkgId}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <DataTable columns={[
+              { key: 'module_key', header: 'Module', render: (row) => {
+                const mod = row.modules as Record<string, unknown> | undefined
+                return mod ? String(mod.module_name ?? mod.module_key) : '-'
+              }},
+              { key: 'access_level', header: 'Access', render: (row) => <Badge>{String(row.access_level)}</Badge> },
+              { key: 'is_enabled', header: 'Status', render: (row) => <StatusBadge status={row.is_enabled ? 'enabled' : 'disabled'} /> },
+              { key: 'actions', header: '', render: (row) => {
+                const mod = row.modules as Record<string, unknown> | undefined
+                return <Button size="sm" variant="destructive" onClick={() => void handleRemoveModule(String(mod?.module_key ?? ''))}>Remove</Button>
+              }},
+            ]} data={packageModules} emptyMessage="No modules assigned to this package." />
+            <Button onClick={() => setOpenModuleAssign(true)} disabled={availableModules.length === 0}>
+              Assign module
+            </Button>
+          </CardContent>
+        </Card>
+      )}
       <div className="grid gap-4 lg:grid-cols-5">
         {packageCatalog.map((item) => (
           <Card key={item.key}>
@@ -122,6 +186,19 @@ export function PackageManagementPage() {
           <Input type="number" placeholder="Yearly price" value={form.yearly_price} onChange={(event) => setForm({ ...form, yearly_price: event.target.value })} />
           <Input type="number" placeholder="Setup fee" value={form.setup_fee} onChange={(event) => setForm({ ...form, setup_fee: event.target.value })} />
           <Input type="number" placeholder="Sort order" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} />
+        </div>
+      </FormModal>
+
+      <FormModal open={openModuleAssign} title="Assign module to package" submitLabel="Assign" onSubmit={handleAssignModule} onOpenChange={setOpenModuleAssign}>
+        <div className="space-y-3">
+          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleAssignForm.module_key} onChange={(event) => setModuleAssignForm({ ...moduleAssignForm, module_key: event.target.value })}>
+            {availableModules.map((m) => (
+              <option key={String(m.id)} value={String(m.module_key)}>{String(m.module_name)} ({String(m.module_key)})</option>
+            ))}
+          </select>
+          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleAssignForm.access_level} onChange={(event) => setModuleAssignForm({ ...moduleAssignForm, access_level: event.target.value })}>
+            <option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
+          </select>
         </div>
       </FormModal>
     </div>

@@ -110,7 +110,7 @@ export async function listBusinesses() {
 }
 
 export async function getBusinessDetails(businessId: string) {
-  const [business, users, subscription, modules, usage, invoices] = await Promise.all([
+  const [business, users, subscription, modules, usage, invoices, addons] = await Promise.all([
     supabase.from('businesses').select('*').eq('id', businessId).single(),
     supabase.from('user_profiles').select('*').eq('business_id', businessId).order('created_at', { ascending: false }),
     supabase
@@ -121,6 +121,7 @@ export async function getBusinessDetails(businessId: string) {
     supabase.from('business_module_access').select('*').eq('business_id', businessId).order('module_key'),
     supabase.from('usage_counters').select('*').eq('business_id', businessId).order('period_start', { ascending: false }),
     supabase.from('billing_invoices').select('*').eq('business_id', businessId).order('created_at', { ascending: false }),
+    supabase.from('business_addons').select('*').eq('business_id', businessId).order('created_at', { ascending: false }),
   ])
 
   if (business.error) throw business.error
@@ -129,6 +130,7 @@ export async function getBusinessDetails(businessId: string) {
   if (modules.error) throw modules.error
   if (usage.error) throw usage.error
   if (invoices.error) throw invoices.error
+  if (addons.error) throw addons.error
 
   return {
     business: business.data,
@@ -137,6 +139,7 @@ export async function getBusinessDetails(businessId: string) {
     modules: modules.data ?? [],
     usage: usage.data ?? [],
     invoices: invoices.data ?? [],
+    addons: addons.data ?? [],
   }
 }
 
@@ -147,6 +150,27 @@ export async function createBusiness(input: {
   phone?: string
 }) {
   const { data, error } = await supabase.from('businesses').insert(input).select('*').single()
+  if (error) throw error
+  return data
+}
+
+export async function createBusinessWithSubscription(input: {
+  name: string
+  business_type: string
+  email?: string
+  phone?: string
+  package_slug?: string
+  skip_trial?: boolean
+}) {
+  const { data, error } = await supabase.rpc('create_business_with_subscription', {
+    target_name: input.name,
+    target_business_type: input.business_type,
+    target_email: input.email ?? null,
+    target_phone: input.phone ?? null,
+    target_timezone: 'Asia/Kuala_Lumpur',
+    target_package_slug: input.package_slug ?? 'starter',
+    skip_trial: input.skip_trial ?? false,
+  })
   if (error) throw error
   return data
 }
@@ -188,6 +212,65 @@ export async function updateSubscription(subscriptionId: string, input: Record<s
 
   if (error) throw error
   return data
+}
+
+export async function changeBusinessPackage(businessId: string, packageId: string) {
+  const { data, error } = await supabase.rpc('apply_business_package', {
+    target_business_id: businessId,
+    target_package_id: packageId,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function listAddons() {
+  const { data, error } = await supabase
+    .from('business_addons')
+    .select('*,businesses(name)')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function listInvoices() {
+  const { data, error } = await supabase
+    .from('billing_invoices')
+    .select('*,businesses(name)')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function listPayments() {
+  const { data, error } = await supabase
+    .from('payments')
+    .select('*,businesses(name)')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function listUsageCounters() {
+  const { data, error } = await supabase
+    .from('usage_counters')
+    .select('*,businesses(name)')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function listAuditLogs() {
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('*,businesses(name)')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
 }
 
 export async function listPlatformRows(tableName: 'business_addons' | 'billing_invoices' | 'payments' | 'usage_counters' | 'audit_logs') {
@@ -271,5 +354,103 @@ export async function createPaidAddon(input: {
     end_date: input.end_date,
   })
 
+  return data
+}
+
+export async function createAddonViaRpc(input: {
+  business_id: string
+  module_key: ModuleKey
+  name: string
+  access_level: string
+  price: number
+}) {
+  const { data, error } = await supabase.rpc('create_paid_addon', {
+    target_business_id: input.business_id,
+    target_module_key: input.module_key,
+    target_name: input.name,
+    target_access_level: input.access_level,
+    target_price: input.price,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function cancelAddon(addonId: string) {
+  const { data, error } = await supabase
+    .from('business_addons')
+    .update({ status: 'cancelled', end_date: new Date().toISOString().slice(0, 10) })
+    .eq('id', addonId)
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function listPackageModulesByPackage(packageId: string) {
+  const { data, error } = await supabase
+    .from('package_modules')
+    .select('*,modules(module_key,module_name,category)')
+    .eq('package_id', packageId)
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function assignModuleToPackage(packageId: string, moduleKey: string, accessLevel: string, limitConfig: Record<string, unknown> = {}) {
+  const { data, error } = await supabase.rpc('assign_package_modules', {
+    target_package_id: packageId,
+    target_module_key: moduleKey,
+    target_access_level: accessLevel,
+    target_limit_config: limitConfig,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function removeModuleFromPackage(packageId: string, moduleKey: string) {
+  const { data, error } = await supabase.rpc('remove_package_module', {
+    target_package_id: packageId,
+    target_module_key: moduleKey,
+  })
+  if (error) throw error
+  return data
+}
+
+export interface PlatformSettings {
+  trial_days: number
+  currency: string
+  default_timezone: string
+  allow_owner_registration: boolean
+  require_module_access_checks: boolean
+  track_usage_limits: boolean
+}
+
+export async function getPlatformSettings(): Promise<PlatformSettings | null> {
+  const { data, error } = await supabase.from('platform_settings').select('*').single()
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw error
+  }
+  return data as PlatformSettings
+}
+
+export async function savePlatformSettings(settings: Partial<PlatformSettings>) {
+  const { data, error } = await supabase.from('platform_settings').update(settings).eq('id', 1).select('*').single()
+  if (error) throw error
+  return data as PlatformSettings
+}
+
+export async function createInvoice(input: {
+  business_id: string
+  amount: number
+  due_date?: string
+}) {
+  const { data, error } = await supabase.rpc('create_billing_invoice', {
+    target_business_id: input.business_id,
+    target_amount: input.amount,
+    target_due_date: input.due_date ?? null,
+  })
+  if (error) throw error
   return data
 }
