@@ -86,6 +86,7 @@ import { SegmentsPage } from '@/pages/business/marketing/SegmentsPage'
 import { BroadcastPage } from '@/pages/business/marketing/BroadcastPage'
 import { CampaignReportPage } from '@/pages/business/marketing/CampaignReportPage'
 import { BusinessSettingsPage } from '@/pages/business/settings/BusinessSettingsPage'
+import { WhiteLabelSettingsPage } from '@/pages/business/settings/WhiteLabelSettingsPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -238,6 +239,7 @@ function App() {
             </Route>
             <Route element={<ModuleRoute moduleKey="core" moduleName="Settings" />}>
               <Route path="settings" element={<BusinessSettingsPage />} />
+              <Route path="settings/white-label" element={<WhiteLabelSettingsPage />} />
             </Route>
           </Route>
         </Route>

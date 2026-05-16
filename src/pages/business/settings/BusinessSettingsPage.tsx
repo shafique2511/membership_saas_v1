@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { getBusiness, updateBusiness, type Business } from '@/services/businessSettings'
+import { Paintbrush } from 'lucide-react'
 
 const businessTypes = ['barber_shop', 'coffee_shop', 'salon', 'spa', 'clinic', 'event_space', 'custom'] as const
 
@@ -91,6 +93,14 @@ export function BusinessSettingsPage() {
             </CardContent>
           </Card>
         )}
+        <Link to="/business/settings/white-label">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardHeader><CardTitle className="flex items-center gap-2"><Paintbrush className="h-4 w-4" /> White label</CardTitle></CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-500">Custom brand name, logo, colors, and domain settings.</p>
+            </CardContent>
+          </Card>
+        </Link>
         <Card>
           <CardHeader><CardTitle>Subscription</CardTitle></CardHeader>
           <CardContent>
