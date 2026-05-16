@@ -1,25 +1,61 @@
-import { Link } from 'react-router-dom'
+import { useState, type FormEvent } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useAppContext } from '@/context/useAppContext'
+import { signInWithEmail } from '@/services/auth'
 
 export function LoginPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { refreshAuth } = useAppContext()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const { error: loginError } = await signInWithEmail(email, password)
+
+    if (loginError) {
+      setError(loginError.message)
+      setLoading(false)
+      return
+    }
+
+    await refreshAuth()
+    const from = (location.state as { from?: string } | null)?.from ?? '/business'
+    navigate(from, { replace: true })
+    setLoading(false)
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-semibold">Sign in</h1>
       <p className="mt-2 text-sm text-slate-500">Access your business workspace.</p>
-      <form className="mt-6 space-y-4">
-        <Input type="email" placeholder="Email address" />
-        <Input type="password" placeholder="Password" />
-        <Button className="w-full">Sign in</Button>
+      <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <Input required type="email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
+        <Input required type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        <Button className="w-full" type="submit" disabled={loading}>
+          {loading ? 'Signing in...' : 'Sign in'}
+        </Button>
       </form>
       <div className="mt-4 flex items-center justify-between text-sm">
         <Link className="text-teal-700 dark:text-teal-300" to="/auth/forgot-password">
           Forgot password?
         </Link>
         <Link className="text-teal-700 dark:text-teal-300" to="/auth/register">
-          Register
+          Register business
         </Link>
       </div>
+      <Link className="mt-4 inline-block text-sm text-teal-700 dark:text-teal-300" to="/auth/customer-register">
+        Customer registration
+      </Link>
     </div>
   )
 }

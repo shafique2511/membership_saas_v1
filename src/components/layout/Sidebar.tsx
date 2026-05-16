@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LockKeyhole, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { businessNavItems } from '@/components/layout/navigation'
 import { useAppContext } from '@/context/useAppContext'
@@ -21,20 +21,23 @@ export function Sidebar() {
       <nav className="space-y-1 p-4">
         {businessNavItems.map((item) => {
           const enabled = item.module ? hasModule(item.module) : true
+          if (!enabled) {
+            return null
+          }
+
           return (
             <NavLink
               key={item.href}
-              to={enabled ? item.href : '/business/upgrade'}
+              to={item.href}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800',
-                  isActive && enabled && 'bg-teal-50 text-teal-800 dark:bg-teal-500/10 dark:text-teal-200',
+                  isActive && 'bg-teal-50 text-teal-800 dark:bg-teal-500/10 dark:text-teal-200',
                 )
               }
             >
               <item.icon className="h-4 w-4" />
               <span className="flex-1">{item.label}</span>
-              {!enabled ? <LockKeyhole className="h-3.5 w-3.5 text-amber-600" /> : null}
             </NavLink>
           )
         })}

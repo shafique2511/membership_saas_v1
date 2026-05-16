@@ -29,15 +29,19 @@ export function MobileNav() {
         <nav className="space-y-1 p-4">
           {businessNavItems.map((item) => {
             const enabled = item.module ? hasModule(item.module) : true
+            if (!enabled) {
+              return null
+            }
+
             return (
               <NavLink
                 key={item.href}
-                to={enabled ? item.href : '/business/upgrade'}
+                to={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium',
-                    isActive && enabled
+                    isActive
                       ? 'bg-teal-50 text-teal-800 dark:bg-teal-500/10 dark:text-teal-200'
                       : 'text-slate-600 dark:text-slate-300',
                   )

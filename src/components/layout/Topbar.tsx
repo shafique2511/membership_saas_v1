@@ -1,9 +1,16 @@
-import { Bell, Menu, Moon, Sun } from 'lucide-react'
+import { Bell, LogOut, Menu, Moon, Sun } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useAppContext } from '@/context/useAppContext'
 
 export function Topbar() {
-  const { darkMode, setSidebarOpen, toggleDarkMode } = useAppContext()
+  const navigate = useNavigate()
+  const { darkMode, logout, profile, setSidebarOpen, toggleDarkMode } = useAppContext()
+
+  async function handleLogout() {
+    await logout()
+    navigate('/auth/login', { replace: true })
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur lg:px-6 dark:border-slate-800 dark:bg-slate-950/95">
@@ -23,8 +30,16 @@ export function Topbar() {
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <Bell className="h-4 w-4" />
         </Button>
+        <Button variant="ghost" size="icon" aria-label="Logout" onClick={handleLogout}>
+          <LogOut className="h-4 w-4" />
+        </Button>
         <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-sm font-semibold text-white sm:flex">
-          LB
+          {profile?.full_name
+            ?.split(' ')
+            .map((part) => part[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase() ?? 'LM'}
         </div>
       </div>
     </header>

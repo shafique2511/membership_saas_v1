@@ -30,6 +30,50 @@ export type ModuleKey =
 
 export type PackageKey = 'starter' | 'growth' | 'pro' | 'business_suite' | 'enterprise'
 
+export type Permission =
+  | 'platform.access'
+  | 'business.manage'
+  | 'business.delete'
+  | 'staff.manage'
+  | 'customers.manage'
+  | 'customers.view_basic'
+  | 'bookings.manage'
+  | 'bookings.view_assigned'
+  | 'bookings.update_status'
+  | 'bookings.create_walk_in'
+  | 'memberships.manage'
+  | 'reports.manage'
+  | 'settings.manage'
+  | 'billing.manage'
+  | 'packages.manage'
+  | 'modules.manage'
+  | 'subscriptions.manage'
+  | 'module_access.override'
+  | 'customer.profile.view'
+  | 'customer.booking.create'
+  | 'customer.membership.view'
+  | 'customer.rewards.view'
+  | 'customer.history.view'
+
+export interface UserProfile {
+  id: string
+  business_id: string | null
+  branch_id: string | null
+  full_name: string
+  email: string
+  phone: string | null
+  role: UserRole
+  avatar_url: string | null
+  status: string
+  created_at: string
+  updated_at: string
+}
+
+export interface AuthResult {
+  success: boolean
+  message?: string
+}
+
 export interface NavItem {
   label: string
   href: string
