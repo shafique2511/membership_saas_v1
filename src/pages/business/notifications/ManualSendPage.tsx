@@ -1,0 +1,127 @@
+import { useState } from 'react'
+import { useAppContext } from '@/context/useAppContext'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { NotificationTabs } from './NotificationTabs'
+import { sendNotification, NOTIFICATION_TYPES, CHANNELS, ALL_VARIABLES, renderTemplate } from '@/services/notifications'
+
+export function ManualSendPage() {
+  const { profile } = useAppContext()
+  const businessId = profile?.business_id ?? ''
+  const [channel, setChannel] = useState('in_app')
+  const [type, setType] = useState('booking_confirmation')
+  const [recipient, setRecipient] = useState('')
+  const [title, setTitle] = useState('')
+  const [message, setMessage] = useState('')
+  const [sending, setSending] = useState(false)
+  const [result, setResult] = useState<string | null>(null)
+
+  const insertVar = (v: string) => {
+    setMessage((prev) => prev + `{${v}}`)
+  }
+
+  async function handleSend() {
+    if (!message) return
+    setSending(true)
+    setResult(null)
+    const ok = await sendNotification(businessId, {
+      channel,
+      notificationType: type,
+      title: title || type.replace(/_/g, ' '),
+      message,
+      recipient: recipient || undefined,
+    })
+    setResult(ok ? 'Sent successfully' : 'Failed to send')
+    setSending(false)
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold">Manual Send</h2>
+        <p className="text-sm text-slate-500">Compose and send a notification manually.</p>
+      </div>
+      <NotificationTabs />
+      <div className="max-w-xl">
+        <Card>
+          <CardHeader><CardTitle>Compose</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Channel</label>
+                <select
+                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                  value={channel}
+                  onChange={(e) => setChannel(e.target.value)}
+                >
+                  {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Type</label>
+                <select
+                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                >
+                  {NOTIFICATION_TYPES.map((t) => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Recipient</label>
+              <input
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                placeholder="email@example.com / phone number"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Title</label>
+              <input
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Message</label>
+              <textarea
+                className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm font-mono"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Insert variable:</p>
+              <div className="flex flex-wrap gap-1">
+                {ALL_VARIABLES.map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    className="text-xs bg-muted px-2 py-0.5 rounded hover:bg-primary/10"
+                    onClick={() => insertVar(v)}
+                  >{`{${v}}`}</button>
+                ))}
+              </div>
+            </div>
+            {message.includes('{') && (
+              <div className="border-t pt-2">
+                <p className="text-xs text-muted-foreground mb-1">Preview:</p>
+                <p className="text-sm bg-muted p-2 rounded">{renderTemplate(message, { customer_name: 'John', business_name: profile?.business_id ? 'Your Business' : 'N/A', booking_date: '2026-06-01', booking_time: '14:00', service_name: 'Haircut', staff_name: 'Staff', membership_name: 'Gold', expiry_date: '2026-07-01', amount: 'RM 100', payment_status: 'Paid' })}</p>
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => { setMessage(''); setTitle(''); setRecipient(''); setResult(null) }}>Clear</Button>
+              <Button onClick={handleSend} disabled={sending || !message}>
+                {sending ? 'Sending...' : 'Send'}
+              </Button>
+            </div>
+            {result && <p className={`text-sm ${result.includes('Success') ? 'text-emerald-600' : 'text-red-600'}`}>{result}</p>}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}

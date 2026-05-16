@@ -52,6 +52,11 @@ import { CommissionSettingsPage } from '@/pages/business/staff/CommissionSetting
 import { CommissionReportPage } from '@/pages/business/staff/CommissionReportPage'
 import { StaffPerformancePage } from '@/pages/business/staff/StaffPerformancePage'
 import { BranchesPage } from '@/pages/business/BranchesPage'
+import { NotificationTemplatesPage } from '@/pages/business/notifications/NotificationTemplatesPage'
+import { ManualSendPage } from '@/pages/business/notifications/ManualSendPage'
+import { NotificationLogPage } from '@/pages/business/notifications/NotificationLogPage'
+import { BroadcastsPage } from '@/pages/business/notifications/BroadcastsPage'
+import { NotificationSettingsPage } from '@/pages/business/notifications/NotificationSettingsPage'
 import { PaymentsPage } from '@/pages/business/payments/PaymentsPage'
 import { PaymentDetailsPage } from '@/pages/business/payments/PaymentDetailsPage'
 import { PendingVerificationPage } from '@/pages/business/payments/PendingVerificationPage'
@@ -172,6 +177,13 @@ function App() {
 
             <Route element={<ModuleRoute moduleKey="reports" moduleName="Reports module" />}>
               <Route path="reports" element={<ReportsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="notification" moduleName="Notification module" />}>
+              <Route path="notifications" element={<NotificationTemplatesPage />} />
+              <Route path="notifications/send" element={<ManualSendPage />} />
+              <Route path="notifications/log" element={<NotificationLogPage />} />
+              <Route path="notifications/broadcasts" element={<BroadcastsPage />} />
+              <Route path="notifications/settings" element={<NotificationSettingsPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="marketing" moduleName="Marketing module" />}>
               <Route path="marketing" element={<MarketingPage />} />
