@@ -53,6 +53,12 @@ import { CommissionReportPage } from '@/pages/business/staff/CommissionReportPag
 import { StaffPerformancePage } from '@/pages/business/staff/StaffPerformancePage'
 import { BranchesPage } from '@/pages/business/BranchesPage'
 import { PaymentsPage } from '@/pages/business/payments/PaymentsPage'
+import { PaymentDetailsPage } from '@/pages/business/payments/PaymentDetailsPage'
+import { PendingVerificationPage } from '@/pages/business/payments/PendingVerificationPage'
+import { InvoicesPage } from '@/pages/business/payments/InvoicesPage'
+import { ReceiptsPage } from '@/pages/business/payments/ReceiptsPage'
+import { RefundsPage } from '@/pages/business/payments/RefundsPage'
+import { PaymentSettingsPage } from '@/pages/business/payments/PaymentSettingsPage'
 import { ReportsPage } from '@/pages/business/reports/ReportsPage'
 import { MarketingPage } from '@/pages/business/marketing/MarketingPage'
 import { BusinessSettingsPage } from '@/pages/business/settings/BusinessSettingsPage'
@@ -156,7 +162,14 @@ function App() {
             </Route>
             <Route element={<ModuleRoute moduleKey="payment" moduleName="Payment module" />}>
               <Route path="payments" element={<PaymentsPage />} />
+              <Route path="payments/pending" element={<PendingVerificationPage />} />
+              <Route path="payments/invoices" element={<InvoicesPage />} />
+              <Route path="payments/receipts" element={<ReceiptsPage />} />
+              <Route path="payments/refunds" element={<RefundsPage />} />
+              <Route path="payments/settings" element={<PaymentSettingsPage />} />
+              <Route path="payments/:paymentId" element={<PaymentDetailsPage />} />
             </Route>
+
             <Route element={<ModuleRoute moduleKey="reports" moduleName="Reports module" />}>
               <Route path="reports" element={<ReportsPage />} />
             </Route>
