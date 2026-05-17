@@ -42,6 +42,18 @@ export interface StaffPermission {
   is_granted: boolean
 }
 
+export interface StaffUserPermission {
+  id: string
+  staff_id: string
+  permission_key: string
+  is_granted: boolean
+  staff?: {
+    full_name: string
+    email: string | null
+    role: string
+  }
+}
+
 export async function getBookingRules(businessId: string): Promise<BookingRules | null> {
   const { data } = await supabase.rpc('get_booking_rules', { p_business_id: businessId })
   return data as BookingRules | null
@@ -98,6 +110,24 @@ export async function setStaffPermission(businessId: string, role: string, permi
   const { error } = await supabase.rpc('set_staff_permission', {
     p_business_id: businessId,
     p_role: role,
+    p_permission_key: permissionKey,
+    p_is_granted: isGranted,
+  })
+  if (error) throw error
+}
+
+export async function getStaffUserPermissions(businessId: string, staffId?: string): Promise<StaffUserPermission[]> {
+  const { data } = await supabase.rpc('get_staff_user_permissions', {
+    p_business_id: businessId,
+    p_staff_id: staffId ?? null,
+  })
+  return (data as StaffUserPermission[]) ?? []
+}
+
+export async function setStaffUserPermission(businessId: string, staffId: string, permissionKey: string, isGranted: boolean): Promise<void> {
+  const { error } = await supabase.rpc('set_staff_user_permission', {
+    p_business_id: businessId,
+    p_staff_id: staffId,
     p_permission_key: permissionKey,
     p_is_granted: isGranted,
   })

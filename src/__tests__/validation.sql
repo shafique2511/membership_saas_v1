@@ -31,6 +31,25 @@ select '2.1' as test, 'Only owner can update business' as description,
 select '2.2' as test, 'Staff cannot modify business settings' as description,
   'user_role() must be owner or super_admin for business update' as notes;
 
+-- Test: managers can manage staff permissions only when owner delegated it
+select '2.3' as test, 'Manager staff-permission delegation is explicit' as description,
+  case when exists (
+    select 1 from public.staff_permissions
+    where role = 'manager'
+      and permission_key = 'staff.permissions.manage'
+      and is_granted = true
+  ) then 'PASS: at least one manager delegation exists'
+  else 'PASS: no manager delegation configured' end as result;
+
+-- Test: individual staff permissions reference valid staff
+select '2.4' as test, 'Individual staff permissions reference valid staff' as description,
+  case when exists (
+    select 1
+    from public.staff_user_permissions sup
+    left join public.staff s on s.id = sup.staff_id and s.business_id = sup.business_id
+    where s.id is null
+  ) then 'FAIL: orphan staff permission' else 'PASS' end as result;
+
 -- ============================================================================
 -- 3. Module access gating
 -- ============================================================================

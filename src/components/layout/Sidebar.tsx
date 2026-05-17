@@ -39,7 +39,7 @@ function NavSection({ section, onClick }: { section: { title: string; items: Nav
 }
 
 export function Sidebar() {
-  const { hasModule } = useAppContext()
+  const { canAccessModule } = useAppContext()
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
   const sections = isAdmin ? adminNavSections : businessNavSections
@@ -47,7 +47,7 @@ export function Sidebar() {
   const filteredSections = sections
     .map((s) => ({
       ...s,
-      items: s.items.filter((item) => !item.module || hasModule(item.module)),
+      items: s.items.filter((item) => !item.module || canAccessModule(item.module)),
     }))
     .filter((s) => s.items.length > 0)
 

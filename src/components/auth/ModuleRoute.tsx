@@ -11,13 +11,13 @@ interface ModuleRouteProps {
 }
 
 export function ModuleRoute({ moduleKey, moduleName }: ModuleRouteProps) {
-  const { hasModule, loading, profile } = useAppContext()
+  const { canAccessModule, loading, profile } = useAppContext()
 
   if (loading) {
     return <LoadingState label="Checking module access" />
   }
 
-  if (profile?.role === 'super_admin' || hasModule(moduleKey)) {
+  if (profile?.role === 'super_admin' || canAccessModule(moduleKey)) {
     return <Outlet />
   }
 

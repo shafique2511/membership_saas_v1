@@ -6,7 +6,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { cn } from '@/lib/utils'
 
 export function MobileNav() {
-  const { hasModule, setSidebarOpen, sidebarOpen } = useAppContext()
+  const { canAccessModule, setSidebarOpen, sidebarOpen } = useAppContext()
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
   const sections = isAdmin ? adminNavSections : businessNavSections
@@ -36,7 +36,7 @@ export function MobileNav() {
         </div>
         <nav className="space-y-5 overflow-y-auto p-4">
           {sections.map((section) => {
-            const items = section.items.filter((item) => !item.module || hasModule(item.module))
+            const items = section.items.filter((item) => !item.module || canAccessModule(item.module))
             if (items.length === 0) return null
             return (
               <div key={section.title}>

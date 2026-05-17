@@ -13,6 +13,7 @@ export interface AppContextValue {
   setSidebarOpen: (open: boolean) => void
   toggleDarkMode: () => void
   hasModule: (module: ModuleKey) => boolean
+  canAccessModule: (module: ModuleKey) => boolean
   hasRole: (role: UserRole | UserRole[]) => boolean
   hasPermission: (permission: Permission) => boolean
   refreshAuth: () => Promise<void>
