@@ -167,7 +167,7 @@ export function BookingsPage() {
       resource_id: form.resource_id || undefined,
       branch_id: form.branch_id || undefined,
     }).then(setAvailableSlots).catch(() => setAvailableSlots([]))
-  }, [businessId, form.booking_date, form.service_id, form.staff_id, form.resource_id, openCreate, openEdit])
+  }, [businessId, form.booking_date, form.service_id, form.staff_id, form.resource_id, form.branch_id, openCreate, openEdit])
 
   async function handleCreateCustomer() {
     const c = await createCustomer({

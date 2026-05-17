@@ -149,10 +149,14 @@ export async function validatePromoCode(businessId: string, code: string, amount
   if (now > data.end_date) return { valid: false, message: 'Promo code has expired' }
   if (data.min_purchase > 0 && amount < Number(data.min_purchase)) return { valid: false, message: `Minimum purchase of ${data.min_purchase} required` }
 
-  let discount = 0
-  if (data.discount_type === 'percentage') discount = amount * (Number(data.discount_value) / 100)
-  else if (data.discount_type === 'fixed') discount = Number(data.discount_value)
-  else return { valid: false, message: 'Promo code type not applicable' }
+  const discount =
+    data.discount_type === 'percentage'
+      ? amount * (Number(data.discount_value) / 100)
+      : data.discount_type === 'fixed'
+        ? Number(data.discount_value)
+        : null
+
+  if (discount === null) return { valid: false, message: 'Promo code type not applicable' }
 
   return { valid: true, discount: Math.min(discount, amount) }
 }

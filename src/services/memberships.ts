@@ -256,7 +256,7 @@ export async function recordUsage(input: {
         .from('memberships')
         .update({
           remaining_visits: Math.max(0, (mem.remaining_visits ?? 0) - (input.visits_used ?? 0)),
-          remaining_credit: Math.max(0, (Number(mem.remaining_credit) ?? 0) - Number(input.amount_used ?? 0)),
+          remaining_credit: Math.max(0, Number(mem.remaining_credit ?? 0) - Number(input.amount_used ?? 0)),
         })
         .eq('id', input.membership_id)
     }
