@@ -17,6 +17,7 @@ import {
   UserRound,
   PiggyBank,
   FileText,
+  Database,
   LayoutDashboard,
   type LucideIcon,
 } from 'lucide-react'
@@ -80,6 +81,7 @@ export const businessNavSections: NavSection[] = [
       { label: 'Add-ons', href: '/business/add-ons', icon: Package, module: 'core' },
       { label: 'Usage', href: '/business/usage', icon: Gauge, module: 'core' },
       { label: 'Settings', href: '/business/settings', icon: Settings, module: 'core' },
+      { label: 'Data & Backup', href: '/business/settings/data-ownership', icon: Database, module: 'data_ownership_backup' },
     ],
   },
 ]
@@ -113,6 +115,7 @@ export const adminNavSections: NavSection[] = [
     items: [
       { label: 'Usage', href: '/admin/usage', icon: Gauge },
       { label: 'Audit logs', href: '/admin/audit-logs', icon: FileText },
+      { label: 'Data governance', href: '/admin/data-governance', icon: Database },
       { label: 'Settings', href: '/admin/settings', icon: Settings },
     ],
   },

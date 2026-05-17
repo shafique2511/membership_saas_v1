@@ -74,6 +74,26 @@ select '3.3' as test, 'has_module_access blocks unassigned modules' as descripti
   case when public.has_module_access('a0000000-0000-0000-0000-000000000002', 'inventory') then 'FAIL'
   else 'PASS' end as result;
 
+select '3.4' as test, 'Data Ownership & Backup module exists' as description,
+  case when exists (
+    select 1 from public.modules
+    where module_key = 'data_ownership_backup'
+      and is_active = true
+  ) then 'PASS' else 'FAIL' end as result;
+
+select '3.5' as test, 'Active businesses have Data Ownership & Backup access' as description,
+  case when exists (
+    select 1
+    from public.businesses b
+    where b.status = 'active'
+      and not exists (
+        select 1 from public.business_module_access bma
+        where bma.business_id = b.id
+          and bma.module_key = 'data_ownership_backup'
+          and bma.is_enabled = true
+      )
+  ) then 'FAIL' else 'PASS' end as result;
+
 -- ============================================================================
 -- 4. Customer data isolation
 -- ============================================================================
@@ -274,6 +294,23 @@ select '13.1' as test, 'Paid payments have paid_at' as description,
     select 1 from public.payments
     where status = 'paid' and paid_at is null
   ) then 'FAIL: missing paid_at' else 'PASS' end as result;
+
+-- ============================================================================
+-- 14. Data ownership, exports, and backup logs
+-- ============================================================================
+select '14.1' as test, 'Business export logs reference valid businesses' as description,
+  case when exists (
+    select 1
+    from public.data_export_requests der
+    left join public.businesses b on b.id = der.business_id
+    where b.id is null
+  ) then 'FAIL: orphan export log' else 'PASS' end as result;
+
+select '14.2' as test, 'Platform backup logs have valid status' as description,
+  case when exists (
+    select 1 from public.platform_backup_logs
+    where status not in ('planned', 'running', 'completed', 'failed', 'verified')
+  ) then 'FAIL: invalid backup status' else 'PASS' end as result;
 
 -- ============================================================================
 -- Summary

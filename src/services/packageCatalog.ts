@@ -31,6 +31,7 @@ export const packageCatalog: PackageDefinition[] = [
     monthlyPrice: 'RM 99',
     modules: [
       { module: 'core', access: 'unlimited' },
+      { module: 'data_ownership_backup', access: 'unlimited' },
       { module: 'booking', access: 'basic' },
       { module: 'customer_portal', access: 'basic' },
       { module: 'reports', access: 'basic' },
@@ -44,6 +45,7 @@ export const packageCatalog: PackageDefinition[] = [
     monthlyPrice: 'RM 199',
     modules: [
       { module: 'core', access: 'unlimited' },
+      { module: 'data_ownership_backup', access: 'unlimited' },
       { module: 'booking', access: 'pro' },
       { module: 'membership', access: 'basic' },
       { module: 'loyalty', access: 'basic' },
@@ -60,6 +62,7 @@ export const packageCatalog: PackageDefinition[] = [
     monthlyPrice: 'RM 399',
     modules: [
       { module: 'core', access: 'unlimited' },
+      { module: 'data_ownership_backup', access: 'unlimited' },
       { module: 'booking', access: 'pro' },
       { module: 'membership', access: 'pro' },
       { module: 'loyalty', access: 'pro' },
@@ -86,6 +89,7 @@ export const packageCatalog: PackageDefinition[] = [
     monthlyPrice: 'RM 699',
     modules: [
       { module: 'core', access: 'unlimited' },
+      { module: 'data_ownership_backup', access: 'unlimited' },
       { module: 'booking', access: 'advanced' },
       { module: 'membership', access: 'advanced' },
       { module: 'loyalty', access: 'advanced' },
@@ -114,6 +118,7 @@ export const packageCatalog: PackageDefinition[] = [
     monthlyPrice: 'Custom',
     modules: [
       { module: 'core', access: 'unlimited' },
+      { module: 'data_ownership_backup', access: 'unlimited' },
       { module: 'booking', access: 'unlimited' },
       { module: 'membership', access: 'unlimited' },
       { module: 'loyalty', access: 'unlimited' },
@@ -154,6 +159,7 @@ export const moduleLabels: Record<ModuleKey, string> = {
   multi_branch: 'Multi-Branch',
   customer_portal: 'Customer Portal',
   white_label: 'White Label',
+  data_ownership_backup: 'Data Ownership & Backup',
 }
 
 export function getPackageDefinition(packageKey: PackageKey) {

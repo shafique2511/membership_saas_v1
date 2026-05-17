@@ -55,6 +55,8 @@ or public.customer_owns_record(customer_id)
 - Platform settings, packages, modules, and billing controls are super admin managed.
 - Role permission changes are owner-only.
 - Individual staff permission changes are owner-only unless the owner grants a manager `staff.permissions.manage`.
+- Business export logs are tenant-readable and require `data_ownership_backup` plus `data.export`.
+- Platform backup logs are super-admin only.
 
 ## Locked Module Protection
 

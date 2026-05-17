@@ -41,6 +41,13 @@ Permission setup:
 4. Assign individual staff access for POS, bookings, inventory, payments, reports, memberships, and other modules.
 5. Test with a staff login before launch.
 
+Data ownership:
+
+1. Open Settings > Data & Backup.
+2. Review the ownership and shutdown policy.
+3. Export business data when needed for backup, audit, migration, or offboarding.
+4. Keep exported files secure because they may contain customer personal data.
+
 ## Manager
 
 Managers can operate most business workflows depending on configured permissions:

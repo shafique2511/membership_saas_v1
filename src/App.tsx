@@ -9,6 +9,7 @@ import { AddOnsManagementPage } from '@/pages/admin/AddOnsManagementPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { BusinessDetailsPage } from '@/pages/admin/BusinessDetailsPage'
 import { BusinessesPage } from '@/pages/admin/BusinessesPage'
+import { DataGovernancePage } from '@/pages/admin/DataGovernancePage'
 import { ModuleManagementPage } from '@/pages/admin/ModuleManagementPage'
 import { PackageManagementPage } from '@/pages/admin/PackageManagementPage'
 import { PlatformSettingsPage } from '@/pages/admin/PlatformSettingsPage'
@@ -92,6 +93,7 @@ import { StaffPermissionsPage } from '@/pages/business/settings/StaffPermissions
 import { AccountSettingsPage } from '@/pages/business/settings/AccountSettingsPage'
 import { SecuritySettingsPage } from '@/pages/business/settings/SecuritySettingsPage'
 import { WhiteLabelSettingsPage } from '@/pages/business/settings/WhiteLabelSettingsPage'
+import { DataOwnershipPage } from '@/pages/business/settings/DataOwnershipPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -137,6 +139,7 @@ function App() {
             <Route path="payments" element={<PlatformTablePage table="payments" title="Payments" description="All tenant payment records and payment verification status." showBusinessName />} />
             <Route path="usage" element={<PlatformTablePage table="usage_counters" title="Usage limits" description="Usage counters for package limits and add-on allowances." showBusinessName />} />
             <Route path="settings" element={<PlatformSettingsPage />} />
+            <Route path="data-governance" element={<DataGovernancePage />} />
             <Route path="audit-logs" element={<PlatformTablePage table="audit_logs" title="Audit logs" description="Platform and tenant audit history." showBusinessName />} />
             <Route path="*" element={<PlaceholderPage title="Admin page" description="Super admin workspace scaffold." />} />
           </Route>
@@ -257,6 +260,9 @@ function App() {
               <Route path="settings/white-label" element={<WhiteLabelSettingsPage />} />
               <Route path="settings/account" element={<AccountSettingsPage />} />
               <Route path="settings/security" element={<SecuritySettingsPage />} />
+            </Route>
+            <Route element={<ModuleRoute moduleKey="data_ownership_backup" moduleName="Data Ownership & Backup module" />}>
+              <Route path="settings/data-ownership" element={<DataOwnershipPage />} />
             </Route>
           </Route>
         </Route>

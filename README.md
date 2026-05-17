@@ -56,6 +56,7 @@ npm run build
 - [MODULE_SYSTEM_GUIDE.md](./MODULE_SYSTEM_GUIDE.md)
 - [PACKAGE_PRICING_GUIDE.md](./PACKAGE_PRICING_GUIDE.md)
 - [USER_GUIDE.md](./USER_GUIDE.md)
+- [DATA_OWNERSHIP_BACKUP_POLICY.md](./DATA_OWNERSHIP_BACKUP_POLICY.md)
 
 ## SQL Deliverables
 
@@ -63,6 +64,7 @@ npm run build
 - Seed data: `supabase/seed/phase_2_seed.sql`, `supabase/seed/phase_4_package_rules.sql`, `supabase/seed/202605170001_phase_22_seed_data.sql`
 - RLS policies: embedded in the migration files, especially `supabase/migrations/202605160001_phase_2_schema.sql` and later module migrations
 - Staff permission hardening: `supabase/migrations/202605170001_phase_24_staff_permission_hardening.sql`
+- Data ownership module: `supabase/migrations/202605170002_phase_25_data_ownership_backup.sql`
 - Validation SQL: `src/__tests__/validation.sql`
 
 ## Production Readiness Checklist

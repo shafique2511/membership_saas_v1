@@ -15,6 +15,7 @@ const tabs = [
   { href: '/business/settings/white-label', label: 'Branding' },
   { href: '/business/settings/account', label: 'Account' },
   { href: '/business/settings/security', label: 'Security' },
+  { href: '/business/settings/data-ownership', label: 'Data & Backup' },
 ]
 
 export function SettingsTabs() {

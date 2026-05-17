@@ -32,6 +32,8 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
     'marketing.manage',
     'branches.manage',
     'white_label.manage',
+    'data.export',
+    'data.backup.manage',
     'settings.manage',
     'settings.view',
     'billing.manage',
@@ -70,6 +72,7 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
     'marketing.manage',
     'branches.manage',
     'white_label.manage',
+    'data.export',
     'settings.manage',
     'settings.view',
     'billing.manage',
@@ -135,6 +138,7 @@ export const modulePermissionMap: Partial<Record<ModuleKey, Permission>> = {
   multi_branch: 'branches.manage',
   customer_portal: 'customer.profile.view',
   white_label: 'white_label.manage',
+  data_ownership_backup: 'data.export',
 }
 
 export const moduleRequiredPackages: Partial<Record<ModuleKey, string>> = {

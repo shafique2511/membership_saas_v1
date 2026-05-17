@@ -53,6 +53,7 @@ Required settings:
 5. Configure backups.
 6. Create or promote the first super admin.
 7. Validate RLS with `src/__tests__/validation.sql`.
+8. Verify the Data Ownership & Backup module exists and is enabled for active businesses.
 
 ## Smoke Test
 
@@ -83,3 +84,4 @@ After deployment:
 - For database changes, use Supabase point-in-time recovery or a manual backup.
 - Do not run destructive migrations without a restore plan.
 - Treat package/pricing changes as configuration changes and export current package mappings before edits.
+- Log full platform backups in `/admin/data-governance` and keep backup files outside the frontend deployment.

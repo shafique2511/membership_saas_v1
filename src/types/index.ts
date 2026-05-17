@@ -27,6 +27,7 @@ export type ModuleKey =
   | 'multi_branch'
   | 'customer_portal'
   | 'white_label'
+  | 'data_ownership_backup'
 
 export type PackageKey = 'starter' | 'growth' | 'pro' | 'business_suite' | 'enterprise'
 
@@ -66,6 +67,8 @@ export type Permission =
   | 'marketing.manage'
   | 'branches.manage'
   | 'white_label.manage'
+  | 'data.export'
+  | 'data.backup.manage'
   | 'settings.manage'
   | 'settings.view'
   | 'billing.manage'

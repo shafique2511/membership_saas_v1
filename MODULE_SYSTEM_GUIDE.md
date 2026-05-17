@@ -24,6 +24,8 @@ AND individual staff permission allows it when the user is staff
 - `public.usage_counters`: current usage against configured limits
 - `public.staff_permissions`: owner-managed role permissions for managers and staff
 - `public.staff_user_permissions`: owner/authorized-manager managed permissions for individual staff users
+- `public.data_export_requests`: business export audit log
+- `public.platform_backup_logs`: super-admin platform backup and shutdown log
 
 ## Module Keys
 
@@ -42,6 +44,7 @@ marketing
 multi_branch
 customer_portal
 white_label
+data_ownership_backup
 ```
 
 ## Frontend Enforcement
@@ -63,6 +66,8 @@ public.has_module_access(business_id, 'module_key')
 This protects data access even if a user bypasses the UI.
 
 Managers can manage individual staff permissions only when the owner grants `staff.permissions.manage` to the manager role. Managers cannot grant owner-only permissions or edit manager permissions.
+
+The `data_ownership_backup` module is enabled for every package by default because data export is a business ownership right. Staff and managers still need explicit `data.export` permission to use it.
 
 ## Access Sources
 

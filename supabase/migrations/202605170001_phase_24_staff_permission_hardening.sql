@@ -143,6 +143,7 @@ as $$
     when 'multi_branch' then 'branches.manage'
     when 'customer_portal' then 'customer.profile.view'
     when 'white_label' then 'white_label.manage'
+    when 'data_ownership_backup' then 'data.export'
     else null
   end
 $$;

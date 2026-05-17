@@ -133,7 +133,7 @@ select v_barber_biz_id, m.module_key,
 from public.modules m
 left join public.package_modules pm on pm.package_id = v_pro_pkg_id and pm.module_id = m.id
 where m.is_active = true
-  and m.module_key in ('core', 'booking', 'membership', 'loyalty', 'pos', 'inventory', 'staff_commission', 'payment', 'notification', 'reports', 'marketing', 'customer_portal')
+  and m.module_key in ('core', 'data_ownership_backup', 'booking', 'membership', 'loyalty', 'pos', 'inventory', 'staff_commission', 'payment', 'notification', 'reports', 'marketing', 'customer_portal')
 on conflict (business_id, module_key, source) do update set access_level = excluded.access_level, is_enabled = excluded.is_enabled, limit_config = excluded.limit_config;
 
 -- Enable modules for coffee (Growth level)
@@ -148,7 +148,7 @@ select v_coffee_biz_id, m.module_key,
 from public.modules m
 left join public.package_modules pm on pm.package_id = v_growth_pkg_id and pm.module_id = m.id
 where m.is_active = true
-  and m.module_key in ('core', 'booking', 'membership', 'loyalty', 'payment', 'customer_portal', 'reports')
+  and m.module_key in ('core', 'data_ownership_backup', 'booking', 'membership', 'loyalty', 'payment', 'customer_portal', 'reports')
 on conflict (business_id, module_key, source) do update set access_level = excluded.access_level, is_enabled = excluded.is_enabled, limit_config = excluded.limit_config;
 
 -- ============================================================================

@@ -23,6 +23,7 @@ Apply every migration in `supabase/migrations` by filename order:
 202605160016_phase_19_white_label.sql
 202605160017_phase_20_settings.sql
 202605170001_phase_24_staff_permission_hardening.sql
+202605170002_phase_25_data_ownership_backup.sql
 ```
 
 Then apply seed files:
@@ -67,6 +68,7 @@ The complete schema is the ordered set of migration files in `supabase/migration
 - RLS enablement and policies
 - RPC functions used by service code
 - Delegated manager and individual staff permission functions
+- Data ownership export logs and platform backup logs
 
 ## Seed Data
 

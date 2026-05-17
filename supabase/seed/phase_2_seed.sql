@@ -19,6 +19,7 @@ on conflict (slug) do update set
 insert into public.modules (module_key, module_name, description, category, is_core, sort_order)
 values
   ('core', 'Core Business System', 'Business profile, customers, settings, base dashboard, and tenant controls.', 'platform', true, 10),
+  ('data_ownership_backup', 'Data Ownership & Backup', 'Business data ownership policies, export tools, backup logs, migration support, and shutdown procedures.', 'governance', true, 15),
   ('booking', 'Booking Module', 'Appointments, tables, rooms, events, walk-ins, statuses, deposits, and public booking.', 'operations', false, 20),
   ('membership', 'Membership Module', 'Membership plans, credits, visit packages, renewals, expiry, and member benefits.', 'membership', false, 30),
   ('loyalty', 'Loyalty & Rewards Module', 'Points, redemption, vouchers, birthday rewards, referrals, and reward history.', 'membership', false, 40),
@@ -43,11 +44,13 @@ on conflict (module_key) do update set
 with package_rules(package_slug, module_key, access_level, limit_config, is_enabled) as (
   values
     ('starter', 'core', 'basic', '{"branches":1,"staff":3,"customers":500}'::jsonb, true),
+    ('starter', 'data_ownership_backup', 'unlimited', '{}'::jsonb, true),
     ('starter', 'booking', 'basic', '{"bookings_per_month":300,"resources":3}'::jsonb, true),
     ('starter', 'customer_portal', 'basic', '{"public_pages":1}'::jsonb, true),
     ('starter', 'reports', 'basic', '{"export":false,"retention_months":3}'::jsonb, true),
 
     ('growth', 'core', 'basic', '{"branches":1,"staff":8,"customers":2000}'::jsonb, true),
+    ('growth', 'data_ownership_backup', 'unlimited', '{}'::jsonb, true),
     ('growth', 'booking', 'basic', '{"bookings_per_month":1000,"resources":10}'::jsonb, true),
     ('growth', 'membership', 'basic', '{"plans":5,"active_members":1000}'::jsonb, true),
     ('growth', 'loyalty', 'basic', '{"rewards":10}'::jsonb, true),
@@ -56,6 +59,7 @@ with package_rules(package_slug, module_key, access_level, limit_config, is_enab
     ('growth', 'reports', 'basic', '{"export":false,"retention_months":6}'::jsonb, true),
 
     ('pro', 'core', 'pro', '{"branches":1,"staff":25,"customers":10000}'::jsonb, true),
+    ('pro', 'data_ownership_backup', 'unlimited', '{}'::jsonb, true),
     ('pro', 'booking', 'pro', '{"bookings_per_month":5000,"resources":30}'::jsonb, true),
     ('pro', 'membership', 'pro', '{"plans":25,"active_members":5000}'::jsonb, true),
     ('pro', 'loyalty', 'pro', '{"rewards":50}'::jsonb, true),
@@ -68,6 +72,7 @@ with package_rules(package_slug, module_key, access_level, limit_config, is_enab
     ('pro', 'customer_portal', 'pro', '{"public_pages":1,"member_login":true}'::jsonb, true),
 
     ('business_suite', 'core', 'advanced', '{"branches":3,"staff":100,"customers":50000}'::jsonb, true),
+    ('business_suite', 'data_ownership_backup', 'unlimited', '{}'::jsonb, true),
     ('business_suite', 'booking', 'advanced', '{"bookings_per_month":20000,"resources":100,"approval_rules":true}'::jsonb, true),
     ('business_suite', 'membership', 'advanced', '{"plans":100,"active_members":25000,"freezing":true}'::jsonb, true),
     ('business_suite', 'loyalty', 'advanced', '{"rewards":200,"referrals":true}'::jsonb, true),
@@ -82,6 +87,7 @@ with package_rules(package_slug, module_key, access_level, limit_config, is_enab
     ('business_suite', 'customer_portal', 'advanced', '{"public_pages":3,"member_login":true,"custom_branding":true}'::jsonb, true),
 
     ('enterprise', 'core', 'unlimited', '{"custom_limits":true}'::jsonb, true),
+    ('enterprise', 'data_ownership_backup', 'unlimited', '{}'::jsonb, true),
     ('enterprise', 'booking', 'unlimited', '{"custom_limits":true}'::jsonb, true),
     ('enterprise', 'membership', 'unlimited', '{"custom_limits":true}'::jsonb, true),
     ('enterprise', 'loyalty', 'unlimited', '{"custom_limits":true}'::jsonb, true),
