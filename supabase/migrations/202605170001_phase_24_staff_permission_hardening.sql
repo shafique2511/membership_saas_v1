@@ -234,6 +234,122 @@ as $$
   )
 $$;
 
+-- Package-limit triggers enforce business entitlements, not the permissions of the
+-- currently authenticated dashboard user. This keeps seeds, service operations,
+-- and backend automation from failing after has_module_access became user-aware.
+create or replace function public.enforce_branch_package_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  existing_count int;
+begin
+  if not public.business_has_module_access(new.business_id, 'core')
+    and exists (select 1 from public.business_module_access where business_id = new.business_id)
+  then
+    raise exception 'Core module is not enabled for this business' using errcode = 'P0001';
+  end if;
+
+  select count(*) into existing_count
+  from public.branches
+  where business_id = new.business_id;
+
+  perform public.assert_business_limit(new.business_id, 'core', 'branches', existing_count);
+  perform public.upsert_usage_counter(new.business_id, 'core', 'branches', 1, public.get_business_limit(new.business_id, 'core', 'branches'));
+  return new;
+end;
+$$;
+
+create or replace function public.enforce_staff_package_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  existing_count int;
+begin
+  if not public.business_has_module_access(new.business_id, 'core') then
+    raise exception 'Core module is not enabled for this business' using errcode = 'P0001';
+  end if;
+
+  select count(*) into existing_count
+  from public.staff
+  where business_id = new.business_id
+    and status = 'active';
+
+  perform public.assert_business_limit(new.business_id, 'core', 'staff', existing_count);
+  perform public.upsert_usage_counter(new.business_id, 'core', 'staff', 1, public.get_business_limit(new.business_id, 'core', 'staff'));
+  return new;
+end;
+$$;
+
+create or replace function public.enforce_customer_package_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  existing_count int;
+begin
+  if not public.business_has_module_access(new.business_id, 'core') then
+    raise exception 'Core module is not enabled for this business' using errcode = 'P0001';
+  end if;
+
+  select count(*) into existing_count
+  from public.customers
+  where business_id = new.business_id
+    and status = 'active';
+
+  perform public.assert_business_limit(new.business_id, 'core', 'customers', existing_count);
+  perform public.upsert_usage_counter(new.business_id, 'core', 'customers', 1, public.get_business_limit(new.business_id, 'core', 'customers'));
+  return new;
+end;
+$$;
+
+create or replace function public.enforce_booking_package_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.business_has_module_access(new.business_id, 'booking') then
+    raise exception 'Booking module is not enabled for this business' using errcode = 'P0001';
+  end if;
+
+  perform public.assert_monthly_usage_limit(new.business_id, 'booking', 'bookings_per_month', 'bookings_per_month');
+  return new;
+end;
+$$;
+
+create or replace function public.enforce_notification_package_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.business_has_module_access(new.business_id, 'notification') then
+    raise exception 'Notification module is not enabled for this business' using errcode = 'P0001';
+  end if;
+
+  if new.channel = 'whatsapp' then
+    perform public.assert_monthly_usage_limit(
+      new.business_id,
+      'notification',
+      'whatsapp_messages_per_month',
+      'whatsapp_messages_per_month'
+    );
+  end if;
+
+  return new;
+end;
+$$;
+
 create or replace function public.get_staff_user_permissions(p_business_id uuid, p_staff_id uuid default null)
 returns jsonb
 language sql
