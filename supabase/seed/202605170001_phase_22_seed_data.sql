@@ -377,8 +377,8 @@ select id into v_order1_id from public.pos_orders where order_number = 'POS-BR-2
 -- Barber POS order items (haircut service + pomade product)
 insert into public.pos_order_items (id, order_id, item_type, item_name, quantity, unit_price, total_price)
 values
-  ('poi000000-0000-0000-0000-000000000001', v_order1_id, 'service', 'Classic Haircut', 1, 25.00, 25.00),
-  ('poi000000-0000-0000-0000-000000000002', v_order1_id, 'product', 'Pomade Classic', 1, 35.00, 35.00)
+  ('c2000000-0000-0000-0000-000000000001', v_order1_id, 'service', 'Classic Haircut', 1, 25.00, 25.00),
+  ('c2000000-0000-0000-0000-000000000002', v_order1_id, 'product', 'Pomade Classic', 1, 35.00, 35.00)
 on conflict (id) do nothing;
 
 -- Coffee POS order (completed, paid)
@@ -392,8 +392,8 @@ select id into v_order2_id from public.pos_orders where order_number = 'POS-CF-2
 -- Coffee POS order items
 insert into public.pos_order_items (id, order_id, item_type, item_name, quantity, unit_price, total_price)
 values
-  ('poi000000-0000-0000-0000-000000000003', v_order2_id, 'product', 'Signature Latte', 2, 12.00, 24.00),
-  ('poi000000-0000-0000-0000-000000000004', v_order2_id, 'product', 'Breakfast Set', 1, 17.00, 17.00)
+  ('c2000000-0000-0000-0000-000000000003', v_order2_id, 'product', 'Signature Latte', 2, 12.00, 24.00),
+  ('c2000000-0000-0000-0000-000000000004', v_order2_id, 'product', 'Breakfast Set', 1, 17.00, 17.00)
 on conflict (id) do nothing;
 
 -- ============================================================================
