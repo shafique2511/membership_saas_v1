@@ -29,6 +29,7 @@ import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { UnauthorizedPage } from '@/pages/auth/UnauthorizedPage'
 import { BookingsPage } from '@/pages/business/BookingsPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
+import { BusinessSetupWizardPage } from '@/pages/business/BusinessSetupWizardPage'
 import { CustomerMembershipsPage as BizCustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
 import { MembershipDetailsPage } from '@/pages/business/MembershipDetailsPage'
 import { MembershipPlansPage } from '@/pages/business/MembershipPlansPage'
@@ -177,10 +178,12 @@ function App() {
         <Route element={<ProtectedRoute roles={['owner', 'manager', 'staff', 'super_admin']} />}>
           <Route path="app">
             <Route path="dashboard" element={<Navigate to="/business" replace />} />
+            <Route path="setup" element={<BusinessSetupWizardPage />} />
             <Route path="staff/dashboard" element={<Navigate to="/business/staff" replace />} />
           </Route>
           <Route path="business" element={<DashboardLayout />}>
             <Route index element={<BusinessDashboardPage />} />
+            <Route path="setup" element={<BusinessSetupWizardPage />} />
             <Route path="upgrade" element={<UpgradePage />} />
             <Route path="subscription" element={<BusinessSubscriptionPage />} />
             <Route path="module-access" element={<BusinessModuleAccessPage />} />

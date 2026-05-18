@@ -22,7 +22,7 @@ export function RegisterPage() {
 
     try {
       await registerBusinessOwner({ businessName, businessType, ownerName, email, password })
-      navigate('/business')
+      navigate('/app/setup')
     } catch (registerError) {
       setError(registerError instanceof Error ? registerError.message : 'Unable to create workspace.')
     } finally {
