@@ -28,6 +28,7 @@ export type ModuleKey =
   | 'customer_portal'
   | 'white_label'
   | 'data_ownership_backup'
+  | 'ai_assistant'
 
 export type PackageKey = 'starter' | 'growth' | 'pro' | 'business_suite' | 'enterprise'
 
@@ -69,6 +70,7 @@ export type Permission =
   | 'white_label.manage'
   | 'data.export'
   | 'data.backup.manage'
+  | 'ai.assistant.access'
   | 'settings.manage'
   | 'settings.view'
   | 'billing.manage'

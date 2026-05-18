@@ -11,6 +11,7 @@ export interface PackageLimitRule {
   branches?: number | 'custom'
   bookingsPerMonth?: number | 'custom'
   whatsappMessagesPerMonth?: number | 'custom'
+  customDomain?: boolean
   prioritySupport?: boolean
 }
 
@@ -132,6 +133,7 @@ export const packageCatalog: PackageDefinition[] = [
       { module: 'marketing', access: 'unlimited' },
       { module: 'multi_branch', access: 'advanced' },
       { module: 'white_label', access: 'unlimited' },
+      { module: 'ai_assistant', access: 'unlimited' },
     ],
     limits: {
       customers: 'custom',
@@ -139,6 +141,7 @@ export const packageCatalog: PackageDefinition[] = [
       branches: 'custom',
       bookingsPerMonth: 'custom',
       whatsappMessagesPerMonth: 'custom',
+      customDomain: true,
       prioritySupport: true,
     },
   },
@@ -160,6 +163,7 @@ export const moduleLabels: Record<ModuleKey, string> = {
   customer_portal: 'Customer Portal',
   white_label: 'White Label',
   data_ownership_backup: 'Data Ownership & Backup',
+  ai_assistant: 'AI Assistant',
 }
 
 export function getPackageDefinition(packageKey: PackageKey) {

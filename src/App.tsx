@@ -261,6 +261,9 @@ function App() {
               <Route path="marketing/broadcast" element={<BroadcastPage />} />
               <Route path="marketing/report" element={<CampaignReportPage />} />
             </Route>
+            <Route element={<ModuleRoute moduleKey="ai_assistant" moduleName="AI Assistant module" />}>
+              <Route path="ai-assistant" element={<PlaceholderPage title="AI Assistant" description="AI assistant workspace for enterprise automation and operational help." />} />
+            </Route>
             <Route element={<ModuleRoute moduleKey="multi_branch" moduleName="Multi-branch module" />}>
               <Route path="branches" element={<BranchesPage />} />
               <Route path="branches/comparison" element={<BranchComparisonReportPage />} />

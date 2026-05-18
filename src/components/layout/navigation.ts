@@ -18,6 +18,7 @@ import {
   PiggyBank,
   FileText,
   Database,
+  Bot,
   LayoutDashboard,
   type LucideIcon,
 } from 'lucide-react'
@@ -71,6 +72,7 @@ export const businessNavSections: NavSection[] = [
     items: [
       { label: 'Marketing', href: '/business/marketing', icon: Megaphone, module: 'marketing' },
       { label: 'Reports', href: '/business/reports', icon: BarChart3, module: 'reports' },
+      { label: 'AI Assistant', href: '/business/ai-assistant', icon: Bot, module: 'ai_assistant' },
     ],
   },
   {

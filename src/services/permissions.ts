@@ -39,6 +39,7 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
     'white_label.manage',
     'data.export',
     'data.backup.manage',
+    'ai.assistant.access',
     'settings.manage',
     'settings.view',
     'billing.manage',
@@ -79,6 +80,7 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
     'white_label.manage',
     'data.export',
     'data.backup.manage',
+    'ai.assistant.access',
     'settings.manage',
     'settings.view',
     'billing.manage',
@@ -145,6 +147,7 @@ export const modulePermissionMap: Partial<Record<ModuleKey, Permission>> = {
   customer_portal: 'customer.profile.view',
   white_label: 'white_label.manage',
   data_ownership_backup: 'data.export',
+  ai_assistant: 'ai.assistant.access',
 }
 
 export const moduleRequiredPackages: Partial<Record<ModuleKey, string>> = {
@@ -162,6 +165,7 @@ export const moduleRequiredPackages: Partial<Record<ModuleKey, string>> = {
   marketing: 'Business Suite',
   multi_branch: 'Business Suite',
   white_label: 'Enterprise',
+  ai_assistant: 'Enterprise',
 }
 
 export function roleHasPermission(role: UserRole | undefined, permission: Permission) {
