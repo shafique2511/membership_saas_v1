@@ -456,20 +456,20 @@ on conflict (business_id) do nothing;
 -- Notification templates (seed defaults)
 -- ============================================================================
 -- Insert 5 essential templates for barber
-insert into public.notification_templates (business_id, template_key, name, channel, subject, body, variables)
-select v_barber_biz_id, 'booking_confirmation', 'Booking Confirmation', 'email', 'Your booking at Classic Barber House is confirmed', 'Hi {{customer_name}}, your {{service_name}} booking on {{booking_date}} at {{booking_time}} with {{staff_name}} is confirmed. Thank you!', '["customer_name","service_name","booking_date","booking_time","staff_name","business_name"]'::jsonb
+insert into public.notification_templates (business_id, notification_type, channel, subject, body, variables, is_default)
+select v_barber_biz_id, 'booking_confirmation', 'email', 'Your booking at Classic Barber House is confirmed', 'Hi {{customer_name}}, your {{service_name}} booking on {{booking_date}} at {{booking_time}} with {{staff_name}} is confirmed. Thank you!', '["customer_name","service_name","booking_date","booking_time","staff_name","business_name"]'::jsonb, true
 where exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'notification_templates')
-on conflict (business_id, template_key, channel) do nothing;
+on conflict (business_id, notification_type, channel) do nothing;
 
-insert into public.notification_templates (business_id, template_key, name, channel, subject, body, variables)
-select v_barber_biz_id, 'booking_reminder', 'Booking Reminder', 'email', 'Reminder: Upcoming booking tomorrow', 'Hi {{customer_name}}, this is a reminder for your {{service_name}} booking tomorrow at {{booking_time}}. See you at Classic Barber House!', '["customer_name","service_name","booking_time","business_name"]'::jsonb
+insert into public.notification_templates (business_id, notification_type, channel, subject, body, variables, is_default)
+select v_barber_biz_id, 'booking_reminder', 'email', 'Reminder: Upcoming booking tomorrow', 'Hi {{customer_name}}, this is a reminder for your {{service_name}} booking tomorrow at {{booking_time}}. See you at Classic Barber House!', '["customer_name","service_name","booking_time","business_name"]'::jsonb, true
 where exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'notification_templates')
-on conflict (business_id, template_key, channel) do nothing;
+on conflict (business_id, notification_type, channel) do nothing;
 
-insert into public.notification_templates (business_id, template_key, name, channel, subject, body, variables)
-select v_barber_biz_id, 'membership_expiry', 'Membership Expiry Warning', 'email', 'Your membership is expiring soon', 'Hi {{customer_name}}, your {{membership_name}} membership will expire on {{expiry_date}}. Renew now to keep enjoying your benefits!', '["customer_name","membership_name","expiry_date","business_name"]'::jsonb
+insert into public.notification_templates (business_id, notification_type, channel, subject, body, variables, is_default)
+select v_barber_biz_id, 'membership_expiry', 'email', 'Your membership is expiring soon', 'Hi {{customer_name}}, your {{membership_name}} membership will expire on {{expiry_date}}. Renew now to keep enjoying your benefits!', '["customer_name","membership_name","expiry_date","business_name"]'::jsonb, true
 where exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'notification_templates')
-on conflict (business_id, template_key, channel) do nothing;
+on conflict (business_id, notification_type, channel) do nothing;
 
 -- ============================================================================
 -- Auth users (for demo login)
