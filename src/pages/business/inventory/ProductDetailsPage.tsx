@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
@@ -112,8 +113,12 @@ export function ProductDetailsPage() {
       <FormModal open={open !== null} title={open === 'in' ? 'Stock in' : open === 'out' ? 'Stock out' : 'Adjust stock'} submitLabel={open === 'in' ? 'Add' : open === 'out' ? 'Remove' : 'Adjust'}
         onSubmit={handleAction} onOpenChange={(v) => { if (!v) setOpen(null) }}>
         <div className="space-y-3">
-          <Input type="number" placeholder="Quantity" value={qty} onChange={(e) => setQty(e.target.value)} />
-          <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason / notes" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <Field label="Quantity" description={open === 'out' ? 'Units to remove from this product stock.' : 'Units to add or adjust for this product.'}>
+            <Input type="number" placeholder="Quantity" value={qty} onChange={(e) => setQty(e.target.value)} />
+          </Field>
+          <Field label="Reason / notes" description="Reason for this stock action, visible in inventory transaction history.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason / notes" value={reason} onChange={(e) => setReason(e.target.value)} />
+          </Field>
         </div>
       </FormModal>
     </div>

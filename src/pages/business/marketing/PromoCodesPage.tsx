@@ -3,6 +3,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { MarketingTabs } from './MarketingTabs'
 import { getPromoCodes, createPromoCode, updatePromoCode, deletePromoCode, generatePromoCode, type PromoCode } from '@/services/marketing'
@@ -86,55 +87,49 @@ export function PromoCodesPage() {
           <CardHeader><CardTitle>{editingId ? 'Edit promo code' : 'New promo code'}</CardTitle></CardHeader>
           <CardContent className="space-y-3 max-w-xl">
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Code</label>
+              <Field label="Code" description="Promo code customers or staff enter at checkout.">
                 <Input value={form.code ?? ''} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Discount type</label>
+              </Field>
+              <Field label="Discount type" description="How this promo reduces the final price.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.discount_type} onChange={(e) => setForm((f) => ({ ...f, discount_type: e.target.value }))}>
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed amount</option>
                   <option value="free_item">Free item</option>
                 </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">{form.discount_type === 'percentage' ? 'Percentage (%)' : 'Value'}</label>
+              </Field>
+              <Field label={form.discount_type === 'percentage' ? 'Percentage' : 'Value'} description="Discount amount. Percentage uses 0 to 100; fixed discounts use currency value.">
                 <Input type="number" value={form.discount_value ?? 0} onChange={(e) => setForm((f) => ({ ...f, discount_value: Number(e.target.value) }))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Usage limit (0 = unlimited)</label>
+              </Field>
+              <Field label="Usage limit" description="Maximum total redemptions. Use 0 for unlimited.">
                 <Input type="number" value={form.usage_limit ?? 0} onChange={(e) => setForm((f) => ({ ...f, usage_limit: Number(e.target.value) }))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Min purchase</label>
+              </Field>
+              <Field label="Minimum purchase" description="Minimum order amount required before this promo can apply.">
                 <Input type="number" value={form.min_purchase ?? 0} onChange={(e) => setForm((f) => ({ ...f, min_purchase: Number(e.target.value) }))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Applies to</label>
+              </Field>
+              <Field label="Applies to" description="Which item type can use this promo code.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.applies_to} onChange={(e) => setForm((f) => ({ ...f, applies_to: e.target.value }))}>
                   <option value="all">All items</option>
                   <option value="service">Services</option>
                   <option value="product">Products</option>
                   <option value="membership">Memberships</option>
                 </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Start date</label>
+              </Field>
+              <Field label="Start date" description="First date this promo can be used.">
                 <Input type="date" value={form.start_date ?? ''} onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value }))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">End date</label>
+              </Field>
+              <Field label="End date" description="Last date this promo can be used.">
                 <Input type="date" value={form.end_date ?? ''} onChange={(e) => setForm((f) => ({ ...f, end_date: e.target.value }))} />
-              </div>
+              </Field>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Description (optional)</label>
+            <Field label="Description" description="Optional internal note explaining this promotion.">
               <Input value={form.description ?? ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="promo_active" checked={form.is_active ?? true} onChange={(e) => setForm((f) => ({ ...f, is_active: e.target.checked }))} className="rounded border-gray-300" />
-              <label htmlFor="promo_active" className="text-sm">Active</label>
+            </Field>
+            <div className="flex items-start gap-2">
+              <input type="checkbox" id="promo_active" checked={form.is_active ?? true} onChange={(e) => setForm((f) => ({ ...f, is_active: e.target.checked }))} className="mt-1 rounded border-gray-300" />
+              <label htmlFor="promo_active" className="text-sm">
+                <span className="font-medium">Active</span>
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Inactive promo codes cannot be redeemed even if dates are valid.</span>
+              </label>
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => { setShowForm(false); resetForm() }}>Cancel</Button>

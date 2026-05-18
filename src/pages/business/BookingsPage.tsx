@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import {
@@ -512,35 +513,40 @@ export function BookingsPage() {
         onOpenChange={(v) => { setOpenCreate(v); if (!v) resetForm() }}
       >
         <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-slate-500">Booking type</label>
+          <Field className="sm:col-span-2" label="Booking type" description="Controls how the booking is treated, such as appointment, table, room, event, or walk-in.">
             <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.booking_type} onChange={(e) => setForm({ ...form, booking_type: e.target.value as BookingType })}>
               {bookingTypes.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
-          </div>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
-            <option value="">Select branch</option>
-            {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.service_id} onChange={(e) => setForm({ ...form, service_id: e.target.value })}>
-            <option value="">Select service</option>
-            {services.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.duration_minutes}min @ RM{s.price})</option>)}
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.staff_id} onChange={(e) => setForm({ ...form, staff_id: e.target.value })}>
-            <option value="">Assign staff</option>
-            {staffList.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.resource_id} onChange={(e) => setForm({ ...form, resource_id: e.target.value })}>
-            <option value="">Assign resource</option>
-            {resources.map((r) => <option key={r.id} value={r.id}>{r.name} ({r.resource_type})</option>)}
-          </select>
+          </Field>
+          <Field label="Branch" description="Location where this booking will happen.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
+              <option value="">Select branch</option>
+              {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Service" description="Service being booked. Duration can auto-fill the end time.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.service_id} onChange={(e) => setForm({ ...form, service_id: e.target.value })}>
+              <option value="">Select service</option>
+              {services.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.duration_minutes}min @ RM{s.price})</option>)}
+            </select>
+          </Field>
+          <Field label="Staff" description="Optional worker assigned to perform this booking.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.staff_id} onChange={(e) => setForm({ ...form, staff_id: e.target.value })}>
+              <option value="">Assign staff</option>
+              {staffList.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+            </select>
+          </Field>
+          <Field label="Resource" description="Optional chair, table, room, or event space reserved for this booking.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.resource_id} onChange={(e) => setForm({ ...form, resource_id: e.target.value })}>
+              <option value="">Assign resource</option>
+              {resources.map((r) => <option key={r.id} value={r.id}>{r.name} ({r.resource_type})</option>)}
+            </select>
+          </Field>
 
-          <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-slate-500">Date</label>
+          <Field className="sm:col-span-2" label="Date" description="Calendar date for the appointment or reservation.">
             <Input type="date" value={form.booking_date} onChange={(e) => setForm({ ...form, booking_date: e.target.value })} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Start time</label>
+          </Field>
+          <Field label="Start time" description="When the booking begins. End time updates from service duration.">
             <Input type="time" value={form.start_time} onChange={(e) => {
               const start = e.target.value
               const dur = selectedService?.duration_minutes ?? 60
@@ -550,11 +556,10 @@ export function BookingsPage() {
               const endM = endMin % 60
               setForm({ ...form, start_time: start, end_time: `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}` })
             }} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">End time</label>
+          </Field>
+          <Field label="End time" description="When the booking ends. Adjust manually if needed.">
             <Input type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
-          </div>
+          </Field>
 
           {availableSlots.length > 0 && (
             <div className="sm:col-span-2">
@@ -582,9 +587,15 @@ export function BookingsPage() {
             <label className="mb-1 block text-xs font-medium text-slate-500">Customer</label>
             {form.create_new_customer ? (
               <div className="space-y-2">
-                <Input placeholder="Full name" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
-                <Input placeholder="Phone" value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} />
-                <Input placeholder="Email" value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} />
+                <Field label="Customer name" description="Name for the new customer profile created from this booking.">
+                  <Input placeholder="Full name" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
+                </Field>
+                <Field label="Customer phone" description="Contact number for reminders and lookup.">
+                  <Input placeholder="Phone" value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} />
+                </Field>
+                <Field label="Customer email" description="Optional email for customer records and notifications.">
+                  <Input placeholder="Email" value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} />
+                </Field>
                 <button type="button" className="text-xs text-teal-600" onClick={() => setForm({ ...form, create_new_customer: false, customer_name: '', customer_phone: '', customer_email: '' })}>
                   Search existing customer instead
                 </button>
@@ -619,15 +630,21 @@ export function BookingsPage() {
 
           <div className="sm:col-span-2 space-y-2">
             <label className="mb-1 block text-xs font-medium text-slate-500">Notes & amounts</label>
-            <textarea
-              className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
-              placeholder="Booking notes..."
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            />
+            <Field label="Booking notes" description="Internal notes, special requests, or customer instructions.">
+              <textarea
+                className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                placeholder="Booking notes..."
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              />
+            </Field>
             <div className="grid grid-cols-2 gap-2">
-              <Input type="number" placeholder="Deposit amount" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} />
-              <Input type="number" placeholder="Total amount" value={form.total_amount} onChange={(e) => setForm({ ...form, total_amount: e.target.value })} />
+              <Field label="Deposit amount" description="Amount collected before the booking, if any.">
+                <Input type="number" placeholder="Deposit amount" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} />
+              </Field>
+              <Field label="Total amount" description="Expected total charge for this booking.">
+                <Input type="number" placeholder="Total amount" value={form.total_amount} onChange={(e) => setForm({ ...form, total_amount: e.target.value })} />
+              </Field>
             </div>
           </div>
         </div>
@@ -641,44 +658,55 @@ export function BookingsPage() {
         onOpenChange={(v) => { if (!v) { setOpenEdit(null); resetForm() } }}
       >
         <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
-            <option value="">Select branch</option>
-            {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.service_id} onChange={(e) => setForm({ ...form, service_id: e.target.value })}>
-            <option value="">Select service</option>
-            {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.staff_id} onChange={(e) => setForm({ ...form, staff_id: e.target.value })}>
-            <option value="">Assign staff</option>
-            {staffList.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.resource_id} onChange={(e) => setForm({ ...form, resource_id: e.target.value })}>
-            <option value="">Assign resource</option>
-            {resources.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-          </select>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Date</label>
+          <Field label="Branch" description="Business location where this booking will happen.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
+              <option value="">Select branch</option>
+              {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Service" description="Service attached to this booking.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.service_id} onChange={(e) => setForm({ ...form, service_id: e.target.value })}>
+              <option value="">Select service</option>
+              {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Staff" description="Staff member assigned to perform the booking.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.staff_id} onChange={(e) => setForm({ ...form, staff_id: e.target.value })}>
+              <option value="">Assign staff</option>
+              {staffList.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+            </select>
+          </Field>
+          <Field label="Resource" description="Optional room, chair, equipment, or event space required for this booking.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.resource_id} onChange={(e) => setForm({ ...form, resource_id: e.target.value })}>
+              <option value="">Assign resource</option>
+              {resources.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Date" description="Booking calendar date.">
             <Input type="date" value={form.booking_date} onChange={(e) => setForm({ ...form, booking_date: e.target.value })} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Start</label>
+          </Field>
+          <Field label="Start time" description="Booking start time.">
             <Input type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">End</label>
+          </Field>
+          <Field label="End time" description="Booking end time. Keep this after the start time.">
             <Input type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
-          </div>
-          <div className="sm:col-span-2 space-y-2">
+          </Field>
+          <Field className="sm:col-span-2" label="Notes" description="Internal notes for staff about this booking.">
             <textarea
               className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
               placeholder="Notes..."
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
             />
+          </Field>
+          <div className="sm:col-span-2 space-y-2">
             <div className="grid grid-cols-2 gap-2">
-              <Input type="number" placeholder="Deposit" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} />
-              <Input type="number" placeholder="Total" value={form.total_amount} onChange={(e) => setForm({ ...form, total_amount: e.target.value })} />
+              <Field label="Deposit" description="Amount paid or required before the appointment.">
+                <Input type="number" placeholder="Deposit" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} />
+              </Field>
+              <Field label="Total" description="Full booking charge before payments or remaining balance.">
+                <Input type="number" placeholder="Total" value={form.total_amount} onChange={(e) => setForm({ ...form, total_amount: e.target.value })} />
+              </Field>
             </div>
           </div>
         </div>

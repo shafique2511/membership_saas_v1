@@ -23,6 +23,23 @@ interface CartItem {
   total_price: number
 }
 
+function FieldLabel({
+  children,
+  description,
+  htmlFor,
+}: {
+  children: string
+  description: string
+  htmlFor?: string
+}) {
+  return (
+    <label className="block" htmlFor={htmlFor}>
+      <span className="block text-xs font-medium text-slate-700 dark:text-slate-200">{children}</span>
+      <span className="mt-0.5 block text-[11px] leading-4 text-slate-500 dark:text-slate-400">{description}</span>
+    </label>
+  )
+}
+
 export function POSCheckoutPage() {
   const { profile } = useAppContext()
   const businessId = profile?.business_id ?? ''
@@ -255,9 +272,12 @@ export function POSCheckoutPage() {
                   <button type="button" className="text-xs text-slate-400" onClick={() => { setSelectedCustomer(null); setCustomerSearch('') }}>Change</button>
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Input placeholder="Search customer..." value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
+                <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+                  <div>
+                    <FieldLabel htmlFor="pos-customer-search" description="Find an existing customer to use memberships, loyalty points, and saved details.">
+                      Existing customer
+                    </FieldLabel>
+                    <Input id="pos-customer-search" className="mt-1" placeholder="Search by name or phone" value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
                     {customerResults.length > 0 && (
                       <div className="mt-1 max-h-32 overflow-y-auto rounded-md border border-slate-200 dark:border-slate-700">
                         {customerResults.map((c) => (
@@ -269,9 +289,19 @@ export function POSCheckoutPage() {
                       </div>
                     )}
                   </div>
-                  <div className="flex gap-1">
-                    <Input placeholder="Walk-in name" value={walkInName} onChange={(e) => setWalkInName(e.target.value)} className="w-32" />
-                    <Input placeholder="Phone" value={walkInPhone} onChange={(e) => setWalkInPhone(e.target.value)} className="w-32" />
+                  <div className="grid gap-2 sm:grid-cols-2 md:w-72">
+                    <div>
+                      <FieldLabel htmlFor="pos-walkin-name" description="Use this when the customer is not registered.">
+                        Walk-in name
+                      </FieldLabel>
+                      <Input id="pos-walkin-name" className="mt-1" placeholder="Optional name" value={walkInName} onChange={(e) => setWalkInName(e.target.value)} />
+                    </div>
+                    <div>
+                      <FieldLabel htmlFor="pos-walkin-phone" description="Optional contact number for receipt lookup.">
+                        Walk-in phone
+                      </FieldLabel>
+                      <Input id="pos-walkin-phone" className="mt-1" placeholder="Phone number" value={walkInPhone} onChange={(e) => setWalkInPhone(e.target.value)} />
+                    </div>
                   </div>
                 </div>
               )}
@@ -281,13 +311,24 @@ export function POSCheckoutPage() {
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Items</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex gap-2">
-                {(['products', 'services', 'memberships'] as const).map((tab) => (
-                  <button key={tab} onClick={() => setItemTab(tab)}
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${itemTab === tab ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'}`}
-                  >{tab === 'memberships' ? 'Memberships' : tab.charAt(0).toUpperCase() + tab.slice(1)}</button>
-                ))}
-                <Input placeholder="Search..." value={itemSearch} onChange={(e) => setItemSearch(e.target.value)} className="ml-auto w-48" />
+              <div className="grid gap-3 md:grid-cols-[1fr_14rem]">
+                <div>
+                  <p className="text-xs font-medium text-slate-700 dark:text-slate-200">Item type</p>
+                  <p className="mt-0.5 text-[11px] leading-4 text-slate-500 dark:text-slate-400">Choose what you want to add to the cart.</p>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {(['products', 'services', 'memberships'] as const).map((tab) => (
+                      <button key={tab} onClick={() => setItemTab(tab)}
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${itemTab === tab ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'}`}
+                      >{tab === 'memberships' ? 'Memberships' : tab.charAt(0).toUpperCase() + tab.slice(1)}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <FieldLabel htmlFor="pos-item-search" description="Filter the list below by item name.">
+                    Search items
+                  </FieldLabel>
+                  <Input id="pos-item-search" className="mt-1" placeholder="Product, service, or plan" value={itemSearch} onChange={(e) => setItemSearch(e.target.value)} />
+                </div>
               </div>
 
               <div className="grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
@@ -358,20 +399,35 @@ export function POSCheckoutPage() {
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Discount</CardTitle></CardHeader>
             <CardContent className="space-y-2">
-              <div className="flex gap-2">
-                <Input type="number" placeholder="%" value={discountPercent || ''} onChange={(e) => { setDiscountPercent(Number(e.target.value)); setDiscountFixed(0) }} />
-                <Input type="number" placeholder="RM" value={discountFixed || ''} onChange={(e) => { setDiscountFixed(Number(e.target.value)); setDiscountPercent(0) }} />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div>
+                  <FieldLabel htmlFor="pos-discount-percent" description="Percentage discount for the whole cart. Clears fixed discount.">
+                    Percent off
+                  </FieldLabel>
+                  <Input id="pos-discount-percent" className="mt-1" type="number" placeholder="Example: 10" value={discountPercent || ''} onChange={(e) => { setDiscountPercent(Number(e.target.value)); setDiscountFixed(0) }} />
+                </div>
+                <div>
+                  <FieldLabel htmlFor="pos-discount-fixed" description="Fixed RM discount for the whole cart. Clears percent discount.">
+                    Fixed amount off
+                  </FieldLabel>
+                  <Input id="pos-discount-fixed" className="mt-1" type="number" placeholder="Example: 5" value={discountFixed || ''} onChange={(e) => { setDiscountFixed(Number(e.target.value)); setDiscountPercent(0) }} />
+                </div>
               </div>
               {selectedCustomer && selectedCustomer.points_balance > 0 && (
                 <div className="rounded-md bg-blue-50 p-2 text-xs dark:bg-blue-900/30">
                   <p className="mb-1 font-medium text-blue-700 dark:text-blue-300">Redeem points</p>
                   <p className="text-blue-600">Balance: {selectedCustomer.points_balance} pts</p>
                   <div className="mt-1 flex gap-2">
-                    <Input type="number" placeholder="Points" value={pointsRedeem || ''} onChange={(e) => {
-                      const pts = Number(e.target.value)
-                      setPointsRedeem(pts)
-                      setPointsDiscount(Math.floor(pts / 100) * 5)
-                    }} />
+                    <div className="flex-1">
+                      <FieldLabel htmlFor="pos-points-redeem" description="Every 100 points gives RM5 discount.">
+                        Points to redeem
+                      </FieldLabel>
+                      <Input id="pos-points-redeem" className="mt-1" type="number" placeholder="Example: 100" value={pointsRedeem || ''} onChange={(e) => {
+                        const pts = Number(e.target.value)
+                        setPointsRedeem(pts)
+                        setPointsDiscount(Math.floor(pts / 100) * 5)
+                      }} />
+                    </div>
                     <span className="self-center text-xs">=RM {pointsDiscount}</span>
                   </div>
                 </div>
@@ -383,21 +439,31 @@ export function POSCheckoutPage() {
             <CardHeader className="pb-3"><CardTitle className="text-base">Payment</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               {payments.map((p, idx) => (
-                <div key={idx} className="flex gap-2">
-                  <select className="h-10 w-28 rounded-md border border-slate-200 bg-white px-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={p.method} onChange={(e) => {
-                    const newPayments = [...payments]
-                    newPayments[idx] = { ...newPayments[idx], method: e.target.value }
-                    setPayments(newPayments)
-                  }}>
-                    {Object.entries(paymentMethodLabels).map(([k, v]) => <option key={k} value={k} disabled={payments.some((pp) => pp.method === k && pp !== p)}>{v}</option>)}
-                  </select>
-                  <Input type="number" placeholder="Amount" value={p.amount} onChange={(e) => {
-                    const newPayments = [...payments]
-                    newPayments[idx] = { ...newPayments[idx], amount: e.target.value }
-                    setPayments(newPayments)
-                  }} />
+                <div key={idx} className="grid gap-2 sm:grid-cols-[7rem_1fr_auto]">
+                  <div>
+                    <FieldLabel htmlFor={`pos-payment-method-${idx}`} description="How the customer pays.">
+                      Method
+                    </FieldLabel>
+                    <select id={`pos-payment-method-${idx}`} className="mt-1 h-10 w-full rounded-md border border-slate-200 bg-white px-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={p.method} onChange={(e) => {
+                      const newPayments = [...payments]
+                      newPayments[idx] = { ...newPayments[idx], method: e.target.value }
+                      setPayments(newPayments)
+                    }}>
+                      {Object.entries(paymentMethodLabels).map(([k, v]) => <option key={k} value={k} disabled={payments.some((pp) => pp.method === k && pp !== p)}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <FieldLabel htmlFor={`pos-payment-amount-${idx}`} description="Amount collected with this payment method.">
+                      Amount
+                    </FieldLabel>
+                    <Input id={`pos-payment-amount-${idx}`} className="mt-1" type="number" placeholder="Amount paid" value={p.amount} onChange={(e) => {
+                      const newPayments = [...payments]
+                      newPayments[idx] = { ...newPayments[idx], amount: e.target.value }
+                      setPayments(newPayments)
+                    }} />
+                  </div>
                   {payments.length > 1 && (
-                    <button onClick={() => setPayments((prev) => prev.filter((_, i) => i !== idx))} className="text-red-500">
+                    <button onClick={() => setPayments((prev) => prev.filter((_, i) => i !== idx))} className="self-end pb-3 text-red-500" aria-label="Remove payment method">
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   )}
@@ -417,7 +483,7 @@ export function POSCheckoutPage() {
             disabled={cart.length === 0 || total <= 0 || saving || (totalPaid < total && totalPaid > 0)}
             onClick={handleCompleteOrder}
           >
-            {saving ? 'Processing...' : remaining <= 0 ? `Complete — RM ${total.toFixed(2)}` : `Collect RM ${remaining.toFixed(2)}`}
+            {saving ? 'Processing...' : remaining <= 0 ? `Complete - RM ${total.toFixed(2)}` : `Collect RM ${remaining.toFixed(2)}`}
           </Button>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { getOrder, getOrderItems, getOrderPayments, getOrderDiscounts, refundOrder, paymentMethodLabels, type POSOrder, type POSOrderItem, type POSDiscount, type POSPayment } from '@/services/pos'
 
@@ -128,7 +129,9 @@ export function POSOrderDetailsPage() {
       <FormModal open={refundOpen} title="Refund order" submitLabel="Refund" onSubmit={handleRefund} onOpenChange={(v) => { if (!v) setRefundOpen(false) }}>
         <div className="space-y-3">
           <p className="text-sm text-slate-500">Are you sure you want to refund order #{order.order_number}?</p>
-          <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason for refund" value={refundReason} onChange={(e) => setRefundReason(e.target.value)} />
+          <Field label="Refund reason" description="Optional audit note explaining why this order is being refunded.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason for refund" value={refundReason} onChange={(e) => setRefundReason(e.target.value)} />
+          </Field>
         </div>
       </FormModal>
     </div>

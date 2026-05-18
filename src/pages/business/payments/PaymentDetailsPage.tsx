@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Badge, type BadgeVariant } from '@/components/ui/badge'
 import { PaymentsTabs } from './PaymentsTabs'
 import { getPaymentById, verifyPayment, processRefund, updatePayment, generateReceipt, type Payment } from '@/services/payments'
@@ -129,20 +130,24 @@ export function PaymentDetailsPage() {
             {(p.status === 'paid' || p.status === 'partial') && (
               <div className="border-t pt-3 space-y-2">
                 <p className="text-sm font-medium text-destructive">Process refund</p>
-                <input
-                  type="number"
-                  placeholder="Refund amount"
-                  value={refundAmount}
-                  onChange={(e) => setRefundAmount(e.target.value)}
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Reason (optional)"
-                  value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value)}
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                />
+                <Field label="Refund amount" description="Amount to refund from this payment. Must not exceed the paid balance.">
+                  <input
+                    type="number"
+                    placeholder="Refund amount"
+                    value={refundAmount}
+                    onChange={(e) => setRefundAmount(e.target.value)}
+                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                  />
+                </Field>
+                <Field label="Refund reason" description="Optional audit note for why this refund was processed.">
+                  <input
+                    type="text"
+                    placeholder="Reason (optional)"
+                    value={refundReason}
+                    onChange={(e) => setRefundReason(e.target.value)}
+                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                  />
+                </Field>
                 <Button variant="outline" size="sm" onClick={handleRefund} disabled={!refundAmount}>Process refund</Button>
               </div>
             )}

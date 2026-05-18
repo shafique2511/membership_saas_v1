@@ -3,6 +3,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { LoyaltyTabs } from '@/pages/business/loyalty/LoyaltyTabs'
@@ -89,8 +90,7 @@ export function ReferralRewardsPage() {
 
       <FormModal open={open} title="Add referral" submitLabel="Create" onSubmit={handleCreate} onOpenChange={(v) => { if (!v) setOpen(false) }}>
         <div className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Referrer customer</label>
+          <Field label="Referrer customer" description="Existing customer who made the referral and will receive points.">
             {form.referrer_id ? (
               <div className="flex items-center justify-between rounded-md border border-slate-200 p-2 dark:border-slate-700">
                 <span className="text-sm font-medium">{
@@ -113,9 +113,8 @@ export function ReferralRewardsPage() {
                 )}
               </>
             )}
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Referred customer</label>
+          </Field>
+          <Field label="Referred customer" description="Customer who was referred. Select an existing customer record.">
             {form.referred_id ? (
               <div className="flex items-center justify-between rounded-md border border-slate-200 p-2 dark:border-slate-700">
                 <span className="text-sm font-medium">{
@@ -138,7 +137,7 @@ export function ReferralRewardsPage() {
                 )}
               </>
             )}
-          </div>
+          </Field>
           <p className="text-sm text-slate-500">Referrer will receive <strong>{referralPoints} points</strong>.</p>
         </div>
       </FormModal>

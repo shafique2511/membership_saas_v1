@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getPlatformSettings, savePlatformSettings, type PlatformSettings } from '@/services/admin'
 
@@ -38,38 +39,44 @@ export function PlatformSettingsPage() {
         <Card>
           <CardHeader><CardTitle>Billing defaults</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <Input
-              type="number"
-              placeholder="Default trial days"
-              value={settings.trial_days}
-              onChange={(event) => setSettings({ ...settings, trial_days: Number(event.target.value) })}
-            />
-            <Input
-              placeholder="Currency"
-              value={settings.currency}
-              onChange={(event) => setSettings({ ...settings, currency: event.target.value })}
-            />
-            <Input
-              placeholder="Default timezone"
-              value={settings.default_timezone}
-              onChange={(event) => setSettings({ ...settings, default_timezone: event.target.value })}
-            />
+            <Field label="Default trial days" description="Number of trial days applied when a package starts with trial access.">
+              <Input
+                type="number"
+                placeholder="14"
+                value={settings.trial_days}
+                onChange={(event) => setSettings({ ...settings, trial_days: Number(event.target.value) })}
+              />
+            </Field>
+            <Field label="Currency" description="Default ISO currency code used for platform prices and billing displays.">
+              <Input
+                placeholder="MYR"
+                value={settings.currency}
+                onChange={(event) => setSettings({ ...settings, currency: event.target.value })}
+              />
+            </Field>
+            <Field label="Default timezone" description="Fallback timezone used when a business has not set its own timezone.">
+              <Input
+                placeholder="Asia/Kuala_Lumpur"
+                value={settings.default_timezone}
+                onChange={(event) => setSettings({ ...settings, default_timezone: event.target.value })}
+              />
+            </Field>
           </CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Platform controls</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={settings.allow_owner_registration} onChange={(event) => setSettings({ ...settings, allow_owner_registration: event.target.checked })} />
-              Allow owner self-registration
+            <label className="flex items-start gap-2 text-sm">
+              <input className="mt-1" type="checkbox" checked={settings.allow_owner_registration} onChange={(event) => setSettings({ ...settings, allow_owner_registration: event.target.checked })} />
+              <span><span className="font-medium">Allow owner self-registration</span><span className="block text-xs text-slate-500 dark:text-slate-400">When enabled, new business owners can create accounts without admin creation.</span></span>
             </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={settings.require_module_access_checks} onChange={(event) => setSettings({ ...settings, require_module_access_checks: event.target.checked })} />
-              Require module access checks
+            <label className="flex items-start gap-2 text-sm">
+              <input className="mt-1" type="checkbox" checked={settings.require_module_access_checks} onChange={(event) => setSettings({ ...settings, require_module_access_checks: event.target.checked })} />
+              <span><span className="font-medium">Require module access checks</span><span className="block text-xs text-slate-500 dark:text-slate-400">Blocks disabled or unpurchased modules in frontend and backend logic.</span></span>
             </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={settings.track_usage_limits} onChange={(event) => setSettings({ ...settings, track_usage_limits: event.target.checked })} />
-              Track usage limits
+            <label className="flex items-start gap-2 text-sm">
+              <input className="mt-1" type="checkbox" checked={settings.track_usage_limits} onChange={(event) => setSettings({ ...settings, track_usage_limits: event.target.checked })} />
+              <span><span className="font-medium">Track usage limits</span><span className="block text-xs text-slate-500 dark:text-slate-400">Enforces package limits such as branches, staff, customers, and bookings.</span></span>
             </label>
           </CardContent>
         </Card>

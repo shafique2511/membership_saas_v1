@@ -4,6 +4,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StaffTabs } from '@/pages/business/staff/StaffTabs'
@@ -108,23 +109,43 @@ export function StaffListPage() {
 
       <FormModal open={open} title={editingId ? 'Edit staff' : 'Add staff'} submitLabel={editingId ? 'Save' : 'Create'} onSubmit={handleSubmit} onOpenChange={(v) => { if (!v) { setOpen(false); setEditingId(null) }}}>
         <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-          <Input placeholder="Full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-          <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <Input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          <Input placeholder="Role (staff, barber, stylist...)" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.commission_type} onChange={(e) => setForm({ ...form, commission_type: e.target.value })}>
-            <option value="percentage">Percentage (%)</option>
-            <option value="fixed">Fixed (RM)</option>
-          </select>
-          <Input type="number" placeholder="Commission rate" value={form.commission_rate} onChange={(e) => setForm({ ...form, commission_rate: e.target.value })} />
-          <Input type="number" placeholder="Target sales (RM)" value={form.target_sales} onChange={(e) => setForm({ ...form, target_sales: e.target.value })} />
-          <Input type="number" placeholder="Target bookings" value={form.target_bookings} onChange={(e) => setForm({ ...form, target_bookings: e.target.value })} />
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="suspended">Suspended</option>
-          </select>
-          <textarea className="sm:col-span-2 h-16 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          <Field label="Full name" description="Staff display name used in bookings, commission records, and schedules.">
+            <Input placeholder="Full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+          </Field>
+          <Field label="Email" description="Optional login or contact email for this staff member.">
+            <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          </Field>
+          <Field label="Phone" description="Staff contact number for internal reference.">
+            <Input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          </Field>
+          <Field label="Role" description="Job title shown in staff lists, such as barber, stylist, therapist, or cashier.">
+            <Input placeholder="Role (staff, barber, stylist...)" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
+          </Field>
+          <Field label="Commission type" description="Choose whether commission is percentage-based or a fixed amount.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.commission_type} onChange={(e) => setForm({ ...form, commission_type: e.target.value })}>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed (RM)</option>
+            </select>
+          </Field>
+          <Field label="Commission rate" description="Percentage rate or fixed RM amount, based on commission type.">
+            <Input type="number" placeholder="Commission rate" value={form.commission_rate} onChange={(e) => setForm({ ...form, commission_rate: e.target.value })} />
+          </Field>
+          <Field label="Target sales" description="Optional monthly sales target for performance tracking.">
+            <Input type="number" placeholder="Target sales (RM)" value={form.target_sales} onChange={(e) => setForm({ ...form, target_sales: e.target.value })} />
+          </Field>
+          <Field label="Target bookings" description="Optional booking count target for performance tracking.">
+            <Input type="number" placeholder="Target bookings" value={form.target_bookings} onChange={(e) => setForm({ ...form, target_bookings: e.target.value })} />
+          </Field>
+          <Field label="Status" description="Inactive or suspended staff cannot be used as active workers.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </Field>
+          <Field className="sm:col-span-2" label="Notes" description="Internal notes about skills, employment details, or preferences.">
+            <textarea className="h-16 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          </Field>
         </div>
       </FormModal>
     </div>

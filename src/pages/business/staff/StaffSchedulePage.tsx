@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getStaffMember, updateStaff, type Staff } from '@/services/staff'
 
@@ -85,10 +86,11 @@ export function StaffSchedulePage() {
         <Card>
           <CardContent className="space-y-3 pt-6">
             <h3 className="text-sm font-semibold">Off days</h3>
-            <p className="text-xs text-slate-400">Click dates to toggle off days. Format: YYYY-MM-DD</p>
-            <Input placeholder="2026-05-20" value="" onChange={(e) => {
-              if (e.target.value.length === 10) { toggleOffDay(e.target.value); e.target.value = '' }
-            }} />
+            <Field label="Add off day" description="Enter a date in YYYY-MM-DD format. Existing dates can be clicked to remove them.">
+              <Input placeholder="2026-05-20" value="" onChange={(e) => {
+                if (e.target.value.length === 10) { toggleOffDay(e.target.value); e.target.value = '' }
+              }} />
+            </Field>
             <div className="flex flex-wrap gap-1">
               {offDays.map((d) => (
                 <button key={d} onClick={() => toggleOffDay(d)} className="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300">

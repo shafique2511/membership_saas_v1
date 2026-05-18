@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -74,20 +75,30 @@ export function AddOnsManagementPage() {
       />
       <FormModal open={open} title="Create add-on" submitLabel="Create" onSubmit={handleCreate} onOpenChange={setOpen}>
         <div className="space-y-3">
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.business_id} onChange={(event) => setForm({ ...form, business_id: event.target.value })}>
-            <option value="">Select a business</option>
-            {businesses.map((b) => (
-              <option key={String(b.id)} value={String(b.id)}>{String(b.name)}</option>
-            ))}
-          </select>
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.module_key} onChange={(event) => setForm({ ...form, module_key: event.target.value as ModuleKey })}>
-            {Object.entries(moduleLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-          </select>
-          <Input placeholder="Add-on name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.access_level} onChange={(event) => setForm({ ...form, access_level: event.target.value })}>
-            <option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
-          </select>
-          <Input type="number" placeholder="Price" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} />
+          <Field label="Business" description="The tenant that will receive this paid or manual module add-on.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.business_id} onChange={(event) => setForm({ ...form, business_id: event.target.value })}>
+              <option value="">Select a business</option>
+              {businesses.map((b) => (
+                <option key={String(b.id)} value={String(b.id)}>{String(b.name)}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Module" description="The feature area this add-on unlocks for the selected business.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.module_key} onChange={(event) => setForm({ ...form, module_key: event.target.value as ModuleKey })}>
+              {Object.entries(moduleLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+            </select>
+          </Field>
+          <Field label="Add-on name" description="Display name shown in add-on history and billing review.">
+            <Input placeholder="Extra booking capacity" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+          </Field>
+          <Field label="Access level" description="Sets the tier or capacity this add-on grants for the module.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.access_level} onChange={(event) => setForm({ ...form, access_level: event.target.value })}>
+              <option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
+            </select>
+          </Field>
+          <Field label="Price" description="Amount charged for this add-on. Use 0 for a complimentary manual grant.">
+            <Input type="number" placeholder="0" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} />
+          </Field>
         </div>
       </FormModal>
     </div>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { POSTabs } from '@/pages/business/pos/POSTabs'
 import { getOrders, refundOrder } from '@/services/pos'
@@ -61,7 +62,9 @@ export function POSRefundsPage() {
       <FormModal open={refundOpen} title="Refund order" submitLabel="Refund" onSubmit={handleRefund} onOpenChange={(v) => { if (!v) setRefundOpen(false) }}>
         <div className="space-y-3">
           <p className="text-sm text-slate-500">Refund order #{selectedOrder?.order_number}?</p>
-          <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason" value={refundReason} onChange={(e) => setRefundReason(e.target.value)} />
+          <Field label="Refund reason" description="Optional audit note explaining why this order is being refunded.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason" value={refundReason} onChange={(e) => setRefundReason(e.target.value)} />
+          </Field>
         </div>
       </FormModal>
     </div>

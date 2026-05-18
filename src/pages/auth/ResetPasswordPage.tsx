@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { updatePassword } from '@/services/auth'
 
@@ -35,14 +36,16 @@ export function ResetPasswordPage() {
       <h1 className="text-2xl font-semibold">Set new password</h1>
       <p className="mt-2 text-sm text-slate-500">Choose a new password for your account.</p>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-        <Input
-          required
-          minLength={8}
-          type="password"
-          placeholder="New password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+        <Field label="New password" description="Minimum 8 characters. This replaces your current account password.">
+          <Input
+            required
+            minLength={8}
+            type="password"
+            placeholder="New password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </Field>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
         <Button className="w-full" type="submit" disabled={loading}>

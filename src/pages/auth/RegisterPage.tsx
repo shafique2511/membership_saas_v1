@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { registerBusinessOwner } from '@/services/auth'
 
@@ -34,23 +35,33 @@ export function RegisterPage() {
       <h1 className="text-2xl font-semibold">Create workspace</h1>
       <p className="mt-2 text-sm text-slate-500">Start a modular membership and booking business.</p>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-        <Input required placeholder="Business name" value={businessName} onChange={(event) => setBusinessName(event.target.value)} />
-        <select
-          className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-teal-600 dark:border-slate-700 dark:bg-slate-900"
-          value={businessType}
-          onChange={(event) => setBusinessType(event.target.value)}
-        >
-          <option value="barber_shop">Barber shop</option>
-          <option value="coffee_shop">Coffee shop</option>
-          <option value="salon">Salon</option>
-          <option value="spa">Spa</option>
-          <option value="clinic">Clinic</option>
-          <option value="event_space">Event space</option>
-          <option value="custom">Custom service business</option>
-        </select>
-        <Input required placeholder="Owner full name" value={ownerName} onChange={(event) => setOwnerName(event.target.value)} />
-        <Input required type="email" placeholder="Owner email" value={email} onChange={(event) => setEmail(event.target.value)} />
-        <Input required minLength={8} type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        <Field label="Business name" description="The public name shown in dashboards, receipts, and customer pages.">
+          <Input required placeholder="Example: Luxantara Barber" value={businessName} onChange={(event) => setBusinessName(event.target.value)} />
+        </Field>
+        <Field label="Business type" description="Used to tune labels and starter workflows for this business.">
+          <select
+            className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-teal-600 dark:border-slate-700 dark:bg-slate-900"
+            value={businessType}
+            onChange={(event) => setBusinessType(event.target.value)}
+          >
+            <option value="barber_shop">Barber shop</option>
+            <option value="coffee_shop">Coffee shop</option>
+            <option value="salon">Salon</option>
+            <option value="spa">Spa</option>
+            <option value="clinic">Clinic</option>
+            <option value="event_space">Event space</option>
+            <option value="custom">Custom service business</option>
+          </select>
+        </Field>
+        <Field label="Owner full name" description="Main account holder who can manage settings, modules, staff, and billing.">
+          <Input required placeholder="Owner full name" value={ownerName} onChange={(event) => setOwnerName(event.target.value)} />
+        </Field>
+        <Field label="Owner email" description="Login email for the business owner account.">
+          <Input required type="email" placeholder="owner@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
+        </Field>
+        <Field label="Password" description="Minimum 8 characters. Use a secure password for the owner account.">
+          <Input required minLength={8} type="password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        </Field>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button className="w-full" type="submit" disabled={loading}>
           {loading ? 'Creating account...' : 'Create account'}

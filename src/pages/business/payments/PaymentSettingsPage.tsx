@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { PaymentsTabs } from './PaymentsTabs'
 import { getPaymentSettings, upsertPaymentSettings, type PaymentSettings } from '@/services/payments'
@@ -115,22 +116,18 @@ export function PaymentSettingsPage() {
         <Card>
           <CardHeader><CardTitle>Preferences</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Invoice prefix</label>
+            <Field label="Invoice prefix" description="Text added before generated invoice numbers.">
               <Input value={form.invoice_prefix ?? 'INV-'} onChange={(e) => setForm((f) => ({ ...f, invoice_prefix: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Receipt prefix</label>
+            </Field>
+            <Field label="Receipt prefix" description="Text added before generated receipt numbers.">
               <Input value={form.receipt_prefix ?? 'RCP-'} onChange={(e) => setForm((f) => ({ ...f, receipt_prefix: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Payment terms (days)</label>
+            </Field>
+            <Field label="Payment terms" description="Number of days before unpaid invoices become due.">
               <Input type="number" value={form.payment_terms_days ?? 30} onChange={(e) => setForm((f) => ({ ...f, payment_terms_days: Number(e.target.value) }))} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Deposit percentage</label>
+            </Field>
+            <Field label="Deposit percentage" description="Default deposit percentage for bookings or payable records that require deposits.">
               <Input type="number" value={form.deposit_percentage ?? 50} onChange={(e) => setForm((f) => ({ ...f, deposit_percentage: Number(e.target.value) }))} />
-            </div>
+            </Field>
           </CardContent>
         </Card>
 
@@ -149,15 +146,18 @@ export function PaymentSettingsPage() {
                 <span className="capitalize">{m.replace(/_/g, ' ')}</span>
               </label>
             ))}
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex items-start gap-2 pt-2">
               <input
                 type="checkbox"
                 id="auto_verify"
                 checked={form.auto_verify_online ?? true}
                 onChange={(e) => setForm((f) => ({ ...f, auto_verify_online: e.target.checked }))}
-                className="rounded border-gray-300"
+                className="mt-1 rounded border-gray-300"
               />
-              <label htmlFor="auto_verify" className="text-sm">Auto-verify online payments</label>
+              <label htmlFor="auto_verify" className="text-sm">
+                <span className="font-medium">Auto-verify online payments</span>
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Marks supported online gateway payments as verified after successful gateway confirmation.</span>
+              </label>
             </div>
           </CardContent>
         </Card>

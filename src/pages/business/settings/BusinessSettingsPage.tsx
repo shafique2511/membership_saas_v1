@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getBusiness, updateBusiness, type Business } from '@/services/businessSettings'
 import { Paintbrush } from 'lucide-react'
@@ -46,12 +47,10 @@ export function BusinessSettingsPage() {
         <Card>
           <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Business name</label>
+            <Field label="Business name" description="Shown on receipts, booking pages, customer portal, and internal dashboards.">
               <Input value={form.name ?? ''} onChange={(e) => set('name', e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Business type</label>
+            </Field>
+            <Field label="Business type" description="Used for business-specific labels and workflows. Modules remain controlled separately.">
               <select
                 className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                 value={form.business_type ?? ''}
@@ -62,27 +61,22 @@ export function BusinessSettingsPage() {
                   <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
                 ))}
               </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Phone</label>
+            </Field>
+            <Field label="Phone" description="Main contact number shown to customers.">
               <Input value={form.phone ?? ''} onChange={(e) => set('phone', e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">WhatsApp</label>
+            </Field>
+            <Field label="WhatsApp" description="Optional WhatsApp contact number for customer communication.">
               <Input value={form.whatsapp ?? ''} onChange={(e) => set('whatsapp', e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Email</label>
+            </Field>
+            <Field label="Email" description="Business email used for customer contact and notices.">
               <Input value={form.email ?? ''} onChange={(e) => set('email', e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Address</label>
+            </Field>
+            <Field label="Address" description="Primary location shown in customer-facing business details.">
               <Input value={form.address ?? ''} onChange={(e) => set('address', e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Timezone</label>
+            </Field>
+            <Field label="Timezone" description="Used for booking slots, reports, business hours, and notifications.">
               <Input value={form.timezone ?? ''} onChange={(e) => set('timezone', e.target.value)} />
-            </div>
+            </Field>
           </CardContent>
         </Card>
         {hasModule('booking') && (

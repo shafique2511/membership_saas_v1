@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
@@ -112,23 +113,49 @@ export function ProductsPage() {
 
       <FormModal open={open} title={editingId ? 'Edit product' : 'Add product'} submitLabel={editingId ? 'Save' : 'Create'} onSubmit={handleSubmit} onOpenChange={(v) => { if (!v) { setOpen(false); setEditingId(null) }}}>
         <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-          <Input placeholder="Product name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <Input placeholder="SKU" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
-          <Input placeholder="Barcode" value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
-          <Input placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} list="cats" />
+          <Field label="Product name" description="Name shown in inventory, POS item search, and reports.">
+            <Input placeholder="Product name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </Field>
+          <Field label="SKU" description="Internal stock code used to identify this item.">
+            <Input placeholder="SKU" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
+          </Field>
+          <Field label="Barcode" description="Optional barcode for scanner-based checkout or stock lookup.">
+            <Input placeholder="Barcode" value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
+          </Field>
+          <Field label="Category" description="Groups products for filtering and reporting.">
+            <Input placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} list="cats" />
+          </Field>
           <datalist id="cats">{categories.map((c) => <option key={c} value={c} />)}</datalist>
-          <Input placeholder="Unit (pcs, kg, ml...)" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} />
-          <textarea className="sm:col-span-2 h-16 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          <Input type="number" placeholder="Cost price (RM)" value={form.cost_price} onChange={(e) => setForm({ ...form, cost_price: e.target.value })} />
-          <Input type="number" placeholder="Selling price (RM)" value={form.selling_price} onChange={(e) => setForm({ ...form, selling_price: e.target.value })} />
-          <Input type="number" placeholder="Stock quantity" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })} />
-          <Input type="number" placeholder="Low stock threshold" value={form.low_stock_threshold} onChange={(e) => setForm({ ...form, low_stock_threshold: e.target.value })} />
-          <Input type="number" placeholder="Min stock level" value={form.min_stock_level} onChange={(e) => setForm({ ...form, min_stock_level: e.target.value })} />
-          <Input type="number" placeholder="Max stock level" value={form.max_stock_level} onChange={(e) => setForm({ ...form, max_stock_level: e.target.value })} />
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.supplier_id} onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}>
-            <option value="">No supplier</option>
-            {suppliers.filter((s) => s.is_active).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
+          <Field label="Unit" description="How the stock is counted, such as pcs, kg, ml, box, or pack.">
+            <Input placeholder="Unit (pcs, kg, ml...)" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} />
+          </Field>
+          <Field className="sm:col-span-2" label="Description" description="Optional notes shown to staff when reviewing the product.">
+            <textarea className="h-16 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </Field>
+          <Field label="Cost price" description="Your purchase cost. Used for profit reporting.">
+            <Input type="number" placeholder="Cost price (RM)" value={form.cost_price} onChange={(e) => setForm({ ...form, cost_price: e.target.value })} />
+          </Field>
+          <Field label="Selling price" description="Price charged in POS checkout.">
+            <Input type="number" placeholder="Selling price (RM)" value={form.selling_price} onChange={(e) => setForm({ ...form, selling_price: e.target.value })} />
+          </Field>
+          <Field label="Stock quantity" description="Current available stock. POS product sales deduct from this number.">
+            <Input type="number" placeholder="Stock quantity" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })} />
+          </Field>
+          <Field label="Low stock threshold" description="Alert level when stock falls at or below this value.">
+            <Input type="number" placeholder="Low stock threshold" value={form.low_stock_threshold} onChange={(e) => setForm({ ...form, low_stock_threshold: e.target.value })} />
+          </Field>
+          <Field label="Min stock level" description="Preferred minimum stock level for planning.">
+            <Input type="number" placeholder="Min stock level" value={form.min_stock_level} onChange={(e) => setForm({ ...form, min_stock_level: e.target.value })} />
+          </Field>
+          <Field label="Max stock level" description="Optional target ceiling for restocking decisions.">
+            <Input type="number" placeholder="Max stock level" value={form.max_stock_level} onChange={(e) => setForm({ ...form, max_stock_level: e.target.value })} />
+          </Field>
+          <Field label="Supplier" description="Optional supplier linked to this product.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.supplier_id} onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}>
+              <option value="">No supplier</option>
+              {suppliers.filter((s) => s.is_active).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </Field>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} /> Active
           </label>

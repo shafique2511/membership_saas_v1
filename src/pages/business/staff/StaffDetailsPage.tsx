@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormModal } from '@/components/ui/FormModal'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getStaffMember, updateStaff, getStaffServices, removeStaffService, getCommissionRecords, updateCommissionRecord, getStaffAppointments, type Staff, type StaffService, type CommissionRecord } from '@/services/staff'
 
@@ -147,18 +148,36 @@ export function StaffDetailsPage() {
 
       <FormModal open={editOpen} title="Edit staff" submitLabel="Save" onSubmit={handleUpdate} onOpenChange={(v) => { if (!v) setEditOpen(false) }}>
         <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-          <Input placeholder="Full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-          <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <Input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          <Input placeholder="Role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.commission_type} onChange={(e) => setForm({ ...form, commission_type: e.target.value })}>
-            <option value="percentage">Percentage (%)</option>
-            <option value="fixed">Fixed (RM)</option>
-          </select>
-          <Input type="number" placeholder="Commission rate" value={form.commission_rate} onChange={(e) => setForm({ ...form, commission_rate: e.target.value })} />
-          <Input type="number" placeholder="Target sales" value={form.target_sales} onChange={(e) => setForm({ ...form, target_sales: e.target.value })} />
-          <Input type="number" placeholder="Target bookings" value={form.target_bookings} onChange={(e) => setForm({ ...form, target_bookings: e.target.value })} />
-          <textarea className="sm:col-span-2 h-16 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          <Field label="Full name" description="Staff name shown in bookings, commissions, and schedules.">
+            <Input placeholder="Full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+          </Field>
+          <Field label="Email" description="Optional staff email for contact and account linking.">
+            <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          </Field>
+          <Field label="Phone" description="Optional staff phone number for internal contact.">
+            <Input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          </Field>
+          <Field label="Role" description="Job role label such as barber, stylist, therapist, cashier, or manager.">
+            <Input placeholder="Role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
+          </Field>
+          <Field label="Commission type" description="Whether this staff member earns a percentage or fixed RM commission.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.commission_type} onChange={(e) => setForm({ ...form, commission_type: e.target.value })}>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed (RM)</option>
+            </select>
+          </Field>
+          <Field label="Commission rate" description="Percentage or fixed RM amount used for staff commission calculations.">
+            <Input type="number" placeholder="Commission rate" value={form.commission_rate} onChange={(e) => setForm({ ...form, commission_rate: e.target.value })} />
+          </Field>
+          <Field label="Target sales" description="Monthly sales target in RM for staff performance tracking.">
+            <Input type="number" placeholder="Target sales" value={form.target_sales} onChange={(e) => setForm({ ...form, target_sales: e.target.value })} />
+          </Field>
+          <Field label="Target bookings" description="Monthly booking target for staff performance tracking.">
+            <Input type="number" placeholder="Target bookings" value={form.target_bookings} onChange={(e) => setForm({ ...form, target_bookings: e.target.value })} />
+          </Field>
+          <Field className="sm:col-span-2" label="Notes" description="Internal notes about this staff member.">
+            <textarea className="h-16 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          </Field>
         </div>
       </FormModal>
 

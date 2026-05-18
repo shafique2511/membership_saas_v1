@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { sendPasswordReset } from '@/services/auth'
 
@@ -33,7 +34,9 @@ export function ForgotPasswordPage() {
       <h1 className="text-2xl font-semibold">Reset password</h1>
       <p className="mt-2 text-sm text-slate-500">Send a secure recovery link to your email.</p>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-        <Input required type="email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
+        <Field label="Email address" description="Enter the account email that should receive the password reset link.">
+          <Input required type="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
+        </Field>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
         <Button className="w-full" type="submit" disabled={loading}>

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -179,26 +180,44 @@ export function PackageManagementPage() {
         onOpenChange={setOpen}
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input placeholder="Name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
-          <Input placeholder="Slug" value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} />
-          <Input className="sm:col-span-2" placeholder="Description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
-          <Input type="number" placeholder="Monthly price" value={form.monthly_price} onChange={(event) => setForm({ ...form, monthly_price: event.target.value })} />
-          <Input type="number" placeholder="Yearly price" value={form.yearly_price} onChange={(event) => setForm({ ...form, yearly_price: event.target.value })} />
-          <Input type="number" placeholder="Setup fee" value={form.setup_fee} onChange={(event) => setForm({ ...form, setup_fee: event.target.value })} />
-          <Input type="number" placeholder="Sort order" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} />
+          <Field label="Package name" description="Display name shown to admins, owners, and subscription records.">
+            <Input placeholder="Growth" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+          </Field>
+          <Field label="Package slug" description="Stable package identifier used in URLs, seed data, and subscription setup.">
+            <Input placeholder="growth" value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} />
+          </Field>
+          <Field className="sm:col-span-2" label="Description" description="Short package summary for admin review and onboarding.">
+            <Input placeholder="Best for growing businesses" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
+          </Field>
+          <Field label="Monthly price" description="Recurring monthly amount charged for this package.">
+            <Input type="number" placeholder="0" value={form.monthly_price} onChange={(event) => setForm({ ...form, monthly_price: event.target.value })} />
+          </Field>
+          <Field label="Yearly price" description="Recurring annual amount when the business pays yearly.">
+            <Input type="number" placeholder="0" value={form.yearly_price} onChange={(event) => setForm({ ...form, yearly_price: event.target.value })} />
+          </Field>
+          <Field label="Setup fee" description="One-time setup amount applied when onboarding the business.">
+            <Input type="number" placeholder="0" value={form.setup_fee} onChange={(event) => setForm({ ...form, setup_fee: event.target.value })} />
+          </Field>
+          <Field label="Sort order" description="Lower numbers appear first in package lists.">
+            <Input type="number" placeholder="0" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} />
+          </Field>
         </div>
       </FormModal>
 
       <FormModal open={openModuleAssign} title="Assign module to package" submitLabel="Assign" onSubmit={handleAssignModule} onOpenChange={setOpenModuleAssign}>
         <div className="space-y-3">
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleAssignForm.module_key} onChange={(event) => setModuleAssignForm({ ...moduleAssignForm, module_key: event.target.value })}>
-            {availableModules.map((m) => (
-              <option key={String(m.id)} value={String(m.module_key)}>{String(m.module_name)} ({String(m.module_key)})</option>
-            ))}
-          </select>
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleAssignForm.access_level} onChange={(event) => setModuleAssignForm({ ...moduleAssignForm, access_level: event.target.value })}>
-            <option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
-          </select>
+          <Field label="Module" description="Choose the feature area this package should unlock. Dependency rules may auto-add required modules.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleAssignForm.module_key} onChange={(event) => setModuleAssignForm({ ...moduleAssignForm, module_key: event.target.value })}>
+              {availableModules.map((m) => (
+                <option key={String(m.id)} value={String(m.module_key)}>{String(m.module_name)} ({String(m.module_key)})</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Access level" description="Controls the limit tier or capability depth granted for this module.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleAssignForm.access_level} onChange={(event) => setModuleAssignForm({ ...moduleAssignForm, access_level: event.target.value })}>
+              <option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
+            </select>
+          </Field>
         </div>
       </FormModal>
     </div>

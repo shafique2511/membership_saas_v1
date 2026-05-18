@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -179,39 +180,58 @@ export function BusinessDetailsPage() {
 
       <FormModal open={openOverride} title="Override module access" submitLabel="Save override" onSubmit={handleOverride} onOpenChange={setOpenOverride}>
         <div className="space-y-3">
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleForm.module_key} onChange={(event) => setModuleForm({ ...moduleForm, module_key: event.target.value as ModuleKey })}>
-            {Object.entries(moduleLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-          </select>
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleForm.access_level} onChange={(event) => setModuleForm({ ...moduleForm, access_level: event.target.value })}>
-            <option value="none">none</option><option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
-          </select>
-          <Input type="date" value={moduleForm.end_date} onChange={(event) => setModuleForm({ ...moduleForm, end_date: event.target.value })} />
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={moduleForm.is_enabled} onChange={(event) => setModuleForm({ ...moduleForm, is_enabled: event.target.checked })} /> Enabled</label>
+          <Field label="Module" description="Feature area to override for this business only.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleForm.module_key} onChange={(event) => setModuleForm({ ...moduleForm, module_key: event.target.value as ModuleKey })}>
+              {Object.entries(moduleLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+            </select>
+          </Field>
+          <Field label="Access level" description="Override tier for this module. Use none to block access.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={moduleForm.access_level} onChange={(event) => setModuleForm({ ...moduleForm, access_level: event.target.value })}>
+              <option value="none">none</option><option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
+            </select>
+          </Field>
+          <Field label="End date" description="Optional date when the override should expire. Leave blank for no expiry.">
+            <Input type="date" value={moduleForm.end_date} onChange={(event) => setModuleForm({ ...moduleForm, end_date: event.target.value })} />
+          </Field>
+          <label className="flex items-start gap-2 text-sm">
+            <input className="mt-1" type="checkbox" checked={moduleForm.is_enabled} onChange={(event) => setModuleForm({ ...moduleForm, is_enabled: event.target.checked })} />
+            <span><span className="font-medium">Enabled</span><span className="block text-xs text-slate-500 dark:text-slate-400">When off, this override disables the module even if the package includes it.</span></span>
+          </label>
         </div>
       </FormModal>
 
       <FormModal open={openChangePackage} title="Change package" submitLabel="Change package" onSubmit={handleChangePackage} onOpenChange={setOpenChangePackage}>
         <div className="space-y-3">
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={packageForm.package_id} onChange={(event) => setPackageForm({ ...packageForm, package_id: event.target.value })}>
-            <option value="">Select a package</option>
-            {packages.map((pkg) => (
-              <option key={String(pkg.id)} value={String(pkg.id)}>{String(pkg.name)}</option>
-            ))}
-          </select>
+          <Field label="New package" description="Select the package that should replace the current business subscription.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={packageForm.package_id} onChange={(event) => setPackageForm({ ...packageForm, package_id: event.target.value })}>
+              <option value="">Select a package</option>
+              {packages.map((pkg) => (
+                <option key={String(pkg.id)} value={String(pkg.id)}>{String(pkg.name)}</option>
+              ))}
+            </select>
+          </Field>
           <p className="text-xs text-slate-500">This will cancel the current subscription and create a new active one with the selected package. Module access will be updated.</p>
         </div>
       </FormModal>
 
       <FormModal open={openAddon} title="Add paid add-on" submitLabel="Create add-on" onSubmit={handleCreateAddon} onOpenChange={setOpenAddon}>
         <div className="space-y-3">
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={addonForm.module_key} onChange={(event) => setAddonForm({ ...addonForm, module_key: event.target.value as ModuleKey })}>
-            {Object.entries(moduleLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-          </select>
-          <Input placeholder="Add-on name" value={addonForm.name} onChange={(event) => setAddonForm({ ...addonForm, name: event.target.value })} />
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={addonForm.access_level} onChange={(event) => setAddonForm({ ...addonForm, access_level: event.target.value })}>
-            <option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
-          </select>
-          <Input type="number" placeholder="Price" value={addonForm.price} onChange={(event) => setAddonForm({ ...addonForm, price: event.target.value })} />
+          <Field label="Module" description="Feature area this add-on unlocks for this business.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={addonForm.module_key} onChange={(event) => setAddonForm({ ...addonForm, module_key: event.target.value as ModuleKey })}>
+              {Object.entries(moduleLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+            </select>
+          </Field>
+          <Field label="Add-on name" description="Display name used in add-on history and billing review.">
+            <Input placeholder="Extra booking capacity" value={addonForm.name} onChange={(event) => setAddonForm({ ...addonForm, name: event.target.value })} />
+          </Field>
+          <Field label="Access level" description="Tier or capacity granted by this add-on.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={addonForm.access_level} onChange={(event) => setAddonForm({ ...addonForm, access_level: event.target.value })}>
+              <option value="basic">basic</option><option value="pro">pro</option><option value="advanced">advanced</option><option value="unlimited">unlimited</option>
+            </select>
+          </Field>
+          <Field label="Price" description="Amount charged for this add-on. Use 0 for a complimentary manual grant.">
+            <Input type="number" placeholder="0" value={addonForm.price} onChange={(event) => setAddonForm({ ...addonForm, price: event.target.value })} />
+          </Field>
         </div>
       </FormModal>
     </div>

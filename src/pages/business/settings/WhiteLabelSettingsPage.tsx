@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getWhiteLabelSettings, upsertWhiteLabelSettings, type WhiteLabelSettings } from '@/services/whiteLabel'
 import { Paintbrush, Globe, Image, Eye } from 'lucide-react'
@@ -110,34 +111,30 @@ export function WhiteLabelSettingsPage() {
         <Card>
           <CardHeader><CardTitle className="text-base flex items-center gap-2"><Paintbrush className="h-4 w-4" /> Branding</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Brand name</label>
+            <Field label="Brand name" description="Name shown in the customer portal and branded pages.">
               <Input value={form.brand_name} onChange={(e) => setForm((f) => ({ ...f, brand_name: e.target.value }))} placeholder="Your business name" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Logo URL</label>
+            </Field>
+            <Field label="Logo URL" description="Public image URL for your logo. Use Supabase Storage or your own CDN.">
               <div className="flex gap-2">
                 <Input value={form.logo_url} onChange={(e) => setForm((f) => ({ ...f, logo_url: e.target.value }))} placeholder="https://example.com/logo.png" className="flex-1" />
                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-slate-50">
                   {form.logo_url ? <img src={form.logo_url} alt="" className="h-full w-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} /> : <Image className="h-5 w-5 m-2.5 text-slate-300" />}
                 </div>
               </div>
-            </div>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">Primary color</label>
+              <Field label="Primary color" description="Main brand color for buttons, highlights, and headers.">
                 <div className="flex gap-2">
                   <input type="color" value={form.primary_color} onChange={(e) => setForm((f) => ({ ...f, primary_color: e.target.value }))} className="h-10 w-10 cursor-pointer rounded border" />
                   <Input value={form.primary_color} onChange={(e) => setForm((f) => ({ ...f, primary_color: e.target.value }))} className="flex-1" />
                 </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">Secondary color</label>
+              </Field>
+              <Field label="Secondary color" description="Accent color used with the primary color in branded areas.">
                 <div className="flex gap-2">
                   <input type="color" value={form.secondary_color} onChange={(e) => setForm((f) => ({ ...f, secondary_color: e.target.value }))} className="h-10 w-10 cursor-pointer rounded border" />
                   <Input value={form.secondary_color} onChange={(e) => setForm((f) => ({ ...f, secondary_color: e.target.value }))} className="flex-1" />
                 </div>
-              </div>
+              </Field>
             </div>
           </CardContent>
         </Card>
@@ -146,19 +143,15 @@ export function WhiteLabelSettingsPage() {
           <Card>
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><Globe className="h-4 w-4" /> Domain & contact</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">Custom domain</label>
+              <Field label="Custom domain" description="Domain customers can use for your branded portal after DNS setup.">
                 <Input value={form.custom_domain} onChange={(e) => setForm((f) => ({ ...f, custom_domain: e.target.value }))} placeholder="members.yourbusiness.com" />
-                <p className="mt-1 text-[10px] text-slate-400">DNS configuration required separately.</p>
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">Support email</label>
+              </Field>
+              <Field label="Support email" description="Customer-facing support email shown on branded pages.">
                 <Input value={form.support_email} onChange={(e) => setForm((f) => ({ ...f, support_email: e.target.value }))} placeholder="support@yourbusiness.com" />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">Footer text</label>
+              </Field>
+              <Field label="Footer text" description="Optional small print shown at the bottom of branded customer pages.">
                 <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.footer_text} onChange={(e) => setForm((f) => ({ ...f, footer_text: e.target.value }))} placeholder="© 2026 Your Business. All rights reserved." />
-              </div>
+              </Field>
             </CardContent>
           </Card>
 

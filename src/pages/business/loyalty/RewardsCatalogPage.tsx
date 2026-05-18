@@ -3,6 +3,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { LoyaltyTabs } from '@/pages/business/loyalty/LoyaltyTabs'
@@ -127,29 +128,49 @@ export function RewardsCatalogPage() {
         onOpenChange={(v) => { if (!v) { setOpen(false); setEditingId(null) }}}
       >
         <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-          <Input placeholder="Reward name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.reward_type} onChange={(e) => setForm({ ...form, reward_type: e.target.value })}>
-            {Object.entries(rewardTypeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
-          <textarea className="sm:col-span-2 h-20 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          <Input type="number" placeholder="Points required" value={form.points_required} onChange={(e) => setForm({ ...form, points_required: e.target.value })} />
+          <Field label="Reward name" description="Customer-facing name shown in the rewards catalog.">
+            <Input placeholder="Reward name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </Field>
+          <Field label="Reward type" description="Controls what the customer receives when redeeming this reward.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.reward_type} onChange={(e) => setForm({ ...form, reward_type: e.target.value })}>
+              {Object.entries(rewardTypeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </Field>
+          <Field className="sm:col-span-2" label="Description" description="Optional customer-facing reward details or redemption terms.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </Field>
+          <Field label="Points required" description="Points a customer must spend to redeem this reward.">
+            <Input type="number" placeholder="Points required" value={form.points_required} onChange={(e) => setForm({ ...form, points_required: e.target.value })} />
+          </Field>
           {form.reward_type === 'discount' || form.reward_type === 'voucher' ? (
             <>
-              <Input type="number" placeholder="Discount amount (RM)" value={form.discount_amount} onChange={(e) => setForm({ ...form, discount_amount: e.target.value })} />
-              <Input type="number" placeholder="Discount percent (%)" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: e.target.value })} />
+              <Field label="Discount amount" description="Fixed RM discount applied when this reward is redeemed.">
+                <Input type="number" placeholder="Discount amount (RM)" value={form.discount_amount} onChange={(e) => setForm({ ...form, discount_amount: e.target.value })} />
+              </Field>
+              <Field label="Discount percent" description="Percentage discount applied when this reward is redeemed.">
+                <Input type="number" placeholder="Discount percent (%)" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: e.target.value })} />
+              </Field>
             </>
           ) : null}
           {form.reward_type === 'free_item' ? (
             <>
-              <Input placeholder="Free item name" value={form.free_item} onChange={(e) => setForm({ ...form, free_item: e.target.value })} />
-              <Input placeholder="Item detail" value={form.item_name} onChange={(e) => setForm({ ...form, item_name: e.target.value })} />
+              <Field label="Free item name" description="Name of the free product or service customer receives.">
+                <Input placeholder="Free item name" value={form.free_item} onChange={(e) => setForm({ ...form, free_item: e.target.value })} />
+              </Field>
+              <Field label="Item detail" description="Optional internal item detail or SKU reference.">
+                <Input placeholder="Item detail" value={form.item_name} onChange={(e) => setForm({ ...form, item_name: e.target.value })} />
+              </Field>
             </>
           ) : null}
-          <Input placeholder="Voucher code" value={form.voucher_code} onChange={(e) => setForm({ ...form, voucher_code: e.target.value })} />
-          <Input type="number" placeholder="Usage limit" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} />
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-            Active
+          <Field label="Voucher code" description="Optional code attached to voucher-style redemptions.">
+            <Input placeholder="Voucher code" value={form.voucher_code} onChange={(e) => setForm({ ...form, voucher_code: e.target.value })} />
+          </Field>
+          <Field label="Usage limit" description="Maximum total redemptions. Leave blank for unlimited.">
+            <Input type="number" placeholder="Usage limit" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} />
+          </Field>
+          <label className="flex items-start gap-2 text-sm">
+            <input className="mt-1" type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
+            <span><span className="font-medium">Active</span><span className="block text-xs text-slate-500 dark:text-slate-400">Inactive rewards stay saved but cannot be redeemed by customers.</span></span>
           </label>
         </div>
       </FormModal>

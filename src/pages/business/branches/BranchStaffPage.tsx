@@ -4,6 +4,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Field } from '@/components/ui/Field'
 import { getBranchStaff, getAvailableStaffForBranch, assignStaffToBranch, removeStaffFromBranch, type BranchStaffWithName } from '@/services/branches'
 import { getBranchById, type Branch } from '@/services/branches'
 import { BranchTabs } from './BranchTabs'
@@ -70,16 +71,18 @@ export function BranchStaffPage() {
         <Card>
           <CardHeader><CardTitle>Assign staff to branch</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <select
-              className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-              value={selectedStaffId}
-              onChange={(e) => setSelectedStaffId(e.target.value)}
-            >
-              <option value="">Select staff member</option>
-              {availableStaff.map((s) => (
-                <option key={s.id} value={s.id}>{s.full_name} ({s.role})</option>
-              ))}
-            </select>
+            <Field label="Staff member" description="Choose an active staff member to assign to this branch.">
+              <select
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+                value={selectedStaffId}
+                onChange={(e) => setSelectedStaffId(e.target.value)}
+              >
+                <option value="">Select staff member</option>
+                {availableStaff.map((s) => (
+                  <option key={s.id} value={s.id}>{s.full_name} ({s.role})</option>
+                ))}
+              </select>
+            </Field>
             {availableStaff.length === 0 && (
               <p className="text-sm text-slate-400">All active staff are already assigned to this branch.</p>
             )}

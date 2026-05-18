@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { NotificationTabs } from './NotificationTabs'
 import { sendNotification, NOTIFICATION_TYPES, CHANNELS, ALL_VARIABLES, renderTemplate } from '@/services/notifications'
 
@@ -47,8 +48,7 @@ export function ManualSendPage() {
           <CardHeader><CardTitle>Compose</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Channel</label>
+              <Field label="Channel" description="Where this message will be sent.">
                 <select
                   className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                   value={channel}
@@ -56,9 +56,8 @@ export function ManualSendPage() {
                 >
                   {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Type</label>
+              </Field>
+              <Field label="Type" description="Notification category used for logs and template grouping.">
                 <select
                   className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                   value={type}
@@ -66,33 +65,30 @@ export function ManualSendPage() {
                 >
                   {NOTIFICATION_TYPES.map((t) => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
                 </select>
-              </div>
+              </Field>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Recipient</label>
+            <Field label="Recipient" description="Email address, phone number, or channel identifier. Leave blank for internal test logs only.">
               <input
                 className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                 placeholder="email@example.com / phone number"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
               />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Title</label>
+            </Field>
+            <Field label="Title" description="Subject or heading shown for email and in-app notifications.">
               <input
                 className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Message</label>
+            </Field>
+            <Field label="Message" description="Main notification body. Insert variables below to personalize the message.">
               <textarea
                 className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm font-mono"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
-            </div>
+            </Field>
             <div>
               <p className="text-xs text-muted-foreground mb-1">Insert variable:</p>
               <div className="flex flex-wrap gap-1">

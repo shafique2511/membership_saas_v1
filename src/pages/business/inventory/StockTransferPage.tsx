@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
 import { getProducts, transferStock, type Product } from '@/services/inventory'
@@ -60,30 +61,31 @@ export function StockTransferPage() {
         <Card className="mx-auto max-w-lg">
           <CardContent className="space-y-3 pt-6">
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">From branch</label>
+              <Field label="From branch" description="Branch inventory location where stock will be deducted.">
                 <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={fromBranch} onChange={(e) => setFromBranch(e.target.value)}>
                   {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">To branch</label>
+              </Field>
+              <Field label="To branch" description="Branch inventory location where stock will be added.">
                 <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={toBranch} onChange={(e) => setToBranch(e.target.value)}>
                   {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
-              </div>
+              </Field>
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Product</label>
+            <Field label="Product" description="Inventory item being moved between branches.">
               <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={productId} onChange={(e) => setProductId(e.target.value)}>
                 <option value="">Select product</option>
                 {products.filter((p) => p.is_active).map((p) => (
                   <option key={p.id} value={p.id}>{p.name} — Stock: {p.stock_quantity} {p.unit}</option>
                 ))}
               </select>
-            </div>
-            <Input type="number" placeholder="Quantity to transfer" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-            <textarea className="h-16 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </Field>
+            <Field label="Quantity to transfer" description="Number of units to move from source branch to destination branch.">
+              <Input type="number" placeholder="Quantity to transfer" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+            </Field>
+            <Field label="Notes" description="Optional transfer reason or internal reference.">
+              <textarea className="h-16 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </Field>
             <Button className="w-full" onClick={handleTransfer} disabled={!fromBranch || !toBranch || !productId || !quantity || saving}>{saving ? 'Transferring...' : 'Transfer'}</Button>
           </CardContent>
         </Card>

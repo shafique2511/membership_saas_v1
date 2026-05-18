@@ -3,6 +3,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge, type BadgeVariant } from '@/components/ui/badge'
+import { Field } from '@/components/ui/Field'
 import { NotificationTabs } from './NotificationTabs'
 import {
   getBroadcasts, createBroadcast, updateBroadcast, cancelBroadcast,
@@ -84,26 +85,22 @@ export function BroadcastsPage() {
         <Card>
           <CardHeader><CardTitle>New broadcast</CardTitle></CardHeader>
           <CardContent className="space-y-3 max-w-xl">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Campaign name</label>
+            <Field label="Campaign name" description="Internal broadcast name shown in notification history.">
               <input className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Channel</label>
+            </Field>
+            <Field label="Channel" description="Where customers will receive this broadcast.">
               <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={channel} onChange={(e) => setChannel(e.target.value)}>
                 {CHANNELS.filter((c) => c !== 'sms').map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
-            </div>
+            </Field>
             {channel === 'email' && (
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Subject</label>
+              <Field label="Subject" description="Email subject line for this broadcast.">
                 <input className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)} />
-              </div>
+              </Field>
             )}
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Message</label>
+            <Field label="Message" description="Main broadcast content sent to customers.">
               <textarea className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={body} onChange={(e) => setBody(e.target.value)} />
-            </div>
+            </Field>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
               <Button onClick={handleCreate}>Create</Button>

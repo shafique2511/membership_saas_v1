@@ -4,6 +4,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getBranches, createBranch, updateBranch, deleteBranch, getBranchLimit, type Branch } from '@/services/branches'
 import { Building2, Plus, Edit3, Trash2, MapPin, Phone, Mail, ShieldAlert } from 'lucide-react'
@@ -72,32 +73,31 @@ export function BranchesPage() {
         <Card>
           <CardHeader><CardTitle>{editingId ? 'Edit branch' : 'New branch'}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Branch name</label>
+            <Field label="Branch name" description="Location name shown in booking, staff, inventory, and reports.">
               <Input value={form.name ?? ''} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Address</label>
+            </Field>
+            <Field label="Address" description="Physical address for this branch. Customers may see it on booking pages.">
               <Input value={form.address ?? ''} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
-            </div>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Phone</label>
+              <Field label="Phone" description="Branch contact number.">
                 <Input value={form.phone ?? ''} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Email</label>
+              </Field>
+              <Field label="Email" description="Optional branch email for customer contact.">
                 <Input value={form.email ?? ''} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
-              </div>
+              </Field>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2">
               <input
                 type="checkbox" id="is_main"
                 checked={form.is_main ?? false}
                 onChange={(e) => setForm((f) => ({ ...f, is_main: e.target.checked }))}
-                className="rounded border-gray-300"
+                className="mt-1 rounded border-gray-300"
               />
-              <label htmlFor="is_main" className="text-sm font-medium">Main branch</label>
+              <label htmlFor="is_main" className="text-sm">
+                <span className="font-medium">Main branch</span>
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Used as the default branch for bookings, inventory, and staff assignments.</span>
+              </label>
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={resetForm}>Cancel</Button>

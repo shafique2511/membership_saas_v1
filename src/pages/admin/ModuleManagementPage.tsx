@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -102,13 +103,29 @@ export function ModuleManagementPage() {
         onOpenChange={setOpen}
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input placeholder="Module key" value={form.module_key} onChange={(event) => setForm({ ...form, module_key: event.target.value })} />
-          <Input placeholder="Module name" value={form.module_name} onChange={(event) => setForm({ ...form, module_name: event.target.value })} />
-          <Input placeholder="Category" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} />
-          <Input type="number" placeholder="Sort order" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} />
-          <Input className="sm:col-span-2" placeholder="Description" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_core} onChange={(event) => setForm({ ...form, is_core: event.target.checked })} /> Core module</label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_active} onChange={(event) => setForm({ ...form, is_active: event.target.checked })} /> Enabled</label>
+          <Field label="Module key" description="Stable internal key used by code, package rules, permissions, and RLS checks.">
+            <Input placeholder="booking" value={form.module_key} onChange={(event) => setForm({ ...form, module_key: event.target.value })} />
+          </Field>
+          <Field label="Module name" description="Human-readable name shown in admin and business dashboards.">
+            <Input placeholder="Booking" value={form.module_name} onChange={(event) => setForm({ ...form, module_name: event.target.value })} />
+          </Field>
+          <Field label="Category" description="Groups related modules in admin screens and package planning.">
+            <Input placeholder="platform" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} />
+          </Field>
+          <Field label="Sort order" description="Lower numbers appear first in module lists.">
+            <Input type="number" placeholder="0" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} />
+          </Field>
+          <Field className="sm:col-span-2" label="Description" description="Short explanation of what this module unlocks.">
+            <Input placeholder="What this module controls" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
+          </Field>
+          <label className="flex items-start gap-2 text-sm">
+            <input className="mt-1" type="checkbox" checked={form.is_core} onChange={(event) => setForm({ ...form, is_core: event.target.checked })} />
+            <span><span className="font-medium">Core module</span><span className="block text-xs text-slate-500 dark:text-slate-400">Marks this as a required system module for tenant operation.</span></span>
+          </label>
+          <label className="flex items-start gap-2 text-sm">
+            <input className="mt-1" type="checkbox" checked={form.is_active} onChange={(event) => setForm({ ...form, is_active: event.target.checked })} />
+            <span><span className="font-medium">Enabled</span><span className="block text-xs text-slate-500 dark:text-slate-400">Disabled modules cannot be assigned to packages or tenants.</span></span>
+          </label>
         </div>
       </FormModal>
     </div>

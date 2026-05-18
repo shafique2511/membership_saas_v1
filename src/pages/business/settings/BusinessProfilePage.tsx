@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getBusiness, updateBusiness, type Business } from '@/services/businessSettings'
 import { SettingsTabs } from './SettingsTabs'
@@ -42,12 +43,10 @@ export function BusinessProfilePage() {
       <Card>
         <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Business name</label>
+          <Field label="Business name" description="Shown on the dashboard, receipts, booking pages, and customer portal.">
             <Input value={form.name ?? ''} onChange={(e) => set('name', e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Business type</label>
+          </Field>
+          <Field label="Business type" description="Used for business labels and module workflow defaults. It does not remove existing data.">
             <select
               className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
               value={form.business_type ?? ''}
@@ -58,27 +57,22 @@ export function BusinessProfilePage() {
                 <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
               ))}
             </select>
-          </div>
+          </Field>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Phone</label>
+            <Field label="Phone" description="Main phone number customers can use to contact the business.">
               <Input value={form.phone ?? ''} onChange={(e) => set('phone', e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">WhatsApp</label>
+            </Field>
+            <Field label="WhatsApp" description="Optional WhatsApp number for customer communication links.">
               <Input value={form.whatsapp ?? ''} onChange={(e) => set('whatsapp', e.target.value)} />
-            </div>
+            </Field>
           </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Email</label>
+          <Field label="Email" description="Main business email shown to customers and used for support contact.">
             <Input value={form.email ?? ''} onChange={(e) => set('email', e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Address</label>
+          </Field>
+          <Field label="Address" description="Primary business address used for booking and customer-facing pages.">
             <Input value={form.address ?? ''} onChange={(e) => set('address', e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Timezone</label>
+          </Field>
+          <Field label="Timezone" description="Controls booking dates, business hours, reports, and notification timing.">
             <select
               className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
               value={form.timezone ?? 'Asia/Kuala_Lumpur'}
@@ -88,7 +82,7 @@ export function BusinessProfilePage() {
                 <option key={tz} value={tz}>{tz}</option>
               ))}
             </select>
-          </div>
+          </Field>
         </CardContent>
       </Card>
       <div className="flex justify-end">

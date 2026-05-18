@@ -3,6 +3,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge, type BadgeVariant } from '@/components/ui/badge'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { MarketingTabs } from './MarketingTabs'
 import { getCampaigns, createCampaign, scheduleCampaign, sendCampaign, deleteCampaign, getSegments, getPromoCodes, type MarketingCampaign, type CustomerSegment, type PromoCode } from '@/services/marketing'
@@ -63,44 +64,38 @@ export function CampaignsPage() {
           <CardHeader><CardTitle>New campaign</CardTitle></CardHeader>
           <CardContent className="space-y-3 max-w-xl">
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Name</label>
+              <Field label="Name" description="Internal campaign name for staff and reports.">
                 <Input value={form.name ?? ''} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Type</label>
+              </Field>
+              <Field label="Type" description="Campaign purpose, used for reporting and default behavior.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.campaign_type} onChange={(e) => setForm((f) => ({ ...f, campaign_type: e.target.value }))}>
                   {campaignTypes.map((t) => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
                 </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Channel</label>
+              </Field>
+              <Field label="Channel" description="Where this campaign message will be sent.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.channel ?? 'in_app'} onChange={(e) => setForm((f) => ({ ...f, channel: e.target.value }))}>
                   <option value="email">Email</option>
                   <option value="whatsapp">WhatsApp</option>
                   <option value="telegram">Telegram</option>
                   <option value="in_app">In-App</option>
                 </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Target segment</label>
+              </Field>
+              <Field label="Target segment" description="Customer group that should receive this campaign.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.segment_id ?? ''} onChange={(e) => setForm((f) => ({ ...f, segment_id: e.target.value || null }))}>
                   <option value="">All customers</option>
                   {segments.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.customer_count})</option>)}
                 </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Promo code</label>
+              </Field>
+              <Field label="Promo code" description="Optional promo code attached to the campaign.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.promo_code_id ?? ''} onChange={(e) => setForm((f) => ({ ...f, promo_code_id: e.target.value || null }))}>
                   <option value="">No promo code</option>
                   {promos.filter((p) => p.is_active).map((p) => <option key={p.id} value={p.id}>{p.code}</option>)}
                 </select>
-              </div>
+              </Field>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Message</label>
+            <Field label="Message" description="Campaign content sent to customers.">
               <textarea className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.message ?? ''} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} />
-            </div>
+            </Field>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
               <Button onClick={handleCreate}>Create</Button>

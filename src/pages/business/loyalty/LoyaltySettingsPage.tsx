@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { LoyaltyTabs } from '@/pages/business/loyalty/LoyaltyTabs'
 import { getLoyaltySettings, upsertLoyaltySettings, type LoyaltySettings } from '@/services/loyalty'
@@ -67,60 +68,54 @@ export function LoyaltySettingsPage() {
         <Card>
           <CardHeader><CardTitle>Points earning</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Earning rate (RM per point)</label>
+            <Field label="Earning rate" description="Amount a customer must spend to earn 1 point.">
               <p className="mb-1 text-xs text-slate-400">RM {form.earning_rate} spent = 1 point</p>
               <Input type="number" step="0.1" min="0.1" value={form.earning_rate} onChange={(e) => setForm({ ...form, earning_rate: e.target.value })} />
-            </div>
+            </Field>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle>Points redemption</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Redemption rate</label>
+            <Field label="Redemption rate" description="How many points convert into a cash discount at checkout.">
               <p className="mb-1 text-xs text-slate-400">{form.redemption_rate} points = RM {form.redemption_discount_amount} discount</p>
               <div className="flex gap-2">
                 <Input type="number" placeholder="Points" value={form.redemption_rate} onChange={(e) => setForm({ ...form, redemption_rate: e.target.value })} />
                 <Input type="number" placeholder="Discount (RM)" value={form.redemption_discount_amount} onChange={(e) => setForm({ ...form, redemption_discount_amount: e.target.value })} />
               </div>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Minimum redemption points</label>
+            </Field>
+            <Field label="Minimum redemption points" description="Smallest point balance a customer must redeem at checkout.">
               <Input type="number" value={form.min_redemption_points} onChange={(e) => setForm({ ...form, min_redemption_points: e.target.value })} />
-            </div>
+            </Field>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle>Points expiry</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Expiry (days)</label>
+            <Field label="Expiry days" description="Number of days before earned points expire.">
               <Input type="number" value={form.points_expiry_days} onChange={(e) => setForm({ ...form, points_expiry_days: e.target.value })} />
-            </div>
+            </Field>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle>Birthday & referral</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Birthday reward points</label>
+            <Field label="Birthday reward points" description="Points awarded to customers on their birthday when enabled.">
               <Input type="number" value={form.birthday_reward_points} onChange={(e) => setForm({ ...form, birthday_reward_points: e.target.value })} />
-            </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.auto_award_birthday} onChange={(e) => setForm({ ...form, auto_award_birthday: e.target.checked })} />
-              Auto-award birthday rewards
+            </Field>
+            <label className="flex items-start gap-2 text-sm">
+              <input className="mt-1" type="checkbox" checked={form.auto_award_birthday} onChange={(e) => setForm({ ...form, auto_award_birthday: e.target.checked })} />
+              <span><span className="font-medium">Auto-award birthday rewards</span><span className="block text-xs text-slate-500 dark:text-slate-400">Automatically adds birthday points when customer birth dates match.</span></span>
             </label>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Referral reward points</label>
+            <Field label="Referral reward points" description="Points awarded for a successful customer referral.">
               <Input type="number" value={form.referral_reward_points} onChange={(e) => setForm({ ...form, referral_reward_points: e.target.value })} />
-            </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.auto_award_referral} onChange={(e) => setForm({ ...form, auto_award_referral: e.target.checked })} />
-              Auto-award referral rewards
+            </Field>
+            <label className="flex items-start gap-2 text-sm">
+              <input className="mt-1" type="checkbox" checked={form.auto_award_referral} onChange={(e) => setForm({ ...form, auto_award_referral: e.target.checked })} />
+              <span><span className="font-medium">Auto-award referral rewards</span><span className="block text-xs text-slate-500 dark:text-slate-400">Automatically adds referral points when a referral is marked successful.</span></span>
             </label>
           </CardContent>
         </Card>

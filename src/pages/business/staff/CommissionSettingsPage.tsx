@@ -3,6 +3,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StaffTabs } from '@/pages/business/staff/StaffTabs'
@@ -81,21 +82,30 @@ export function CommissionSettingsPage() {
 
       <FormModal open={open} title={editingId ? 'Edit rule' : 'Add rule'} submitLabel={editingId ? 'Save' : 'Create'} onSubmit={handleSubmit} onOpenChange={(v) => { if (!v) { setOpen(false); setEditingId(null) }}}>
         <div className="space-y-3">
-          <Input placeholder="Rule name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.commission_type} onChange={(e) => setForm({ ...form, commission_type: e.target.value })}>
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed amount</option>
-            <option value="service_based">Service-based</option>
-            <option value="product_based">Product-based</option>
-          </select>
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.target_type} onChange={(e) => setForm({ ...form, target_type: e.target.value })}>
-            <option value="all">All items</option>
-            <option value="service">Services</option>
-            <option value="product">Products</option>
-          </select>
-          <Input type="number" placeholder="Rate" value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} />
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} /> Active
+          <Field label="Rule name" description="Name used to identify this commission rule in staff reports.">
+            <Input placeholder="Rule name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </Field>
+          <Field label="Commission type" description="How commission is calculated for matching sales.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.commission_type} onChange={(e) => setForm({ ...form, commission_type: e.target.value })}>
+              <option value="percentage">Percentage</option>
+              <option value="fixed">Fixed amount</option>
+              <option value="service_based">Service-based</option>
+              <option value="product_based">Product-based</option>
+            </select>
+          </Field>
+          <Field label="Target type" description="Which item group this rule applies to.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.target_type} onChange={(e) => setForm({ ...form, target_type: e.target.value })}>
+              <option value="all">All items</option>
+              <option value="service">Services</option>
+              <option value="product">Products</option>
+            </select>
+          </Field>
+          <Field label="Rate" description="Percentage value or fixed RM amount, depending on commission type.">
+            <Input type="number" placeholder="Rate" value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} />
+          </Field>
+          <label className="flex items-start gap-2 text-sm">
+            <input className="mt-1" type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
+            <span><span className="font-medium">Active</span><span className="block text-xs text-slate-500 dark:text-slate-400">Inactive rules are kept for history but will not apply to new commissions.</span></span>
           </label>
         </div>
       </FormModal>

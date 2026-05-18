@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { LoyaltyTabs } from '@/pages/business/loyalty/LoyaltyTabs'
@@ -90,8 +91,12 @@ export function CustomerPointsPage() {
       >
         <div className="space-y-3">
           <p className="text-sm text-slate-500">Current balance: <span className="font-bold text-teal-700">{selectedCustomer?.points_balance ?? 0} points</span></p>
-          <Input type="number" placeholder="Points (positive to add, negative to deduct)" value={adjustPointsVal} onChange={(e) => setAdjustPointsVal(e.target.value)} />
-          <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason for adjustment" value={adjustReason} onChange={(e) => setAdjustReason(e.target.value)} />
+          <Field label="Points adjustment" description="Use a positive number to add points or a negative number to deduct points.">
+            <Input type="number" placeholder="Points (positive to add, negative to deduct)" value={adjustPointsVal} onChange={(e) => setAdjustPointsVal(e.target.value)} />
+          </Field>
+          <Field label="Reason" description="Audit note explaining why points were changed manually.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Reason for adjustment" value={adjustReason} onChange={(e) => setAdjustReason(e.target.value)} />
+          </Field>
         </div>
       </FormModal>
 

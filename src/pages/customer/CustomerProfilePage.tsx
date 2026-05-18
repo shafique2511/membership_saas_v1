@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getCustomerByUserId, updateCustomerProfile } from '@/services/customerPortal'
 import { updatePassword } from '@/services/auth'
@@ -93,30 +94,25 @@ export function CustomerProfilePage() {
       <Card>
         <CardHeader><CardTitle className="text-base">Edit profile</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Full name</label>
+          <Field label="Full name" description="Name shown on your bookings, memberships, and loyalty account.">
             <Input value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Phone</label>
+          </Field>
+          <Field label="Phone" description="Used by the business for booking updates and account lookup.">
             <Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Email</label>
+          </Field>
+          <Field label="Email" description="Used for login and account notifications.">
             <Input value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Birthday</label>
+          </Field>
+          <Field label="Birthday" description="Used for birthday rewards if the business enables them.">
             <Input type="date" value={form.birthday} onChange={(e) => setForm((f) => ({ ...f, birthday: e.target.value }))} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Gender</label>
+          </Field>
+          <Field label="Gender" description="Optional profile detail for customer segmentation and service context.">
             <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}>
               <option value="">Prefer not to say</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
-          </div>
+          </Field>
           <Button className="w-full" onClick={handleSaveProfile} disabled={saving}>
             <Save className="mr-1 h-4 w-4" /> {saving ? 'Saving...' : 'Save'}
           </Button>
@@ -126,18 +122,15 @@ export function CustomerProfilePage() {
       <Card>
         <CardHeader><CardTitle className="text-base">Change password</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Current password</label>
+          <Field label="Current password" description="Your existing password is required before changing it.">
             <Input type="password" value={passwordForm.current} onChange={(e) => setPasswordForm((f) => ({ ...f, current: e.target.value }))} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">New password</label>
+          </Field>
+          <Field label="New password" description="Choose a secure replacement password.">
             <Input type="password" value={passwordForm.new} onChange={(e) => setPasswordForm((f) => ({ ...f, new: e.target.value }))} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Confirm new password</label>
+          </Field>
+          <Field label="Confirm new password" description="Repeat the new password to prevent typos.">
             <Input type="password" value={passwordForm.confirm} onChange={(e) => setPasswordForm((f) => ({ ...f, confirm: e.target.value }))} />
-          </div>
+          </Field>
           <Button className="w-full" variant="outline" onClick={handleChangePassword} disabled={passwordSaving}>
             <KeyRound className="mr-1 h-4 w-4" /> {passwordSaving ? 'Changing...' : 'Change password'}
           </Button>

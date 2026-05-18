@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -144,31 +145,45 @@ export function DataGovernancePage() {
 
       <FormModal open={open} title="Log backup action" submitLabel="Save log" onSubmit={handleSubmit} onOpenChange={setOpen}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.backup_type} onChange={(e) => setForm({ ...form, backup_type: e.target.value })}>
-            <option value="manual">Manual</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="pre_migration">Pre-migration</option>
-            <option value="legal_hold">Legal hold</option>
-            <option value="shutdown">Shutdown</option>
-            <option value="restore_test">Restore test</option>
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.backup_scope} onChange={(e) => setForm({ ...form, backup_scope: e.target.value })}>
-            <option value="full_platform">Full platform</option>
-            <option value="schema_only">Schema only</option>
-            <option value="tenant_export">Tenant export</option>
-            <option value="storage_only">Storage only</option>
-          </select>
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-            <option value="planned">Planned</option>
-            <option value="running">Running</option>
-            <option value="completed">Completed</option>
-            <option value="verified">Verified</option>
-            <option value="failed">Failed</option>
-          </select>
-          <Input type="date" value={form.retention_until} onChange={(e) => setForm({ ...form, retention_until: e.target.value })} />
-          <Input className="sm:col-span-2" placeholder="Storage location" value={form.storage_location} onChange={(e) => setForm({ ...form, storage_location: e.target.value })} />
-          <Input className="sm:col-span-2" placeholder="Checksum" value={form.checksum} onChange={(e) => setForm({ ...form, checksum: e.target.value })} />
-          <Input className="sm:col-span-2" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          <Field label="Backup type" description="Why this backup was created. This helps audit migration, legal, and shutdown actions.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.backup_type} onChange={(e) => setForm({ ...form, backup_type: e.target.value })}>
+              <option value="manual">Manual</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="pre_migration">Pre-migration</option>
+              <option value="legal_hold">Legal hold</option>
+              <option value="shutdown">Shutdown</option>
+              <option value="restore_test">Restore test</option>
+            </select>
+          </Field>
+          <Field label="Backup scope" description="What data was included in the backup action.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.backup_scope} onChange={(e) => setForm({ ...form, backup_scope: e.target.value })}>
+              <option value="full_platform">Full platform</option>
+              <option value="schema_only">Schema only</option>
+              <option value="tenant_export">Tenant export</option>
+              <option value="storage_only">Storage only</option>
+            </select>
+          </Field>
+          <Field label="Status" description="Current result of the backup action. Mark verified only after a restore or integrity check.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+              <option value="planned">Planned</option>
+              <option value="running">Running</option>
+              <option value="completed">Completed</option>
+              <option value="verified">Verified</option>
+              <option value="failed">Failed</option>
+            </select>
+          </Field>
+          <Field label="Retention until" description="Date this backup may be deleted unless legal retention still applies.">
+            <Input type="date" value={form.retention_until} onChange={(e) => setForm({ ...form, retention_until: e.target.value })} />
+          </Field>
+          <Field className="sm:col-span-2" label="Storage location" description="Secure storage path, bucket, vault reference, or external backup location.">
+            <Input placeholder="backups/platform/2026-05-18.dump" value={form.storage_location} onChange={(e) => setForm({ ...form, storage_location: e.target.value })} />
+          </Field>
+          <Field className="sm:col-span-2" label="Checksum" description="Optional hash used to verify the backup file was not changed or corrupted.">
+            <Input placeholder="SHA256 checksum" value={form.checksum} onChange={(e) => setForm({ ...form, checksum: e.target.value })} />
+          </Field>
+          <Field className="sm:col-span-2" label="Notes" description="Add reason, approval reference, restore-test result, or incident ticket number.">
+            <Input placeholder="Backup reason and audit notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          </Field>
         </div>
       </FormModal>
     </div>

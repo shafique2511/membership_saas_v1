@@ -3,6 +3,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { POSTabs } from '@/pages/business/pos/POSTabs'
@@ -112,11 +113,12 @@ export function POSDailyClosingPage() {
 
       <FormModal open={closeOpen} title="Close register" submitLabel="Close" onSubmit={handleClose} onOpenChange={(v) => { if (!v) setCloseOpen(false) }}>
         <div className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Closing balance (RM)</label>
+          <Field label="Closing balance" description="Actual counted register total at the end of the day.">
             <Input type="number" value={closingBalance} onChange={(e) => setClosingBalance(e.target.value)} />
-          </div>
-          <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={closingNotes} onChange={(e) => setClosingNotes(e.target.value)} />
+          </Field>
+          <Field label="Notes" description="Optional closing note for cash variance, refunds, or end-of-day remarks.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={closingNotes} onChange={(e) => setClosingNotes(e.target.value)} />
+          </Field>
           <div className="rounded-md bg-slate-50 p-3 text-sm dark:bg-slate-800">
             <p className="font-medium">Summary</p>
             <p>Total sales: RM {Number(summary.totalSales ?? 0).toFixed(2)}</p>

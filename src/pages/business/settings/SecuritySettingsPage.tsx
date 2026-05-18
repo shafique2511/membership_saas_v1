@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { updatePassword } from '@/services/auth'
 import { SettingsTabs } from './SettingsTabs'
@@ -46,18 +47,15 @@ export function SecuritySettingsPage() {
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><KeyRound className="h-4 w-4" /> Change password</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Current password</label>
+          <Field label="Current password" description="Enter your existing password before setting a new one.">
             <Input type="password" value={pwForm.current} onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">New password</label>
+          </Field>
+          <Field label="New password" description="Use at least 6 characters. A longer unique password is recommended.">
             <Input type="password" value={pwForm.newPass} onChange={(e) => setPwForm({ ...pwForm, newPass: e.target.value })} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Confirm new password</label>
+          </Field>
+          <Field label="Confirm new password" description="Re-enter the new password to prevent typing mistakes.">
             <Input type="password" value={pwForm.confirm} onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })} />
-          </div>
+          </Field>
           <Button onClick={handleChangePassword} disabled={savingPw}>
             {savingPw ? 'Changing...' : 'Change password'}
           </Button>

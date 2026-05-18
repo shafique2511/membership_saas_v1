@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Badge, type BadgeVariant } from '@/components/ui/badge'
 import { NotificationTabs } from './NotificationTabs'
 import {
@@ -91,23 +92,21 @@ export function NotificationTemplatesPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {editing.channel === 'email' && (
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Subject</label>
+              <Field label="Subject" description="Email subject line for this notification template.">
                 <input
                   className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                   value={editSubject}
                   onChange={(e) => setEditSubject(e.target.value)}
                 />
-              </div>
+              </Field>
             )}
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Body</label>
+            <Field label="Body" description="Message body. Use variables below for customer, booking, payment, and membership data.">
               <textarea
                 className="w-full min-h-[120px] rounded-md border border-input bg-transparent px-3 py-2 text-sm font-mono"
                 value={editBody}
                 onChange={(e) => setEditBody(e.target.value)}
               />
-            </div>
+            </Field>
             <div>
               <p className="text-xs text-muted-foreground mb-1">Available variables:</p>
               <div className="flex flex-wrap gap-1">

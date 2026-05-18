@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -133,17 +134,35 @@ export function MembershipPlansPage() {
         onOpenChange={(v) => { if (!v) { setOpen(false); setEditingId(null) }}}
       >
         <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-          <Input placeholder="Plan name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <select className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.plan_type} onChange={(e) => setForm({ ...form, plan_type: e.target.value as PlanType })}>
-            {Object.entries(planTypeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
-          <textarea className="sm:col-span-2 h-20 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          <Input type="number" placeholder="Price (RM)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-          <Input type="number" placeholder="Duration (days)" value={form.duration_days} onChange={(e) => setForm({ ...form, duration_days: e.target.value })} />
-          <Input type="number" placeholder="Credit amount (RM)" value={form.credit_amount} onChange={(e) => setForm({ ...form, credit_amount: e.target.value })} />
-          <Input type="number" placeholder="Visit limit" value={form.visit_limit} onChange={(e) => setForm({ ...form, visit_limit: e.target.value })} />
-          <Input type="number" placeholder="Points bonus" value={form.points_bonus} onChange={(e) => setForm({ ...form, points_bonus: e.target.value })} />
-          <Input type="number" placeholder="Discount %" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: e.target.value })} />
+          <Field label="Plan name" description="Customer-facing membership name shown in sales and member records.">
+            <Input placeholder="Plan name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </Field>
+          <Field label="Plan type" description="Controls whether the plan behaves as subscription, prepaid credit, visit package, or VIP.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.plan_type} onChange={(e) => setForm({ ...form, plan_type: e.target.value as PlanType })}>
+              {Object.entries(planTypeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </Field>
+          <Field className="sm:col-span-2" label="Description" description="Explain what the customer receives with this plan.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </Field>
+          <Field label="Price" description="Amount charged when selling this plan.">
+            <Input type="number" placeholder="Price (RM)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+          </Field>
+          <Field label="Duration" description="Number of days before the membership expires.">
+            <Input type="number" placeholder="Duration (days)" value={form.duration_days} onChange={(e) => setForm({ ...form, duration_days: e.target.value })} />
+          </Field>
+          <Field label="Credit amount" description="Prepaid balance loaded into the membership, if applicable.">
+            <Input type="number" placeholder="Credit amount (RM)" value={form.credit_amount} onChange={(e) => setForm({ ...form, credit_amount: e.target.value })} />
+          </Field>
+          <Field label="Visit limit" description="Number of visits included, if this is a visit package.">
+            <Input type="number" placeholder="Visit limit" value={form.visit_limit} onChange={(e) => setForm({ ...form, visit_limit: e.target.value })} />
+          </Field>
+          <Field label="Points bonus" description="Loyalty points awarded when this plan is purchased.">
+            <Input type="number" placeholder="Points bonus" value={form.points_bonus} onChange={(e) => setForm({ ...form, points_bonus: e.target.value })} />
+          </Field>
+          <Field label="Discount percent" description="Default discount members receive on eligible purchases.">
+            <Input type="number" placeholder="Discount %" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: e.target.value })} />
+          </Field>
         </div>
       </FormModal>
     </div>

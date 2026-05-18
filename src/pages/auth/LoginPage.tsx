@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { useAppContext } from '@/context/useAppContext'
 import { signInWithEmail } from '@/services/auth'
@@ -38,8 +39,12 @@ export function LoginPage() {
       <h1 className="text-2xl font-semibold">Sign in</h1>
       <p className="mt-2 text-sm text-slate-500">Access your business workspace.</p>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-        <Input required type="email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
-        <Input required type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        <Field label="Email address" description="Use the email registered for your owner, staff, customer, or super admin account.">
+          <Input required type="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
+        </Field>
+        <Field label="Password" description="Enter the password for this account.">
+          <Input required type="password" placeholder="Your password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        </Field>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button className="w-full" type="submit" disabled={loading}>
           {loading ? 'Signing in...' : 'Sign in'}

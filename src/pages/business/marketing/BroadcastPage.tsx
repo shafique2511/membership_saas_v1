@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { MarketingTabs } from './MarketingTabs'
 import { createCampaign, sendCampaign, getSegments, getPromoCodes, type CustomerSegment, type PromoCode } from '@/services/marketing'
@@ -74,45 +75,39 @@ export function BroadcastPage() {
         <Card>
           <CardHeader><CardTitle>Compose broadcast</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Campaign name</label>
+            <Field label="Campaign name" description="Internal name used to identify this broadcast in marketing history.">
               <Input value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Channel</label>
+              <Field label="Channel" description="Where customers will receive this broadcast.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={channel} onChange={(e) => setChannel(e.target.value)}>
                   <option value="email">Email</option>
                   <option value="whatsapp">WhatsApp</option>
                   <option value="telegram">Telegram</option>
                   <option value="in_app">In-App</option>
                 </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Target segment</label>
+              </Field>
+              <Field label="Target segment" description="Choose all customers or a saved customer segment.">
                 <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={segmentId} onChange={(e) => setSegmentId(e.target.value)}>
                   <option value="">All customers</option>
                   {segments.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.customer_count})</option>)}
                 </select>
-              </div>
+              </Field>
             </div>
             {channel === 'email' && (
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Subject</label>
+              <Field label="Subject" description="Email subject line for this broadcast.">
                 <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
-              </div>
+              </Field>
             )}
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Message</label>
+            <Field label="Message" description="Main broadcast content sent to the selected customers.">
               <textarea className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={message} onChange={(e) => setMessage(e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Promo code (optional)</label>
+            </Field>
+            <Field label="Promo code" description="Optional active promo code to attach to this broadcast.">
               <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={promoCodeId} onChange={(e) => setPromoCodeId(e.target.value)}>
                 <option value="">None</option>
                 {promos.filter((p) => p.is_active).map((p) => <option key={p.id} value={p.id}>{p.code} - {p.discount_type === 'percentage' ? `${p.discount_value}%` : `RM${p.discount_value}`}</option>)}
               </select>
-            </div>
+            </Field>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => { setName(''); setMessage(''); setSubject(''); setResult(null) }}>Clear</Button>
               <Button onClick={handleSend} disabled={sending || !name || !message}>

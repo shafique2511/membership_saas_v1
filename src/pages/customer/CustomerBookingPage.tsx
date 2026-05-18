@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getServices, getStaff, getAvailableSlots, createBooking, type ServiceRow, type StaffRow, type AvailableSlot } from '@/services/bookings'
 import { Scissors, UserRound, Calendar, Clock, DollarSign, CheckCircle } from 'lucide-react'
@@ -215,22 +216,18 @@ export function CustomerBookingPage() {
         <Card>
           <CardHeader><CardTitle className="text-base">Your details</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Name</label>
+            <Field label="Name" description="Name the business will see on this booking.">
               <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Your name" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Phone</label>
+            </Field>
+            <Field label="Phone" description="Contact number for booking updates or staff follow-up.">
               <Input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="Your phone" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Email</label>
+            </Field>
+            <Field label="Email" description="Optional email for booking confirmation and receipts.">
               <Input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Your email" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Notes (optional)</label>
+            </Field>
+            <Field label="Notes" description="Optional request, allergy, seating preference, or anything staff should know.">
               <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Anything we should know?" value={notes} onChange={(e) => setNotes(e.target.value)} />
-            </div>
+            </Field>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setStep(2)} className="flex-1">Back</Button>
               <Button onClick={() => setStep(4)} className="flex-1">Review</Button>

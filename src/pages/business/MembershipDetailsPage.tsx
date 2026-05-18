@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import {
@@ -193,15 +194,23 @@ export function MembershipDetailsPage() {
 
       <FormModal open={openUsage} title="Record usage" submitLabel="Record" onSubmit={handleRecordUsage} onOpenChange={(v) => { if (!v) setOpenUsage(false) }}>
         <div className="space-y-3">
-          <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={usageForm.usage_type} onChange={(e) => setUsageForm({ ...usageForm, usage_type: e.target.value })}>
-            <option value="visit">Visit</option>
-            <option value="credit">Credit</option>
-            <option value="discount">Discount</option>
-            <option value="manual_adjustment">Manual adjustment</option>
-          </select>
-          <Input type="number" placeholder="Visits used" value={usageForm.visits_used} onChange={(e) => setUsageForm({ ...usageForm, visits_used: e.target.value })} />
-          <Input type="number" placeholder="Amount used (RM)" value={usageForm.amount_used} onChange={(e) => setUsageForm({ ...usageForm, amount_used: e.target.value })} />
-          <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={usageForm.notes} onChange={(e) => setUsageForm({ ...usageForm, notes: e.target.value })} />
+          <Field label="Usage type" description="Choose whether this usage deducts visits, credit, discount entitlement, or records a manual adjustment.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={usageForm.usage_type} onChange={(e) => setUsageForm({ ...usageForm, usage_type: e.target.value })}>
+              <option value="visit">Visit</option>
+              <option value="credit">Credit</option>
+              <option value="discount">Discount</option>
+              <option value="manual_adjustment">Manual adjustment</option>
+            </select>
+          </Field>
+          <Field label="Visits used" description="Number of visits to deduct from the membership. Use 0 for credit-only usage.">
+            <Input type="number" placeholder="Visits used" value={usageForm.visits_used} onChange={(e) => setUsageForm({ ...usageForm, visits_used: e.target.value })} />
+          </Field>
+          <Field label="Amount used" description="Credit amount in RM to deduct from the membership balance.">
+            <Input type="number" placeholder="Amount used (RM)" value={usageForm.amount_used} onChange={(e) => setUsageForm({ ...usageForm, amount_used: e.target.value })} />
+          </Field>
+          <Field label="Notes" description="Optional usage note shown in membership history.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={usageForm.notes} onChange={(e) => setUsageForm({ ...usageForm, notes: e.target.value })} />
+          </Field>
         </div>
       </FormModal>
     </div>

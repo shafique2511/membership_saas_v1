@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { SettingsTabs } from './SettingsTabs'
 import { UserRound, Mail, Calendar } from 'lucide-react'
@@ -36,19 +37,15 @@ export function AccountSettingsPage() {
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><UserRound className="h-4 w-4" /> Profile</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Full name</label>
+          <Field label="Full name" description="Your display name shown in staff records, audit logs, and owner or manager screens.">
             <Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Email</label>
+          </Field>
+          <Field label="Email" description="Login email from Supabase Auth. Change it from authentication settings if needed.">
             <Input value={form.email} disabled className="bg-slate-50" />
-            <p className="mt-1 text-[10px] text-slate-400">Email cannot be changed here.</p>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Phone</label>
+          </Field>
+          <Field label="Phone" description="Optional phone number for internal contact and staff profile records.">
             <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          </div>
+          </Field>
         </CardContent>
       </Card>
       <Card>

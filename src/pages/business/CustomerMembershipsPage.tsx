@@ -4,6 +4,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { getPlans, getMemberships, assignMembership, getMembershipStatusColor, searchCustomers, type Membership, type MembershipStatus } from '@/services/memberships'
@@ -117,8 +118,7 @@ export function CustomerMembershipsPage() {
               <button type="button" className="text-xs text-slate-400" onClick={() => setForm({ ...form, customer_id: '', customer_name: '' })}>Change</button>
             </div>
           ) : (
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">Search customer</label>
+            <Field label="Search customer" description="Find the existing customer who should receive this membership.">
               <Input placeholder="Name, phone or email..." value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
               {customerResults.length > 0 && (
                 <div className="mt-1 max-h-32 overflow-y-auto rounded-md border border-slate-200 dark:border-slate-700">
@@ -130,24 +130,22 @@ export function CustomerMembershipsPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </Field>
           )}
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Plan</label>
+          <Field label="Plan" description="Membership plan to assign. It controls price, credits, visits, duration, and benefits.">
             <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.plan_id} onChange={(e) => setForm({ ...form, plan_id: e.target.value })}>
               <option value="">Select plan</option>
               {plans.filter((p) => p.is_active).map((p: Record<string, unknown>) => (
                 <option key={String(p.id)} value={String(p.id)}>{String(p.name)} — RM {Number(p.price).toLocaleString()}</option>
               ))}
             </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500">Start date</label>
+          </Field>
+          <Field label="Start date" description="Date the membership becomes active and expiry is calculated from.">
             <Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.auto_renew} onChange={(e) => setForm({ ...form, auto_renew: e.target.checked })} />
-            Auto-renew
+          </Field>
+          <label className="flex items-start gap-2 text-sm">
+            <input className="mt-1" type="checkbox" checked={form.auto_renew} onChange={(e) => setForm({ ...form, auto_renew: e.target.checked })} />
+            <span><span className="font-medium">Auto-renew</span><span className="block text-xs text-slate-500 dark:text-slate-400">Marks this customer membership for automatic renewal when renewal flow is enabled.</span></span>
           </label>
         </div>
       </FormModal>
