@@ -50,8 +50,7 @@ where p.slug in ('starter', 'growth', 'pro', 'business_suite', 'enterprise')
 on conflict (package_id, module_id) do update set
   access_level = excluded.access_level,
   limit_config = excluded.limit_config,
-  is_enabled = excluded.is_enabled,
-  updated_at = now();
+  is_enabled = excluded.is_enabled;
 
 insert into public.business_module_access (business_id, module_key, access_level, is_enabled, source, limit_config)
 select bs.business_id, 'data_ownership_backup', 'unlimited', true, 'package', '{}'::jsonb
