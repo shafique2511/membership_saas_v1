@@ -51,7 +51,86 @@ export async function hasRole(role: UserRole | UserRole[]): Promise<boolean> {
 
 export async function hasPermission(permission: Permission): Promise<boolean> {
   const profile = await getUserProfile()
-  return roleHasPermission(profile?.role, permission)
+
+  if (!profile) {
+    return false
+  }
+
+  if (profile.role === 'super_admin') {
+    return true
+  }
+
+  if (!profile.business_id) {
+    return roleHasPermission(profile.role, permission)
+  }
+
+  const staffOverride = await getStaffPermissionOverride(profile.business_id, permission)
+
+  if (staffOverride !== null) {
+    return staffOverride
+  }
+
+  const roleOverride = await getRolePermissionOverride(profile.business_id, profile.role, permission)
+
+  if (roleOverride !== null) {
+    return roleOverride
+  }
+
+  return roleHasPermission(profile.role, permission)
+}
+
+async function getRolePermissionOverride(businessId: string, role: UserRole, permission: Permission): Promise<boolean | null> {
+  const { data, error } = await supabase
+    .from('staff_permissions')
+    .select('is_granted')
+    .eq('business_id', businessId)
+    .eq('role', role)
+    .eq('permission_key', permission)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return typeof data?.is_granted === 'boolean' ? data.is_granted : null
+}
+
+async function getStaffPermissionOverride(businessId: string, permission: Permission): Promise<boolean | null> {
+  const currentUser = await getCurrentUser()
+
+  if (!currentUser) {
+    return null
+  }
+
+  const { data: staffData, error: staffError } = await supabase
+    .from('staff')
+    .select('id')
+    .eq('business_id', businessId)
+    .eq('user_id', currentUser.id)
+    .eq('status', 'active')
+    .maybeSingle()
+
+  if (staffError) {
+    throw staffError
+  }
+
+  if (!staffData?.id) {
+    return null
+  }
+
+  const { data, error } = await supabase
+    .from('staff_user_permissions')
+    .select('is_granted')
+    .eq('business_id', businessId)
+    .eq('staff_id', staffData.id)
+    .eq('permission_key', permission)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return typeof data?.is_granted === 'boolean' ? data.is_granted : null
 }
 
 export async function hasModuleAccess(moduleKey: ModuleKey): Promise<boolean> {
@@ -199,6 +278,12 @@ export async function inviteStaff(input: {
   role: 'manager' | 'staff'
 }) {
   const invitedBy = await requireRole(['owner', 'manager', 'super_admin'])
+  const canManageStaff = await hasPermission('staff.manage')
+
+  if (!canManageStaff) {
+    throw new RoleRequiredError('You do not have permission to invite staff.')
+  }
+
   const token = crypto.randomUUID()
 
   const { data, error } = await supabase
