@@ -10,6 +10,7 @@
 --
 -- Auth users for demo login are inserted at the end.
 -- Demo credentials:
+--   superadmin@demo.com / Demo@123456     → Platform Super Admin
 --   barber_owner@demo.com / Demo@123456  → Barber Shop owner
 --   coffee_owner@demo.com / Demo@123456  → Coffee Shop owner
 --   staff1@demo.com / Demo@123456       → Barber staff
@@ -485,6 +486,7 @@ on conflict (business_id, notification_type, channel) do nothing;
 begin
   insert into auth.users (id, email, encrypted_password, email_confirmed_at, confirmation_sent_at, raw_user_meta_data, created_at, updated_at)
   values
+    ('a1000000-0000-0000-0000-000000000000', 'superadmin@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Platform Super Admin","role":"super_admin"}'::jsonb, now(), now()),
     ('a1000000-0000-0000-0000-000000000001', 'barber_owner@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Ahmad Barber","role":"owner","business_name":"Classic Barber House","business_type":"barber_shop"}'::jsonb, now(), now()),
     ('a1000000-0000-0000-0000-000000000002', 'coffee_owner@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Mei Ling Coffee","role":"owner","business_name":"Brew & Bean Cafe","business_type":"coffee_shop"}'::jsonb, now(), now()),
     ('a1000000-0000-0000-0000-000000000003', 'staff1@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Ahmad Bin Ismail","role":"staff"}'::jsonb, now(), now()),
@@ -500,11 +502,19 @@ begin
   insert into auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
   select id, id, jsonb_build_object('sub', id, 'email', email), 'email', email, now(), now(), now()
   from auth.users
-  where email in ('barber_owner@demo.com', 'coffee_owner@demo.com', 'staff1@demo.com', 'staff2@demo.com', 'customer1@demo.com', 'customer2@demo.com', 'customer3@demo.com', 'customer4@demo.com', 'customer5@demo.com')
+  where email in ('superadmin@demo.com', 'barber_owner@demo.com', 'coffee_owner@demo.com', 'staff1@demo.com', 'staff2@demo.com', 'customer1@demo.com', 'customer2@demo.com', 'customer3@demo.com', 'customer4@demo.com', 'customer5@demo.com')
   on conflict (provider_id, provider) do nothing;
 exception when others then
   raise notice 'Auth user creation skipped (may need Supabase dashboard): %', SQLERRM;
 end;
+
+-- Super Admin profile
+insert into public.user_profiles (id, business_id, branch_id, full_name, email, role, status)
+select u.id, null, null, u.raw_user_meta_data->>'full_name', u.email, 'super_admin', 'active'
+from auth.users u
+where u.email = 'superadmin@demo.com'
+  and not exists (select 1 from public.user_profiles up where up.id = u.id)
+on conflict (id) do nothing;
 
 -- Insert user_profiles for auth users (linking them to businesses)
 insert into public.user_profiles (id, business_id, branch_id, full_name, email, role, status)
