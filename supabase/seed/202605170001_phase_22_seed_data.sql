@@ -108,6 +108,18 @@ on conflict (id) do nothing;
 select id into v_barber_biz_id from public.businesses where name = 'Classic Barber House';
 select id into v_coffee_biz_id from public.businesses where name = 'Brew & Bean Cafe';
 
+-- Ensure core exists even when this seed is run after a partially applied module seed.
+insert into public.modules (module_key, module_name, description, category, is_core, is_active, sort_order)
+values ('core', 'Core Business System', 'Business profile, customers, settings, base dashboard, and tenant controls.', 'platform', true, true, 10)
+on conflict (module_key) do update set
+  module_name = excluded.module_name,
+  description = excluded.description,
+  category = excluded.category,
+  is_core = excluded.is_core,
+  is_active = true,
+  sort_order = excluded.sort_order,
+  updated_at = now();
+
 -- ============================================================================
 -- 6. Demo subscriptions + module access
 -- ============================================================================
@@ -150,6 +162,18 @@ left join public.package_modules pm on pm.package_id = v_growth_pkg_id and pm.mo
 where m.is_active = true
   and m.module_key in ('core', 'data_ownership_backup', 'booking', 'membership', 'loyalty', 'payment', 'customer_portal', 'reports')
 on conflict (business_id, module_key, source) do update set access_level = excluded.access_level, is_enabled = excluded.is_enabled, limit_config = excluded.limit_config;
+
+-- Demo data needs core access before branch/staff/customer limit triggers run.
+-- Barber has two demo branches, so raise only this seed business limit to match the fixture.
+insert into public.business_module_access (business_id, module_key, access_level, source, is_enabled, limit_config)
+values
+  (v_barber_biz_id, 'core', 'pro', 'package', true, '{"branches":2,"staff":25,"customers":10000}'::jsonb),
+  (v_coffee_biz_id, 'core', 'basic', 'package', true, '{"branches":1,"staff":8,"customers":2000}'::jsonb)
+on conflict (business_id, module_key, source) do update set
+  access_level = excluded.access_level,
+  is_enabled = excluded.is_enabled,
+  limit_config = excluded.limit_config,
+  updated_at = now();
 
 -- ============================================================================
 -- 6. Demo branches (continued)
