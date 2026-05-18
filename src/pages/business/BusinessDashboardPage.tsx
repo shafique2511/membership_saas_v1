@@ -30,6 +30,7 @@ export function BusinessDashboardPage() {
   const hasBooking = hasModule('booking')
   const hasPayment = hasModule('payment')
   const hasMembership = hasModule('membership')
+  const hasPos = hasModule('pos')
   const hasInventory = hasModule('inventory')
   const hasStaff = hasModule('staff_commission')
 
@@ -280,7 +281,7 @@ export function BusinessDashboardPage() {
         </Card>
       )}
 
-      {data.topProducts.length > 0 && (
+      {(hasPos || hasInventory) && data.topProducts.length > 0 && (
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><Package className="h-4 w-4" /> Top products</CardTitle></CardHeader>
           <CardContent>

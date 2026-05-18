@@ -178,6 +178,22 @@ function App() {
         <Route element={<ProtectedRoute roles={['owner', 'manager', 'staff', 'super_admin']} />}>
           <Route path="app">
             <Route path="dashboard" element={<Navigate to="/business" replace />} />
+            <Route path="calendar" element={<Navigate to="/business/bookings" replace />} />
+            <Route path="bookings" element={<Navigate to="/business/bookings" replace />} />
+            <Route path="customers" element={<Navigate to="/business/memberships" replace />} />
+            <Route path="members" element={<Navigate to="/business/memberships" replace />} />
+            <Route path="pos" element={<Navigate to="/business/pos" replace />} />
+            <Route path="products" element={<Navigate to="/business/inventory/products" replace />} />
+            <Route path="inventory" element={<Navigate to="/business/inventory" replace />} />
+            <Route path="staff" element={<Navigate to="/business/staff" replace />} />
+            <Route path="payments" element={<Navigate to="/business/payments" replace />} />
+            <Route path="loyalty" element={<Navigate to="/business/loyalty" replace />} />
+            <Route path="rewards" element={<Navigate to="/business/loyalty/rewards" replace />} />
+            <Route path="reports" element={<Navigate to="/business/reports" replace />} />
+            <Route path="marketing" element={<Navigate to="/business/marketing" replace />} />
+            <Route path="branches" element={<Navigate to="/business/branches" replace />} />
+            <Route path="settings" element={<Navigate to="/business/settings" replace />} />
+            <Route path="upgrade" element={<Navigate to="/business/upgrade" replace />} />
             <Route path="setup" element={<BusinessSetupWizardPage />} />
             <Route path="staff/dashboard" element={<Navigate to="/business/staff" replace />} />
           </Route>
