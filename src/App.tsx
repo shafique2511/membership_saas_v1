@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ModuleRoute } from '@/components/auth/ModuleRoute'
+import { CustomerProtectedRoute } from '@/components/auth/CustomerProtectedRoute'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
@@ -103,6 +104,7 @@ import { UpgradePage } from '@/pages/business/UpgradePage'
 import { UsageLimitsPage } from '@/pages/business/UsageLimitsPage'
 import { CustomerBookingPage } from '@/pages/customer/CustomerBookingPage'
 import { CustomerHomePage } from '@/pages/customer/CustomerHomePage'
+import { CustomerLoginPage } from '@/pages/customer/CustomerLoginPage'
 import { CustomerPublicPage } from '@/pages/customer/CustomerPublicPage'
 import { CustomerMembershipsPage } from '@/pages/customer/CustomerMembershipsPage'
 import { CustomerRewardsPage } from '@/pages/customer/CustomerRewardsPage'
@@ -111,13 +113,19 @@ import { CustomerBookingHistoryPage } from '@/pages/customer/CustomerBookingHist
 import { CustomerPaymentHistoryPage } from '@/pages/customer/CustomerPaymentHistoryPage'
 import { CustomerProfilePage } from '@/pages/customer/CustomerProfilePage'
 import { PublicHomePage } from '@/pages/public/PublicHomePage'
+import { PublicInfoPage } from '@/pages/public/PublicInfoPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<Navigate to="/business" replace />} />
+        <Route path="login" element={<AuthLayout />}>
+          <Route index element={<LoginPage />} />
+        </Route>
+        <Route path="register-business" element={<AuthLayout />}>
+          <Route index element={<RegisterPage />} />
+        </Route>
         <Route path="auth" element={<AuthLayout />}>
           <Route index element={<Navigate to="/auth/login" replace />} />
           <Route path="login" element={<LoginPage />} />
@@ -131,9 +139,17 @@ function App() {
         <Route path="public" element={<PublicLayout />}>
           <Route index element={<PublicHomePage />} />
         </Route>
+        <Route element={<PublicLayout />}>
+          <Route index element={<PublicHomePage />} />
+          <Route path="features" element={<PublicInfoPage page="features" />} />
+          <Route path="pricing" element={<PublicInfoPage page="pricing" />} />
+          <Route path="demo" element={<PublicInfoPage page="demo" />} />
+          <Route path="contact" element={<PublicInfoPage page="contact" />} />
+        </Route>
         <Route element={<ProtectedRoute roles={['super_admin']} />}>
           <Route path="admin" element={<DashboardLayout />}>
             <Route index element={<AdminDashboardPage />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="businesses" element={<BusinessesPage />} />
             <Route path="businesses/:businessId" element={<BusinessDetailsPage />} />
             <Route path="packages" element={<PackageManagementPage />} />
@@ -150,6 +166,10 @@ function App() {
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={['owner', 'manager', 'staff', 'super_admin']} />}>
+          <Route path="app">
+            <Route path="dashboard" element={<Navigate to="/business" replace />} />
+            <Route path="staff/dashboard" element={<Navigate to="/business/staff" replace />} />
+          </Route>
           <Route path="business" element={<DashboardLayout />}>
             <Route index element={<BusinessDashboardPage />} />
             <Route path="upgrade" element={<UpgradePage />} />
@@ -272,7 +292,13 @@ function App() {
           </Route>
         </Route>
         <Route path="biz/:businessId" element={<CustomerPublicPage />} />
-        <Route element={<ProtectedRoute roles={['customer', 'super_admin']} />}>
+        <Route path="b/:businessSlug" element={<CustomerPublicPage />} />
+        <Route path="b/:businessSlug/book" element={<CustomerBookingPage />} />
+        <Route path="b/:businessSlug/login" element={<CustomerLoginPage />} />
+        <Route path="b/:businessSlug/register" element={<AuthLayout />}>
+          <Route index element={<CustomerRegisterPage />} />
+        </Route>
+        <Route element={<CustomerProtectedRoute />}>
           <Route path="customer/:businessId" element={<CustomerPortalLayout />}>
             <Route element={<ModuleRoute moduleKey="customer_portal" moduleName="Customer Portal module" />}>
               <Route index element={<CustomerHomePage />} />
@@ -281,12 +307,22 @@ function App() {
               <Route path="rewards" element={<CustomerRewardsPage />} />
               <Route path="points" element={<CustomerPointsPage />} />
               <Route path="bookings" element={<CustomerBookingHistoryPage />} />
+              <Route path="history" element={<CustomerBookingHistoryPage />} />
               <Route path="payments" element={<CustomerPaymentHistoryPage />} />
               <Route path="profile" element={<CustomerProfilePage />} />
               <Route
                 path="*"
                 element={<PlaceholderPage title="Customer portal" description="Mobile-first customer pages are scaffolded." />}
               />
+            </Route>
+          </Route>
+          <Route path="b/:businessSlug" element={<CustomerPortalLayout />}>
+            <Route element={<ModuleRoute moduleKey="customer_portal" moduleName="Customer Portal module" />}>
+              <Route path="portal" element={<CustomerHomePage />} />
+              <Route path="membership" element={<CustomerMembershipsPage />} />
+              <Route path="rewards" element={<CustomerRewardsPage />} />
+              <Route path="history" element={<CustomerBookingHistoryPage />} />
+              <Route path="profile" element={<CustomerProfilePage />} />
             </Route>
           </Route>
         </Route>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,13 +8,14 @@ import { Input } from '@/components/ui/input'
 import { getCustomerByUserId, updateCustomerProfile } from '@/services/customerPortal'
 import { updatePassword } from '@/services/auth'
 import { UserRound, LogOut, KeyRound, Save } from 'lucide-react'
+import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
 
 export function CustomerProfilePage() {
-  const { businessId } = useParams()
+  const { businessId, businessSlug } = useCustomerBusinessRoute()
   const { profile, logout } = useAppContext()
   const navigate = useNavigate()
   const customerId = profile?.id ?? ''
-  const bizId = businessId ?? profile?.business_id ?? ''
+  const bizId = businessId || profile?.business_id || ''
 
   const [customer, setCustomer] = useState<Record<string, unknown> | null>(null)
   const [form, setForm] = useState({ full_name: '', phone: '', email: '', birthday: '', gender: '' })
@@ -72,7 +73,7 @@ export function CustomerProfilePage() {
 
   async function handleLogout() {
     await logout()
-    navigate('/auth/login')
+    navigate(businessSlug ? `/b/${businessSlug}/login` : '/auth/login')
   }
 
   return (

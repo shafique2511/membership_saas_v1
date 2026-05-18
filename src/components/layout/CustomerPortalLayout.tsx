@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Outlet, NavLink, useParams } from 'react-router-dom'
+import { Outlet, NavLink } from 'react-router-dom'
 import { Home, CalendarDays, WalletCards, Gift, UserRound, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getPublicBusiness, type PublicBusiness } from '@/services/customerPortal'
 import { getWhiteLabelSettings, type WhiteLabelSettings } from '@/services/whiteLabel'
+import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
+import { LoadingState } from '@/components/ui/LoadingState'
 
 export function CustomerPortalLayout() {
-  const { businessId } = useParams()
+  const { businessId, routeBase, portalHome, loading } = useCustomerBusinessRoute()
   const [business, setBusiness] = useState<PublicBusiness | null>(null)
   const [wl, setWl] = useState<WhiteLabelSettings | null>(null)
 
@@ -29,12 +31,14 @@ export function CustomerPortalLayout() {
   const hideBranding = wl?.hide_platform_branding ?? false
 
   const customerTabs = [
-    { label: 'Home', href: `/customer/${businessId}`, icon: Home },
-    { label: 'Book', href: `/customer/${businessId}/book`, icon: CalendarDays },
-    { label: 'Member', href: `/customer/${businessId}/membership`, icon: WalletCards },
-    { label: 'Rewards', href: `/customer/${businessId}/rewards`, icon: Gift },
-    { label: 'Profile', href: `/customer/${businessId}/profile`, icon: UserRound },
+    { label: 'Home', href: portalHome, icon: Home },
+    { label: 'Book', href: `${routeBase}/book`, icon: CalendarDays },
+    { label: 'Member', href: `${routeBase}/membership`, icon: WalletCards },
+    { label: 'Rewards', href: `${routeBase}/rewards`, icon: Gift },
+    { label: 'Profile', href: `${routeBase}/profile`, icon: UserRound },
   ]
+
+  if (loading) return <LoadingState label="Loading business" />
 
   return (
     <div
@@ -45,7 +49,7 @@ export function CustomerPortalLayout() {
         className="flex items-center gap-3 border-b px-4 py-3"
         style={{ borderColor: `${primary}33`, background: `linear-gradient(135deg, ${primary}08, ${secondary}08)` }}
       >
-        <NavLink to={`/customer/${businessId}`} className="opacity-60 hover:opacity-100 transition-opacity">
+        <NavLink to={portalHome} className="opacity-60 hover:opacity-100 transition-opacity">
           <ArrowLeft className="h-5 w-5" style={{ color: primary }} />
         </NavLink>
         {logoUrl && (
@@ -68,7 +72,7 @@ export function CustomerPortalLayout() {
           <NavLink
             key={tab.href}
             to={tab.href}
-            end={tab.href === `/customer/${businessId}`}
+            end={tab.href === portalHome}
             className={({ isActive }) =>
               cn(
                 'flex flex-col items-center gap-0.5 px-1 py-1 text-[10px] font-medium transition-colors',

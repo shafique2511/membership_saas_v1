@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getRedeemableRewards, getCustomerPoints, type RedeemableReward, type CustomerPoints } from '@/services/customerPortal'
 import { Gift, Coins } from 'lucide-react'
+import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
 
 export function CustomerRewardsPage() {
-  const { businessId } = useParams()
+  const { businessId } = useCustomerBusinessRoute()
   const { profile } = useAppContext()
   const customerId = profile?.id ?? ''
-  const bizId = businessId ?? profile?.business_id ?? ''
+  const bizId = businessId || profile?.business_id || ''
 
   const [rewards, setRewards] = useState<RedeemableReward[]>([])
   const [points, setPoints] = useState<CustomerPoints | null>(null)

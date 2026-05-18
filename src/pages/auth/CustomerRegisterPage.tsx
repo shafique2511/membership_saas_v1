@@ -1,20 +1,34 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { registerCustomer } from '@/services/auth'
+import { resolveBusinessSlug } from '@/services/customerPortal'
 
 export function CustomerRegisterPage() {
   const navigate = useNavigate()
+  const { businessSlug } = useParams()
   const [searchParams] = useSearchParams()
-  const businessId = searchParams.get('business_id') || import.meta.env.VITE_DEFAULT_CUSTOMER_BUSINESS_ID || ''
+  const [resolvedBusinessId, setResolvedBusinessId] = useState('')
+  const businessId = resolvedBusinessId || searchParams.get('business_id') || searchParams.get('business') || import.meta.env.VITE_DEFAULT_CUSTOMER_BUSINESS_ID || ''
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  const loadBusiness = useCallback(async () => {
+    if (!businessSlug) return
+    const id = await resolveBusinessSlug(businessSlug)
+    setResolvedBusinessId(id ?? '')
+  }, [businessSlug])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadBusiness(), 0)
+    return () => window.clearTimeout(timer)
+  }, [loadBusiness])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -29,7 +43,7 @@ export function CustomerRegisterPage() {
 
     try {
       await registerCustomer({ businessId, fullName, email, phone, password })
-      navigate('/customer')
+      navigate(businessSlug ? `/b/${businessSlug}/login` : `/customer/${businessId}`)
     } catch (registerError) {
       setError(registerError instanceof Error ? registerError.message : 'Unable to register customer.')
     } finally {
@@ -59,7 +73,7 @@ export function CustomerRegisterPage() {
           {loading ? 'Creating account...' : 'Create customer account'}
         </Button>
       </form>
-      <Link className="mt-4 inline-block text-sm text-teal-700 dark:text-teal-300" to="/auth/login">
+      <Link className="mt-4 inline-block text-sm text-teal-700 dark:text-teal-300" to={businessSlug ? `/b/${businessSlug}/login` : '/auth/login'}>
         Sign in instead
       </Link>
     </div>

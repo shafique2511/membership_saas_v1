@@ -62,6 +62,7 @@ export interface RedeemableReward {
 
 export interface PublicBusiness {
   id: string
+  slug?: string | null
   name: string
   business_type: string
   logo_url: string | null
@@ -75,6 +76,18 @@ export interface PublicBusiness {
 export async function getPublicBusiness(businessId: string): Promise<PublicBusiness | null> {
   const { data } = await supabase.rpc('get_public_business', { p_business_id: businessId })
   return data as PublicBusiness | null
+}
+
+export async function getPublicBusinessBySlug(businessSlug: string): Promise<PublicBusiness | null> {
+  const { data, error } = await supabase.rpc('get_public_business_by_slug', { p_business_slug: businessSlug })
+  if (error) throw error
+  return data as PublicBusiness | null
+}
+
+export async function resolveBusinessSlug(businessSlug: string): Promise<string | null> {
+  const { data, error } = await supabase.rpc('resolve_business_slug', { p_business_slug: businessSlug })
+  if (error) throw error
+  return data as string | null
 }
 
 export async function getCustomerBookings(customerId: string): Promise<CustomerBooking[]> {

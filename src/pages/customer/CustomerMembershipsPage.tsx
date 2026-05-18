@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -7,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { getCustomerMemberships, type CustomerMembership } from '@/services/customerPortal'
 import { getPlans, type MembershipPlan } from '@/services/memberships'
 import { WalletCards, Sparkles, CheckCircle, QrCode } from 'lucide-react'
+import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
 
 const STATUS_STYLES: Record<string, string> = {
   active: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
@@ -16,10 +16,10 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export function CustomerMembershipsPage() {
-  const { businessId } = useParams()
+  const { businessId } = useCustomerBusinessRoute()
   const { profile } = useAppContext()
   const customerId = profile?.id ?? ''
-  const bizId = businessId ?? profile?.business_id ?? ''
+  const bizId = businessId || profile?.business_id || ''
 
   const [memberships, setMemberships] = useState<CustomerMembership[]>([])
   const [plans, setPlans] = useState<MembershipPlan[]>([])

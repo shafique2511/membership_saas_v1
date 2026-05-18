@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
-import { getServices, getStaff, getAvailableSlots, createBooking, type ServiceRow, type StaffRow, type AvailableSlot } from '@/services/bookings'
+import { getServices, getStaff, getAvailableSlots, createBooking, createGuestBooking, type ServiceRow, type StaffRow, type AvailableSlot } from '@/services/bookings'
 import { Scissors, UserRound, Calendar, Clock, DollarSign, CheckCircle } from 'lucide-react'
+import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
 
 export function CustomerBookingPage() {
-  const { businessId } = useParams()
+  const { businessId, portalHome, routeBase } = useCustomerBusinessRoute()
   const { profile } = useAppContext()
   const navigate = useNavigate()
   const customerId = profile?.id ?? ''
 
-  const bizId = businessId ?? profile?.business_id ?? ''
+  const bizId = businessId || profile?.business_id || ''
 
   const [step, setStep] = useState(1)
   const [services, setServices] = useState<ServiceRow[]>([])
@@ -60,7 +61,24 @@ export function CustomerBookingPage() {
     setError('')
     try {
       if (!customerId) {
-        setError('Please log in to book.')
+        if (!customerName.trim() || !customerPhone.trim()) {
+          setError('Name and phone are required for guest booking.')
+          return
+        }
+
+        await createGuestBooking({
+          business_id: bizId,
+          full_name: customerName.trim(),
+          phone: customerPhone.trim(),
+          email: customerEmail.trim() || null,
+          staff_id: selectedStaff || null,
+          service_id: selectedService || null,
+          booking_date: selectedDate,
+          start_time: selectedSlot.start_time,
+          end_time: selectedSlot.end_time,
+          notes: notes || null,
+        })
+        setDone(true)
         return
       }
 
@@ -96,8 +114,8 @@ export function CustomerBookingPage() {
             <h2 className="text-xl font-semibold">Booking confirmed!</h2>
             <p className="mt-2 text-sm text-slate-500">Your appointment has been booked.</p>
             <div className="mt-6 flex justify-center gap-2">
-              <Button variant="outline" onClick={() => navigate(`/customer/${businessId}`)}>Home</Button>
-              <Button onClick={() => navigate(`/customer/${businessId}/bookings`)}>View bookings</Button>
+              <Button variant="outline" onClick={() => navigate(portalHome)}>Home</Button>
+              <Button onClick={() => navigate(`${routeBase}/history`)}>View bookings</Button>
             </div>
           </CardContent>
         </Card>

@@ -4,7 +4,23 @@ import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { useAppContext } from '@/context/useAppContext'
-import { signInWithEmail } from '@/services/auth'
+import { getUserProfile, signInWithEmail } from '@/services/auth'
+
+function getPostLoginPath(role: string | undefined) {
+  switch (role) {
+    case 'super_admin':
+      return '/admin/dashboard'
+    case 'staff':
+      return '/app/staff/dashboard'
+    case 'owner':
+    case 'manager':
+      return '/app/dashboard'
+    case 'customer':
+      return '/auth/unauthorized'
+    default:
+      return '/business'
+  }
+}
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -28,8 +44,9 @@ export function LoginPage() {
       return
     }
 
+    const profile = await getUserProfile()
     await refreshAuth()
-    const from = (location.state as { from?: string } | null)?.from ?? '/business'
+    const from = (location.state as { from?: string } | null)?.from ?? getPostLoginPath(profile?.role)
     navigate(from, { replace: true })
     setLoading(false)
   }

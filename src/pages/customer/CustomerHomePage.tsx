@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getCustomerPoints, getCustomerUpcomingBooking, getCustomerMemberships, type CustomerMembership, type CustomerBooking, type CustomerPoints } from '@/services/customerPortal'
 import { CalendarDays, WalletCards, Gift, Coins, Sparkles, ArrowRight } from 'lucide-react'
+import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
 
 export function CustomerHomePage() {
-  const { businessId } = useParams()
+  const { routeBase } = useCustomerBusinessRoute()
   const { profile } = useAppContext()
   const navigate = useNavigate()
   const customerId = profile?.id ?? ''
@@ -31,7 +32,7 @@ export function CustomerHomePage() {
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
 
   const activeMembership = memberships.find((m) => m.status === 'active')
-  const nav = (path: string) => navigate(`/customer/${businessId}${path}`)
+  const nav = (path: string) => navigate(`${routeBase}${path}`)
 
   return (
     <div className="space-y-4">
@@ -81,7 +82,7 @@ export function CustomerHomePage() {
       </div>
 
       {upcoming && (
-        <Card className="cursor-pointer" onClick={() => nav('/bookings')}>
+        <Card className="cursor-pointer" onClick={() => nav('/history')}>
           <CardContent className="flex items-center justify-between pt-4">
             <div>
               <p className="text-xs text-slate-500">Next booking</p>

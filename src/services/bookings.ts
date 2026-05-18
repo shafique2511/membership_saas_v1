@@ -232,6 +232,35 @@ export async function createBooking(input: BookingCreateInput): Promise<BookingR
   return data as BookingRow
 }
 
+export async function createGuestBooking(input: {
+  business_id: string
+  full_name: string
+  phone: string
+  email?: string | null
+  staff_id?: string | null
+  service_id?: string | null
+  booking_date: string
+  start_time: string
+  end_time: string
+  notes?: string | null
+}): Promise<string> {
+  const { data, error } = await supabase.rpc('create_guest_booking', {
+    p_business_id: input.business_id,
+    p_full_name: input.full_name,
+    p_phone: input.phone,
+    p_email: input.email ?? '',
+    p_staff_id: input.staff_id ?? null,
+    p_service_id: input.service_id ?? null,
+    p_booking_date: input.booking_date,
+    p_start_time: input.start_time,
+    p_end_time: input.end_time,
+    p_notes: input.notes ?? null,
+  })
+
+  if (error) throw error
+  return data as string
+}
+
 export async function updateBooking(id: string, input: BookingUpdateInput): Promise<BookingRow> {
   const { data, error } = await supabase
     .from('bookings')
