@@ -66,7 +66,6 @@ do $$ declare
   v_product2_id uuid;
   v_product3_id uuid;
   v_product4_id uuid;
-  v_product5_id uuid;
   v_booking1_id uuid;
   v_booking2_id uuid;
   v_booking3_id uuid;
@@ -339,7 +338,6 @@ values
 on conflict (id) do nothing;
 
 select id into v_product1_id from public.products where sku = 'POM-001';
-select id into v_product5_id from public.products where sku = 'LATTE-001';
 
 -- ============================================================================
 -- 15. Demo POS orders
