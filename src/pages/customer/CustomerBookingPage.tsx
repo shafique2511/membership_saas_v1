@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
-import { getServices, getStaff, getAvailableSlots, createBooking, createGuestBooking, type ServiceRow, type StaffRow, type AvailableSlot } from '@/services/bookings'
+import { getServices, getStaff, getResources, getAvailableSlots, createBooking, createGuestBooking, type BookingType, type ServiceRow, type StaffRow, type ResourceRow, type AvailableSlot } from '@/services/bookings'
 import { Scissors, UserRound, Calendar, Clock, DollarSign, CheckCircle } from 'lucide-react'
 import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
 
@@ -20,10 +20,13 @@ export function CustomerBookingPage() {
   const [step, setStep] = useState(1)
   const [services, setServices] = useState<ServiceRow[]>([])
   const [staffList, setStaffList] = useState<StaffRow[]>([])
+  const [resources, setResources] = useState<ResourceRow[]>([])
   const [slots, setSlots] = useState<AvailableSlot[]>([])
 
+  const [bookingType, setBookingType] = useState<BookingType>('appointment')
   const [selectedService, setSelectedService] = useState('')
   const [selectedStaff, setSelectedStaff] = useState('')
+  const [selectedResource, setSelectedResource] = useState('')
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10))
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null)
 
@@ -38,11 +41,13 @@ export function CustomerBookingPage() {
 
   const loadData = useCallback(async () => {
     if (!bizId) return
-    const [svc, stf] = await Promise.all([
+    const [svc, stf, res] = await Promise.all([
       getServices(bizId),
       getStaff(bizId),
+      getResources(bizId),
     ])
     setServices(svc); setStaffList(stf)
+    setResources(res)
   }, [bizId])
 
   useEffect(() => { void loadData() }, [loadData])
@@ -52,11 +57,13 @@ export function CustomerBookingPage() {
     void getAvailableSlots(bizId, selectedDate, {
       service_id: selectedService || undefined,
       staff_id: selectedStaff || undefined,
+      resource_id: selectedResource || undefined,
     }).then(setSlots).catch(() => setSlots([]))
-  }, [bizId, selectedDate, selectedService, selectedStaff])
+  }, [bizId, selectedDate, selectedService, selectedStaff, selectedResource])
 
   async function handleConfirm() {
     if (!selectedSlot) return
+    const assignedStaffId = selectedStaff || selectedSlot.staff_id || null
     setLoading(true)
     setError('')
     try {
@@ -71,8 +78,10 @@ export function CustomerBookingPage() {
           full_name: customerName.trim(),
           phone: customerPhone.trim(),
           email: customerEmail.trim() || null,
-          staff_id: selectedStaff || null,
+          resource_id: selectedResource || null,
+          staff_id: assignedStaffId,
           service_id: selectedService || null,
+          booking_type: bookingType,
           booking_date: selectedDate,
           start_time: selectedSlot.start_time,
           end_time: selectedSlot.end_time,
@@ -85,9 +94,10 @@ export function CustomerBookingPage() {
       await createBooking({
         business_id: bizId,
         customer_id: customerId,
-        staff_id: selectedStaff || null,
+        resource_id: selectedResource || null,
+        staff_id: assignedStaffId,
         service_id: selectedService || null,
-        booking_type: 'appointment',
+        booking_type: bookingType,
         booking_date: selectedDate,
         start_time: selectedSlot.start_time,
         end_time: selectedSlot.end_time,
@@ -189,6 +199,24 @@ export function CustomerBookingPage() {
                 </select>
               </div>
             )}
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-500">Booking type</label>
+              <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={bookingType} onChange={(e) => setBookingType(e.target.value as BookingType)}>
+                <option value="appointment">Appointment</option>
+                <option value="table">Table booking</option>
+                <option value="room">Room booking</option>
+                <option value="event">Event space</option>
+              </select>
+            </div>
+            {resources.length > 0 && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">Resource preference (optional)</label>
+                <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={selectedResource} onChange={(e) => setSelectedResource(e.target.value)}>
+                  <option value="">Any available resource</option>
+                  {resources.map((r) => <option key={r.id} value={r.id}>{r.name} ({r.resource_type.replace('_', ' ')})</option>)}
+                </select>
+              </div>
+            )}
             <Button disabled={!selectedService} onClick={() => setStep(2)} className="w-full">Continue</Button>
           </CardContent>
         </Card>
@@ -269,6 +297,18 @@ export function CustomerBookingPage() {
                 <span className="text-slate-500">Staff:</span>
                 <span className="font-medium">{staffList.find((s) => s.id === selectedStaff)?.full_name ?? 'Any'}</span>
               </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-slate-400" />
+                <span className="text-slate-500">Type:</span>
+                <span className="font-medium">{bookingType.replace('_', ' ')}</span>
+              </div>
+              {selectedResource && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-slate-400" />
+                  <span className="text-slate-500">Resource:</span>
+                  <span className="font-medium">{resources.find((r) => r.id === selectedResource)?.name ?? '-'}</span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-slate-400" />
                 <span className="text-slate-500">Date:</span>

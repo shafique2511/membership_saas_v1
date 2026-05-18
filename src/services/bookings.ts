@@ -119,6 +119,20 @@ export interface BookingUpdateInput {
   notes?: string | null
   deposit_amount?: number
   total_amount?: number
+  payment_status?: PaymentStatus
+  status?: BookingStatus
+}
+
+interface BookingRulesRow {
+  slot_duration_minutes: number
+  buffer_time_minutes: number
+  min_booking_notice_hours: number
+  max_advance_days: number
+  max_bookings_per_slot?: number | null
+  auto_confirm: boolean
+  deposit_required: boolean
+  deposit_percentage: number
+  allow_walk_in: boolean
 }
 
 export interface BookingFilters {
@@ -207,6 +221,7 @@ export async function getBooking(id: string): Promise<BookingRow | null> {
 }
 
 export async function createBooking(input: BookingCreateInput): Promise<BookingRow> {
+  const rules = await getBookingRules(input.business_id)
   const { data, error } = await supabase
     .from('bookings')
     .insert({
@@ -223,7 +238,7 @@ export async function createBooking(input: BookingCreateInput): Promise<BookingR
       notes: input.notes ?? null,
       deposit_amount: input.deposit_amount ?? 0,
       total_amount: input.total_amount ?? 0,
-      status: input.status ?? 'pending',
+      status: input.status ?? (rules?.auto_confirm ? 'confirmed' : 'pending'),
     })
     .select('*,customers(full_name,phone,email),services(name,duration_minutes,price),staff(full_name),resources(name,resource_type),branches(name)')
     .single()
@@ -237,8 +252,11 @@ export async function createGuestBooking(input: {
   full_name: string
   phone: string
   email?: string | null
+  branch_id?: string | null
   staff_id?: string | null
   service_id?: string | null
+  resource_id?: string | null
+  booking_type?: BookingType
   booking_date: string
   start_time: string
   end_time: string
@@ -249,8 +267,11 @@ export async function createGuestBooking(input: {
     p_full_name: input.full_name,
     p_phone: input.phone,
     p_email: input.email ?? '',
+    p_branch_id: input.branch_id ?? null,
     p_staff_id: input.staff_id ?? null,
     p_service_id: input.service_id ?? null,
+    p_resource_id: input.resource_id ?? null,
+    p_booking_type: input.booking_type ?? 'appointment',
     p_booking_date: input.booking_date,
     p_start_time: input.start_time,
     p_end_time: input.end_time,
@@ -275,9 +296,9 @@ export async function updateBooking(id: string, input: BookingUpdateInput): Prom
 
 export async function cancelBooking(id: string, notes?: string): Promise<BookingRow> {
   return updateBooking(id, {
-    status: 'cancelled' as unknown as BookingUpdateInput['staff_id'],
+    status: 'cancelled',
     notes: notes ?? null,
-  } as unknown as BookingUpdateInput)
+  })
 }
 
 export async function deleteBooking(id: string): Promise<void> {
@@ -286,7 +307,7 @@ export async function deleteBooking(id: string): Promise<void> {
 }
 
 export async function transitionBooking(id: string, status: BookingStatus): Promise<BookingRow> {
-  return updateBooking(id as unknown as string, { status: status as unknown as BookingUpdateInput['staff_id'] } as unknown as BookingUpdateInput)
+  return updateBooking(id, { status })
 }
 
 export async function getAvailableSlots(
@@ -300,6 +321,7 @@ export async function getAvailableSlots(
   } = {},
 ): Promise<AvailableSlot[]> {
   const serviceId = options.service_id
+  const rules = await getBookingRules(businessId)
   let durationMin = 60
 
   if (serviceId) {
@@ -311,6 +333,8 @@ export async function getAvailableSlots(
 
     if (svc) durationMin = svc.duration_minutes
   }
+  const slotStep = Math.max(5, rules?.slot_duration_minutes ?? 30)
+  const bufferMinutes = Math.max(0, rules?.buffer_time_minutes ?? 0)
 
   let staff: { id: string; working_hours: Record<string, unknown>; off_days: string[] }[] = []
 
@@ -327,18 +351,42 @@ export async function getAvailableSlots(
     staff = (allStaff ?? []) as { id: string; working_hours: Record<string, unknown>; off_days: string[] }[]
   }
 
+  if (staff.length === 0) {
+    let branchQuery = supabase
+      .from('branches')
+      .select('opening_hours')
+      .eq('business_id', businessId)
+      .eq('status', 'active')
+      .limit(1)
+
+    if (options.branch_id) branchQuery = branchQuery.eq('id', options.branch_id)
+    const { data: branch } = await branchQuery.maybeSingle()
+
+    staff = [{
+      id: '__unassigned__',
+      working_hours: normalizeOpeningHours(branch?.opening_hours as Record<string, unknown> | undefined),
+      off_days: [],
+    }]
+  }
+
   const { data: existing } = await supabase
     .from('bookings')
-    .select('start_time,end_time,staff_id')
+    .select('start_time,end_time,staff_id,resource_id')
     .eq('business_id', businessId)
     .eq('booking_date', date)
     .not('status', 'in', '("cancelled","no_show")')
 
   const existingMap = new Map<string, { start: string; end: string }[]>()
   ;(existing ?? []).forEach((b) => {
-    const sid = b.staff_id ?? 'none'
-    if (!existingMap.has(sid)) existingMap.set(sid, [])
-    existingMap.get(sid)!.push({ start: b.start_time.slice(0, 5), end: b.end_time.slice(0, 5) })
+    const keys = [
+      b.staff_id ? `staff:${b.staff_id}` : null,
+      b.resource_id ? `resource:${b.resource_id}` : null,
+      'business',
+    ].filter(Boolean) as string[]
+    keys.forEach((key) => {
+      if (!existingMap.has(key)) existingMap.set(key, [])
+      existingMap.get(key)!.push({ start: b.start_time.slice(0, 5), end: b.end_time.slice(0, 5) })
+    })
   })
 
   const dayOfWeek = new Date(date).toLocaleString('en', { weekday: 'long' }).toLowerCase()
@@ -354,10 +402,12 @@ export async function getAvailableSlots(
 
     const workStart = timeToMinutes(dayHours.start)
     const workEnd = timeToMinutes(dayHours.end)
-    const existingSlots = existingMap.get(s.id) ?? []
-    const bufferMinutes = 0
+    const existingSlots = [
+      ...(s.id === '__unassigned__' && !options.resource_id ? existingMap.get('business') ?? [] : existingMap.get(`staff:${s.id}`) ?? []),
+      ...(options.resource_id ? existingMap.get(`resource:${options.resource_id}`) ?? [] : []),
+    ]
 
-    for (let m = workStart; m + durationMin <= workEnd; m += 30) {
+    for (let m = workStart; m + durationMin <= workEnd; m += slotStep) {
       const slotStart = minutesToTime(m)
       const slotEnd = minutesToTime(m + durationMin)
 
@@ -368,7 +418,12 @@ export async function getAvailableSlots(
       })
 
       if (!conflict) {
-        slots.push({ start_time: slotStart, end_time: slotEnd, staff_id: s.id })
+        slots.push({
+          start_time: slotStart,
+          end_time: slotEnd,
+          staff_id: s.id === '__unassigned__' ? null : s.id,
+          resource_id: options.resource_id ?? null,
+        })
       }
     }
   })
@@ -425,6 +480,16 @@ export async function getBranches(businessId: string) {
   return (data ?? []) as BranchRow[]
 }
 
+async function getBookingRules(businessId: string): Promise<BookingRulesRow | null> {
+  const { data } = await supabase
+    .from('booking_rules')
+    .select('slot_duration_minutes,buffer_time_minutes,min_booking_notice_hours,max_advance_days,max_bookings_per_slot,auto_confirm,deposit_required,deposit_percentage,allow_walk_in')
+    .eq('business_id', businessId)
+    .maybeSingle()
+
+  return (data ?? null) as BookingRulesRow | null
+}
+
 export async function searchCustomers(businessId: string, query: string) {
   const { data, error } = await supabase
     .from('customers')
@@ -467,4 +532,28 @@ function minutesToTime(m: number): string {
   const h = Math.floor(m / 60)
   const min = m % 60
   return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`
+}
+
+function defaultWorkingHours(): Record<string, { start: string; end: string }> {
+  return {
+    monday: { start: '09:00', end: '17:00' },
+    tuesday: { start: '09:00', end: '17:00' },
+    wednesday: { start: '09:00', end: '17:00' },
+    thursday: { start: '09:00', end: '17:00' },
+    friday: { start: '09:00', end: '17:00' },
+    saturday: { start: '09:00', end: '17:00' },
+    sunday: { start: '09:00', end: '17:00' },
+  }
+}
+
+function normalizeOpeningHours(hours?: Record<string, unknown>): Record<string, { start: string; end: string }> {
+  if (!hours) return defaultWorkingHours()
+
+  return Object.entries(hours).reduce<Record<string, { start: string; end: string }>>((acc, [day, value]) => {
+    const dayHours = value as { start?: string; end?: string; open?: string; close?: string }
+    const start = dayHours.start ?? dayHours.open
+    const end = dayHours.end ?? dayHours.close
+    if (start && end) acc[day] = { start, end }
+    return acc
+  }, {})
 }

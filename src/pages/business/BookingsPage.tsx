@@ -27,6 +27,7 @@ import {
   createBooking,
   updateBooking,
   deleteBooking,
+  transitionBooking,
   getAvailableSlots,
   getStatusColor,
   nextStatuses,
@@ -230,7 +231,7 @@ export function BookingsPage() {
   }
 
   async function handleStatusTransition(id: string, status: BookingStatus) {
-    await updateBooking(id, { status: status as unknown as undefined } as Record<string, unknown> as never)
+    await transitionBooking(id, status)
     await load()
     if (openDetail?.id === id) {
       setOpenDetail({ ...openDetail, status })
