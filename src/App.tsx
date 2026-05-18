@@ -9,6 +9,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { AddOnsManagementPage } from '@/pages/admin/AddOnsManagementPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
+import { BackupHistoryPage } from '@/pages/admin/BackupHistoryPage'
 import { BusinessDetailsPage } from '@/pages/admin/BusinessDetailsPage'
 import { BusinessesPage } from '@/pages/admin/BusinessesPage'
 import { DataGovernancePage } from '@/pages/admin/DataGovernancePage'
@@ -16,7 +17,9 @@ import { ModuleManagementPage } from '@/pages/admin/ModuleManagementPage'
 import { PackageManagementPage } from '@/pages/admin/PackageManagementPage'
 import { PlatformSettingsPage } from '@/pages/admin/PlatformSettingsPage'
 import { PlatformTablePage } from '@/pages/admin/PlatformTablePage'
+import { ShutdownModePage } from '@/pages/admin/ShutdownModePage'
 import { SubscriptionsPage } from '@/pages/admin/SubscriptionsPage'
+import { SystemHealthPage } from '@/pages/admin/SystemHealthPage'
 import { AcceptInvitePage } from '@/pages/auth/AcceptInvitePage'
 import { CustomerRegisterPage } from '@/pages/auth/CustomerRegisterPage'
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage'
@@ -152,13 +155,19 @@ function App() {
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="businesses" element={<BusinessesPage />} />
             <Route path="businesses/:businessId" element={<BusinessDetailsPage />} />
+            <Route path="businesses/:id" element={<BusinessDetailsPage />} />
             <Route path="packages" element={<PackageManagementPage />} />
             <Route path="modules" element={<ModuleManagementPage />} />
             <Route path="subscriptions" element={<SubscriptionsPage />} />
             <Route path="add-ons" element={<AddOnsManagementPage />} />
+            <Route path="addons" element={<AddOnsManagementPage />} />
+            <Route path="billing" element={<PlatformTablePage table="billing_invoices" title="Billing" description="Platform billing invoices across all businesses." showBusinessName />} />
             <Route path="invoices" element={<PlatformTablePage table="billing_invoices" title="Billing invoices" description="Platform billing invoices, due dates, and paid status." showBusinessName />} />
             <Route path="payments" element={<PlatformTablePage table="payments" title="Payments" description="All tenant payment records and payment verification status." showBusinessName />} />
             <Route path="usage" element={<PlatformTablePage table="usage_counters" title="Usage limits" description="Usage counters for package limits and add-on allowances." showBusinessName />} />
+            <Route path="backups" element={<BackupHistoryPage />} />
+            <Route path="shutdown" element={<ShutdownModePage />} />
+            <Route path="system-health" element={<SystemHealthPage />} />
             <Route path="settings" element={<PlatformSettingsPage />} />
             <Route path="data-governance" element={<DataGovernancePage />} />
             <Route path="audit-logs" element={<PlatformTablePage table="audit_logs" title="Audit logs" description="Platform and tenant audit history." showBusinessName />} />

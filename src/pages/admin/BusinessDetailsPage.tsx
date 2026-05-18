@@ -10,6 +10,8 @@ import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import {
+  cancelBusinessSubscription,
+  extendBusinessTrial,
   getBusinessDetails,
   overrideModuleAccess,
   updateBusiness,
@@ -22,7 +24,8 @@ import { moduleLabels } from '@/services/packageCatalog'
 import type { ModuleKey } from '@/types'
 
 export function BusinessDetailsPage() {
-  const { businessId = '' } = useParams()
+  const params = useParams()
+  const resolvedBusinessId = params.businessId || params.id || ''
   const [details, setDetails] = useState<Record<string, unknown> | null>(null)
   const [packages, setPackages] = useState<Record<string, unknown>[]>([])
   const [openOverride, setOpenOverride] = useState(false)
@@ -33,15 +36,15 @@ export function BusinessDetailsPage() {
   const [addonForm, setAddonForm] = useState({ module_key: 'booking' as ModuleKey, name: '', access_level: 'basic', price: '0' })
 
   const load = useCallback(async () => {
-    setDetails(await getBusinessDetails(businessId))
-  }, [businessId])
+    setDetails(await getBusinessDetails(resolvedBusinessId))
+  }, [resolvedBusinessId])
 
   useEffect(() => {
     const task = window.setTimeout(() => {
-      if (businessId) void load()
+      if (resolvedBusinessId) void load()
     }, 0)
     return () => window.clearTimeout(task)
-  }, [businessId, load])
+  }, [resolvedBusinessId, load])
 
   useEffect(() => {
     void getPackages().then((data) => setPackages(data as unknown as Record<string, unknown>[])).catch(() => {})
@@ -57,7 +60,7 @@ export function BusinessDetailsPage() {
 
   async function handleOverride() {
     await overrideModuleAccess({
-      business_id: businessId,
+      business_id: resolvedBusinessId,
       module_key: moduleForm.module_key,
       access_level: moduleForm.access_level,
       is_enabled: moduleForm.is_enabled,
@@ -68,14 +71,14 @@ export function BusinessDetailsPage() {
   }
 
   async function handleChangePackage() {
-    await changeBusinessPackage(businessId, packageForm.package_id)
+    await changeBusinessPackage(resolvedBusinessId, packageForm.package_id)
     setOpenChangePackage(false)
     await load()
   }
 
   async function handleCreateAddon() {
     await createAddonViaRpc({
-      business_id: businessId,
+      business_id: resolvedBusinessId,
       module_key: addonForm.module_key,
       name: addonForm.name,
       access_level: addonForm.access_level,
@@ -93,8 +96,10 @@ export function BusinessDetailsPage() {
         description="Tenant users, subscription, module overrides, add-ons, usage, and billing records."
         actions={
           <>
-            <Button variant="outline" onClick={() => businessId && void updateBusiness(businessId, { status: 'active' }).then(load)}>Activate</Button>
-            <Button variant="destructive" onClick={() => businessId && void updateBusiness(businessId, { status: 'suspended' }).then(load)}>Suspend</Button>
+            <Button variant="outline" onClick={() => resolvedBusinessId && void updateBusiness(resolvedBusinessId, { status: 'active' }).then(load)}>Activate</Button>
+            <Button variant="outline" onClick={() => resolvedBusinessId && void extendBusinessTrial(resolvedBusinessId, 7).then(load)}>Extend trial</Button>
+            <Button variant="outline" onClick={() => resolvedBusinessId && void cancelBusinessSubscription(resolvedBusinessId).then(load)}>Cancel subscription</Button>
+            <Button variant="destructive" onClick={() => resolvedBusinessId && void updateBusiness(resolvedBusinessId, { status: 'suspended' }).then(load)}>Suspend</Button>
             <Button variant="outline" onClick={() => setOpenChangePackage(true)}>Change package</Button>
             <Button variant="outline" onClick={() => setOpenAddon(true)}>Add add-on</Button>
             <Button onClick={() => setOpenOverride(true)}>Override module</Button>

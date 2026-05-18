@@ -214,6 +214,37 @@ export async function updateSubscription(subscriptionId: string, input: Record<s
   return data
 }
 
+export async function extendBusinessTrial(businessId: string, days: number) {
+  const current = new Date()
+  current.setDate(current.getDate() + days)
+
+  const { data, error } = await supabase
+    .from('business_subscriptions')
+    .update({
+      status: 'trial',
+      trial_ends_at: current.toISOString(),
+      next_billing_date: current.toISOString().slice(0, 10),
+    })
+    .eq('business_id', businessId)
+    .in('status', ['trial', 'active', 'past_due'])
+    .select('*')
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function cancelBusinessSubscription(businessId: string) {
+  const { data, error } = await supabase
+    .from('business_subscriptions')
+    .update({ status: 'cancelled', end_date: new Date().toISOString().slice(0, 10) })
+    .eq('business_id', businessId)
+    .in('status', ['trial', 'active', 'past_due'])
+    .select('*')
+
+  if (error) throw error
+  return data ?? []
+}
+
 export async function changeBusinessPackage(businessId: string, packageId: string) {
   const { data, error } = await supabase.rpc('apply_business_package', {
     target_business_id: businessId,
@@ -426,6 +457,35 @@ export interface PlatformSettings {
   track_usage_limits: boolean
 }
 
+export interface BackupRequestRow {
+  id: string
+  business_id: string | null
+  requested_by: string | null
+  request_type: string
+  scope: string
+  export_format: string
+  status: string
+  reason: string | null
+  storage_path: string | null
+  created_at: string
+  ready_at: string | null
+  expires_at: string | null
+}
+
+export interface ShutdownSettingsRow {
+  id: string
+  status: 'normal' | 'planned_shutdown' | 'export_only' | 'fully_shutdown'
+  notice_enabled: boolean
+  shutdown_date: string | null
+  export_deadline: string | null
+  support_email: string | null
+  disable_new_business_registration: boolean
+  disable_new_subscription_purchases: boolean
+  owner_only_login_after_shutdown: boolean
+  notice_message: string | null
+  updated_at: string
+}
+
 export async function getPlatformSettings(): Promise<PlatformSettings | null> {
   const { data, error } = await supabase.from('platform_settings').select('*').single()
   if (error) {
@@ -439,6 +499,73 @@ export async function savePlatformSettings(settings: Partial<PlatformSettings>) 
   const { data, error } = await supabase.from('platform_settings').update(settings).eq('id', 1).select('*').single()
   if (error) throw error
   return data as PlatformSettings
+}
+
+export async function listBackupRequests() {
+  const { data, error } = await supabase
+    .from('backup_requests')
+    .select('*,businesses(name),user_profiles(full_name,email)')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function createPlatformBackupRequest(input: {
+  request_type: string
+  reason: string
+}) {
+  const { data, error } = await supabase
+    .from('backup_requests')
+    .insert({
+      request_type: input.request_type,
+      scope: 'platform',
+      export_format: 'zip',
+      status: 'pending',
+      reason: input.reason,
+    })
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return data as BackupRequestRow
+}
+
+export async function getShutdownSettings() {
+  const { data, error } = await supabase
+    .from('platform_shutdown_settings')
+    .select('*')
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as ShutdownSettingsRow | null
+}
+
+export async function saveShutdownSettings(settings: Partial<ShutdownSettingsRow>) {
+  const existing = await getShutdownSettings()
+
+  if (existing?.id) {
+    const { data, error } = await supabase
+      .from('platform_shutdown_settings')
+      .update(settings)
+      .eq('id', existing.id)
+      .select('*')
+      .single()
+
+    if (error) throw error
+    return data as ShutdownSettingsRow
+  }
+
+  const { data, error } = await supabase
+    .from('platform_shutdown_settings')
+    .insert(settings)
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return data as ShutdownSettingsRow
 }
 
 export async function createInvoice(input: {
