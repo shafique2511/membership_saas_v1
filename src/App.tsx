@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { CustomerPortalLayout } from '@/components/layout/CustomerPortalLayout'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { PublicLayout } from '@/components/layout/PublicLayout'
 import { AddOnsManagementPage } from '@/pages/admin/AddOnsManagementPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { BusinessDetailsPage } from '@/pages/admin/BusinessDetailsPage'
@@ -109,6 +110,7 @@ import { CustomerPointsPage } from '@/pages/customer/CustomerPointsPage'
 import { CustomerBookingHistoryPage } from '@/pages/customer/CustomerBookingHistoryPage'
 import { CustomerPaymentHistoryPage } from '@/pages/customer/CustomerPaymentHistoryPage'
 import { CustomerProfilePage } from '@/pages/customer/CustomerProfilePage'
+import { PublicHomePage } from '@/pages/public/PublicHomePage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 function App() {
@@ -125,6 +127,9 @@ function App() {
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
           <Route path="reset-password" element={<ResetPasswordPage />} />
           <Route path="unauthorized" element={<UnauthorizedPage />} />
+        </Route>
+        <Route path="public" element={<PublicLayout />}>
+          <Route index element={<PublicHomePage />} />
         </Route>
         <Route element={<ProtectedRoute roles={['super_admin']} />}>
           <Route path="admin" element={<DashboardLayout />}>
