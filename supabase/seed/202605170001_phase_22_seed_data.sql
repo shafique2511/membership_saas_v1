@@ -200,15 +200,15 @@ select id into v_coffee_main_branch_id from public.branches where name = 'Ampang
 -- ============================================================================
 insert into public.staff (id, business_id, branch_id, full_name, phone, email, role, commission_rate, working_hours, off_days)
 values
-  ('s0000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Ahmad Bin Ismail', '+60111111111', 'staff1@demo.com', 'barber', 30, '{"monday":{"start":"09:00","end":"18:00"},"tuesday":{"start":"09:00","end":"18:00"},"wednesday":{"start":"09:00","end":"18:00"},"thursday":{"start":"09:00","end":"18:00"},"friday":{"start":"09:00","end":"18:00"},"saturday":{"start":"09:00","end":"17:00"}}'::jsonb, '["sunday"]'::jsonb),
-  ('s0000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Siti Binti Rahman', '+60111111112', 'staff2@demo.com', 'barber', 25, '{"monday":{"start":"10:00","end":"19:00"},"tuesday":{"start":"10:00","end":"19:00"},"wednesday":{"start":"10:00","end":"19:00"},"thursday":{"start":"10:00","end":"19:00"},"friday":{"start":"10:00","end":"19:00"},"saturday":{"start":"10:00","end":"18:00"}}'::jsonb, '["sunday"]'::jsonb),
-  ('s0000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Rajesh Kumar', '+60111111113', 'staff3@demo.com', 'barber', 20, '{"monday":{"start":"11:00","end":"20:00"},"tuesday":{"start":"11:00","end":"20:00"},"wednesday":{"start":"11:00","end":"20:00"},"thursday":{"start":"11:00","end":"20:00"},"friday":{"start":"11:00","end":"20:00"},"saturday":{"start":"10:00","end":"17:00"}}'::jsonb, '["sunday"]'::jsonb)
+  ('50000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Ahmad Bin Ismail', '+60111111111', 'staff1@demo.com', 'barber', 30, '{"monday":{"start":"09:00","end":"18:00"},"tuesday":{"start":"09:00","end":"18:00"},"wednesday":{"start":"09:00","end":"18:00"},"thursday":{"start":"09:00","end":"18:00"},"friday":{"start":"09:00","end":"18:00"},"saturday":{"start":"09:00","end":"17:00"}}'::jsonb, '["sunday"]'::jsonb),
+  ('50000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Siti Binti Rahman', '+60111111112', 'staff2@demo.com', 'barber', 25, '{"monday":{"start":"10:00","end":"19:00"},"tuesday":{"start":"10:00","end":"19:00"},"wednesday":{"start":"10:00","end":"19:00"},"thursday":{"start":"10:00","end":"19:00"},"friday":{"start":"10:00","end":"19:00"},"saturday":{"start":"10:00","end":"18:00"}}'::jsonb, '["sunday"]'::jsonb),
+  ('50000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Rajesh Kumar', '+60111111113', 'staff3@demo.com', 'barber', 20, '{"monday":{"start":"11:00","end":"20:00"},"tuesday":{"start":"11:00","end":"20:00"},"wednesday":{"start":"11:00","end":"20:00"},"thursday":{"start":"11:00","end":"20:00"},"friday":{"start":"11:00","end":"20:00"},"saturday":{"start":"10:00","end":"17:00"}}'::jsonb, '["sunday"]'::jsonb)
 on conflict (id) do nothing;
 
 insert into public.staff (id, business_id, branch_id, full_name, phone, email, role, commission_rate, working_hours, off_days)
 values
-  ('s0000000-0000-0000-0000-000000000004', v_coffee_biz_id, v_coffee_main_branch_id, 'Mei Ling Tan', '+60122222221', 'staff1_coffee@demo.com', 'barista', 0, '{"monday":{"start":"06:00","end":"15:00"},"tuesday":{"start":"06:00","end":"15:00"},"wednesday":{"start":"06:00","end":"15:00"},"thursday":{"start":"06:00","end":"15:00"},"friday":{"start":"06:00","end":"15:00"},"saturday":{"start":"07:00","end":"14:00"}}'::jsonb, '["sunday"]'::jsonb),
-  ('s0000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Priya Nair', '+60122222222', 'staff2_coffee@demo.com', 'barista', 0, '{"monday":{"start":"14:00","end":"22:00"},"tuesday":{"start":"14:00","end":"22:00"},"wednesday":{"start":"14:00","end":"22:00"},"thursday":{"start":"14:00","end":"22:00"},"friday":{"start":"14:00","end":"23:00"},"saturday":{"start":"14:00","end":"23:00"}}'::jsonb, '["sunday"]'::jsonb)
+  ('50000000-0000-0000-0000-000000000004', v_coffee_biz_id, v_coffee_main_branch_id, 'Mei Ling Tan', '+60122222221', 'staff1_coffee@demo.com', 'barista', 0, '{"monday":{"start":"06:00","end":"15:00"},"tuesday":{"start":"06:00","end":"15:00"},"wednesday":{"start":"06:00","end":"15:00"},"thursday":{"start":"06:00","end":"15:00"},"friday":{"start":"06:00","end":"15:00"},"saturday":{"start":"07:00","end":"14:00"}}'::jsonb, '["sunday"]'::jsonb),
+  ('50000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Priya Nair', '+60122222222', 'staff2_coffee@demo.com', 'barista', 0, '{"monday":{"start":"14:00","end":"22:00"},"tuesday":{"start":"14:00","end":"22:00"},"wednesday":{"start":"14:00","end":"22:00"},"thursday":{"start":"14:00","end":"22:00"},"friday":{"start":"14:00","end":"23:00"},"saturday":{"start":"14:00","end":"23:00"}}'::jsonb, '["sunday"]'::jsonb)
 on conflict (id) do nothing;
 
 select id into v_staff1_id from public.staff where email = 'staff1@demo.com';
@@ -237,10 +237,10 @@ select id into v_customer5_id from public.customers where email = 'customer5@dem
 -- ============================================================================
 insert into public.services (id, business_id, branch_id, name, category, description, duration_minutes, price, is_bookable)
 values
-  ('svc00000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Classic Haircut', 'Hair Services', 'Precision haircut with consultation and styling', 30, 25.00, true),
-  ('svc00000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Haircut + Beard Trim', 'Hair Services', 'Full haircut with beard shaping and trim', 45, 40.00, true),
-  ('svc00000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Kids Haircut', 'Hair Services', 'Gentle haircut for children under 12', 25, 20.00, true),
-  ('svc00000-0000-0000-0000-000000000004', v_barber_biz_id, v_barber_main_branch_id, 'Hair Wash & Scalp Massage', 'Hair Services', 'Deep cleansing hair wash with relaxing scalp massage', 15, 10.00, true)
+  ('5c000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Classic Haircut', 'Hair Services', 'Precision haircut with consultation and styling', 30, 25.00, true),
+  ('5c000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Haircut + Beard Trim', 'Hair Services', 'Full haircut with beard shaping and trim', 45, 40.00, true),
+  ('5c000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Kids Haircut', 'Hair Services', 'Gentle haircut for children under 12', 25, 20.00, true),
+  ('5c000000-0000-0000-0000-000000000004', v_barber_biz_id, v_barber_main_branch_id, 'Hair Wash & Scalp Massage', 'Hair Services', 'Deep cleansing hair wash with relaxing scalp massage', 15, 10.00, true)
 on conflict (id) do nothing;
 
 select id into v_service1_id from public.services where name = 'Classic Haircut';
@@ -251,8 +251,8 @@ select id into v_service4_id from public.services where name = 'Hair Wash & Scal
 -- Coffee shop has resources (tables), not services. But add "services" like bar for booking.
 insert into public.services (id, business_id, branch_id, name, category, description, duration_minutes, price, is_bookable)
 values
-  ('svc00000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Coffee Bar Experience', 'F&B', 'Reserve a spot at our artisanal coffee bar', 60, 0.00, true),
-  ('svc00000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, 'Brunch Booking', 'F&B', 'Premium brunch seating reservation', 90, 0.00, true)
+  ('5c000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Coffee Bar Experience', 'F&B', 'Reserve a spot at our artisanal coffee bar', 60, 0.00, true),
+  ('5c000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, 'Brunch Booking', 'F&B', 'Premium brunch seating reservation', 90, 0.00, true)
 on conflict (id) do nothing;
 
 -- ============================================================================
@@ -261,18 +261,18 @@ on conflict (id) do nothing;
 -- Barber: barber chairs as resources
 insert into public.bookable_resources (id, business_id, branch_id, name, resource_type, capacity, description)
 values
-  ('r0000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Chair 1 - Window', 'barber_chair', 1, 'Barber chair near the window, lots of natural light'),
-  ('r0000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Chair 2 - Mirror', 'barber_chair', 1, 'Standard barber chair with large mirror'),
-  ('r0000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Chair 3 - Premium', 'barber_chair', 1, 'Premium leather barber chair with back massage')
+  ('60000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Chair 1 - Window', 'barber_chair', 1, 'Barber chair near the window, lots of natural light'),
+  ('60000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Chair 2 - Mirror', 'barber_chair', 1, 'Standard barber chair with large mirror'),
+  ('60000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Chair 3 - Premium', 'barber_chair', 1, 'Premium leather barber chair with back massage')
 on conflict (id) do nothing;
 
 -- Coffee: tables and rooms as resources
 insert into public.bookable_resources (id, business_id, branch_id, name, resource_type, capacity, description)
 values
-  ('r0000000-0000-0000-0000-000000000004', v_coffee_biz_id, v_coffee_main_branch_id, 'Table for 2', 'table', 2, 'Cozy table for two near the window'),
-  ('r0000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Table for 4', 'table', 4, 'Spacious table for groups'),
-  ('r0000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, 'Private Room', 'room', 6, 'Air-conditioned private room for meetings or events'),
-  ('r0000000-0000-0000-0000-000000000007', v_coffee_biz_id, v_coffee_main_branch_id, 'Event Space', 'event_space', 30, 'Open event space with projector and sound system')
+  ('60000000-0000-0000-0000-000000000004', v_coffee_biz_id, v_coffee_main_branch_id, 'Table for 2', 'table', 2, 'Cozy table for two near the window'),
+  ('60000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Table for 4', 'table', 4, 'Spacious table for groups'),
+  ('60000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, 'Private Room', 'room', 6, 'Air-conditioned private room for meetings or events'),
+  ('60000000-0000-0000-0000-000000000007', v_coffee_biz_id, v_coffee_main_branch_id, 'Event Space', 'event_space', 30, 'Open event space with projector and sound system')
 on conflict (id) do nothing;
 
 -- Assign staff to barber chairs (via staff_services from later phase, skip for now)
@@ -283,33 +283,33 @@ on conflict (id) do nothing;
 -- Barber bookings (today + past)
 insert into public.bookings (id, business_id, branch_id, customer_id, staff_id, service_id, booking_type, booking_date, start_time, end_time, status, total_amount, payment_status)
 values
-  ('bk000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, v_customer1_id, v_staff1_id, v_service1_id, 'appointment', current_date, '10:00', '10:30', 'confirmed', 25.00, 'unpaid'),
-  ('bk000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, v_customer2_id, v_staff2_id, v_service2_id, 'appointment', current_date, '11:00', '11:45', 'confirmed', 40.00, 'unpaid'),
-  ('bk000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, v_customer3_id, v_staff1_id, v_service3_id, 'appointment', current_date, '14:00', '14:25', 'pending', 20.00, 'unpaid'),
+  ('b1000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, v_customer1_id, v_staff1_id, v_service1_id, 'appointment', current_date, '10:00', '10:30', 'confirmed', 25.00, 'unpaid'),
+  ('b1000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, v_customer2_id, v_staff2_id, v_service2_id, 'appointment', current_date, '11:00', '11:45', 'confirmed', 40.00, 'unpaid'),
+  ('b1000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, v_customer3_id, v_staff1_id, v_service3_id, 'appointment', current_date, '14:00', '14:25', 'pending', 20.00, 'unpaid'),
   -- Past completed booking
-  ('bk000000-0000-0000-0000-000000000004', v_barber_biz_id, v_barber_main_branch_id, v_customer1_id, v_staff1_id, v_service1_id, 'appointment', current_date - 3, '10:00', '10:30', 'completed', 25.00, 'paid')
+  ('b1000000-0000-0000-0000-000000000004', v_barber_biz_id, v_barber_main_branch_id, v_customer1_id, v_staff1_id, v_service1_id, 'appointment', current_date - 3, '10:00', '10:30', 'completed', 25.00, 'paid')
 on conflict (id) do nothing;
 
 -- Coffee bookings (today)
 insert into public.bookings (id, business_id, branch_id, customer_id, service_id, resource_id, booking_type, booking_date, start_time, end_time, status, total_amount, payment_status, notes)
 values
-  ('bk000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, v_customer4_id, (select id from public.services where business_id = v_coffee_biz_id and name = 'Coffee Bar Experience' limit 1), (select id from public.bookable_resources where business_id = v_coffee_biz_id and name = 'Table for 2' limit 1), 'table', current_date, '09:00', '10:00', 'confirmed', 0.00, 'unpaid', 'Window seat preferred'),
-  ('bk000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, v_customer5_id, (select id from public.services where business_id = v_coffee_biz_id and name = 'Brunch Booking' limit 1), (select id from public.bookable_resources where business_id = v_coffee_biz_id and name = 'Table for 4' limit 1), 'table', current_date, '12:00', '13:30', 'confirmed', 0.00, 'unpaid', 'Birthday celebration')
+  ('b1000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, v_customer4_id, (select id from public.services where business_id = v_coffee_biz_id and name = 'Coffee Bar Experience' limit 1), (select id from public.bookable_resources where business_id = v_coffee_biz_id and name = 'Table for 2' limit 1), 'table', current_date, '09:00', '10:00', 'confirmed', 0.00, 'unpaid', 'Window seat preferred'),
+  ('b1000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, v_customer5_id, (select id from public.services where business_id = v_coffee_biz_id and name = 'Brunch Booking' limit 1), (select id from public.bookable_resources where business_id = v_coffee_biz_id and name = 'Table for 4' limit 1), 'table', current_date, '12:00', '13:30', 'confirmed', 0.00, 'unpaid', 'Birthday celebration')
 on conflict (id) do nothing;
 
-select id into v_booking1_id from public.bookings where id = 'bk000000-0000-0000-0000-000000000001';
-select id into v_booking4_id from public.bookings where id = 'bk000000-0000-0000-0000-000000000004';
+select id into v_booking1_id from public.bookings where id = 'b1000000-0000-0000-0000-000000000001';
+select id into v_booking4_id from public.bookings where id = 'b1000000-0000-0000-0000-000000000004';
 
 -- ============================================================================
 -- 12. Demo membership plans
 -- ============================================================================
 insert into public.membership_plans (id, business_id, name, plan_type, description, price, duration_days, credit_amount, visit_limit, points_bonus, discount_percent, benefits)
 values
-  ('p0000000-0000-0000-0000-000000000001', v_barber_biz_id, 'Basic Cut Plan', 'subscription', 'One haircut per month + 10% off additional services', 49.00, 30, 0, 1, 50, 10, '{"free_wash":false,"priority_booking":false}'::jsonb),
-  ('p0000000-0000-0000-0000-000000000002', v_barber_biz_id, 'Premium Grooming', 'vip', 'Unlimited haircuts, free hair wash, 20% off products, priority booking', 99.00, 30, 50.00, null, 200, 20, '{"free_wash":true,"priority_booking":true,"exclusive_events":true}'::jsonb),
-  ('p0000000-0000-0000-0000-000000000003', v_barber_biz_id, 'Prepaid RM100', 'prepaid_credit', 'Get RM100 credit for RM90 — save 10% on all services', 90.00, 365, 100.00, null, 100, 0, '{}'::jsonb),
-  ('p0000000-0000-0000-0000-000000000004', v_coffee_biz_id, 'Coffee Lover', 'subscription', '10% off all drinks + free birthday drink', 39.00, 30, 0, null, 100, 10, '{"free_birthday_drink":true,"monthly_tasting":false}'::jsonb),
-  ('p0000000-0000-0000-0000-000000000005', v_coffee_biz_id, 'Daily Coffee', 'subscription', 'One free drink daily + 15% off food', 99.00, 30, 0, null, 300, 15, '{"free_daily_drink":true,"priority_seating":true}'::jsonb)
+  ('70000000-0000-0000-0000-000000000001', v_barber_biz_id, 'Basic Cut Plan', 'subscription', 'One haircut per month + 10% off additional services', 49.00, 30, 0, 1, 50, 10, '{"free_wash":false,"priority_booking":false}'::jsonb),
+  ('70000000-0000-0000-0000-000000000002', v_barber_biz_id, 'Premium Grooming', 'vip', 'Unlimited haircuts, free hair wash, 20% off products, priority booking', 99.00, 30, 50.00, null, 200, 20, '{"free_wash":true,"priority_booking":true,"exclusive_events":true}'::jsonb),
+  ('70000000-0000-0000-0000-000000000003', v_barber_biz_id, 'Prepaid RM100', 'prepaid_credit', 'Get RM100 credit for RM90 — save 10% on all services', 90.00, 365, 100.00, null, 100, 0, '{}'::jsonb),
+  ('70000000-0000-0000-0000-000000000004', v_coffee_biz_id, 'Coffee Lover', 'subscription', '10% off all drinks + free birthday drink', 39.00, 30, 0, null, 100, 10, '{"free_birthday_drink":true,"monthly_tasting":false}'::jsonb),
+  ('70000000-0000-0000-0000-000000000005', v_coffee_biz_id, 'Daily Coffee', 'subscription', 'One free drink daily + 15% off food', 99.00, 30, 0, null, 300, 15, '{"free_daily_drink":true,"priority_seating":true}'::jsonb)
 on conflict (id) do nothing;
 
 select id into v_plan1_id from public.membership_plans where name = 'Basic Cut Plan' and business_id = v_barber_biz_id;
@@ -323,21 +323,21 @@ select id into v_plan5_id from public.membership_plans where name = 'Daily Coffe
 -- ============================================================================
 insert into public.memberships (id, business_id, customer_id, plan_id, status, start_date, end_date, remaining_credit, remaining_visits, auto_renew)
 values
-  ('m0000000-0000-0000-0000-000000000001', v_barber_biz_id, v_customer1_id, v_plan2_id, 'active', '2026-05-01', '2026-05-31', 35.00, 0, true),
-  ('m0000000-0000-0000-0000-000000000002', v_barber_biz_id, v_customer2_id, v_plan1_id, 'active', '2026-05-05', '2026-06-04', 0, 0, false),
-  ('m0000000-0000-0000-0000-000000000003', v_barber_biz_id, v_customer3_id, v_plan3_id, 'active', '2026-01-15', '2027-01-15', 80.00, 0, false),
-  ('m0000000-0000-0000-0000-000000000004', v_coffee_biz_id, v_customer4_id, v_plan4_id, 'active', '2026-05-01', '2026-05-31', 0, 0, true)
+  ('80000000-0000-0000-0000-000000000001', v_barber_biz_id, v_customer1_id, v_plan2_id, 'active', '2026-05-01', '2026-05-31', 35.00, 0, true),
+  ('80000000-0000-0000-0000-000000000002', v_barber_biz_id, v_customer2_id, v_plan1_id, 'active', '2026-05-05', '2026-06-04', 0, 0, false),
+  ('80000000-0000-0000-0000-000000000003', v_barber_biz_id, v_customer3_id, v_plan3_id, 'active', '2026-01-15', '2027-01-15', 80.00, 0, false),
+  ('80000000-0000-0000-0000-000000000004', v_coffee_biz_id, v_customer4_id, v_plan4_id, 'active', '2026-05-01', '2026-05-31', 0, 0, true)
 on conflict (id) do nothing;
 
-select id into v_membership1_id from public.memberships where id = 'm0000000-0000-0000-0000-000000000001';
-select id into v_membership2_id from public.memberships where id = 'm0000000-0000-0000-0000-000000000002';
-select id into v_membership3_id from public.memberships where id = 'm0000000-0000-0000-0000-000000000003';
+select id into v_membership1_id from public.memberships where id = '80000000-0000-0000-0000-000000000001';
+select id into v_membership2_id from public.memberships where id = '80000000-0000-0000-0000-000000000002';
+select id into v_membership3_id from public.memberships where id = '80000000-0000-0000-0000-000000000003';
 
 -- Membership usage
 insert into public.membership_usage (id, business_id, membership_id, customer_id, booking_id, usage_type, amount_used, visits_used, notes)
 values
-  ('mu000000-0000-0000-0000-000000000001', v_barber_biz_id, v_membership1_id, v_customer1_id, v_booking4_id, 'credit', 15.00, 0, 'Haircut paid from premium credit — RM25, RM10 top-up'),
-  ('mu000000-0000-0000-0000-000000000002', v_barber_biz_id, v_membership3_id, v_customer3_id, null, 'visit', 0, 0, 'Manual registration')
+  ('81000000-0000-0000-0000-000000000001', v_barber_biz_id, v_membership1_id, v_customer1_id, v_booking4_id, 'credit', 15.00, 0, 'Haircut paid from premium credit — RM25, RM10 top-up'),
+  ('81000000-0000-0000-0000-000000000002', v_barber_biz_id, v_membership3_id, v_customer3_id, null, 'visit', 0, 0, 'Manual registration')
 on conflict (id) do nothing;
 
 -- ============================================================================
@@ -346,19 +346,19 @@ on conflict (id) do nothing;
 -- Barber: retail products
 insert into public.products (id, business_id, branch_id, name, category, sku, cost_price, selling_price, stock_quantity, low_stock_threshold)
 values
-  ('pr000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Pomade Classic', 'Hair Products', 'POM-001', 8.00, 25.00, 30, 5),
-  ('pr000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Beard Oil Premium', 'Beard Care', 'BOIL-001', 12.00, 35.00, 15, 3),
-  ('pr000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Shaving Cream Set', 'Shaving', 'SHAVE-001', 15.00, 45.00, 8, 2),
-  ('pr000000-0000-0000-0000-000000000004', v_barber_biz_id, v_barber_main_branch_id, 'Hair Tonic', 'Hair Products', 'TONIC-001', 6.00, 18.00, 50, 10)
+  ('90000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, 'Pomade Classic', 'Hair Products', 'POM-001', 8.00, 25.00, 30, 5),
+  ('90000000-0000-0000-0000-000000000002', v_barber_biz_id, v_barber_main_branch_id, 'Beard Oil Premium', 'Beard Care', 'BOIL-001', 12.00, 35.00, 15, 3),
+  ('90000000-0000-0000-0000-000000000003', v_barber_biz_id, v_barber_main_branch_id, 'Shaving Cream Set', 'Shaving', 'SHAVE-001', 15.00, 45.00, 8, 2),
+  ('90000000-0000-0000-0000-000000000004', v_barber_biz_id, v_barber_main_branch_id, 'Hair Tonic', 'Hair Products', 'TONIC-001', 6.00, 18.00, 50, 10)
 on conflict (id) do nothing;
 
 -- Coffee: F&B products
 insert into public.products (id, business_id, branch_id, name, category, sku, cost_price, selling_price, stock_quantity, low_stock_threshold)
 values
-  ('pr000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Signature Latte', 'Beverages', 'LATTE-001', 4.50, 12.00, 999, 50),
-  ('pr000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, 'Americano', 'Beverages', 'AMER-001', 3.00, 9.00, 999, 50),
-  ('pr000000-0000-0000-0000-000000000007', v_coffee_biz_id, v_coffee_main_branch_id, 'Cappuccino', 'Beverages', 'CAPP-001', 4.00, 11.00, 999, 50),
-  ('pr000000-0000-0000-0000-000000000008', v_coffee_biz_id, v_coffee_main_branch_id, 'Breakfast Set', 'Food', 'BRK-001', 8.00, 18.00, 50, 10)
+  ('90000000-0000-0000-0000-000000000005', v_coffee_biz_id, v_coffee_main_branch_id, 'Signature Latte', 'Beverages', 'LATTE-001', 4.50, 12.00, 999, 50),
+  ('90000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_coffee_main_branch_id, 'Americano', 'Beverages', 'AMER-001', 3.00, 9.00, 999, 50),
+  ('90000000-0000-0000-0000-000000000007', v_coffee_biz_id, v_coffee_main_branch_id, 'Cappuccino', 'Beverages', 'CAPP-001', 4.00, 11.00, 999, 50),
+  ('90000000-0000-0000-0000-000000000008', v_coffee_biz_id, v_coffee_main_branch_id, 'Breakfast Set', 'Food', 'BRK-001', 8.00, 18.00, 50, 10)
 on conflict (id) do nothing;
 
 select id into v_product1_id from public.products where sku = 'POM-001';
@@ -369,7 +369,7 @@ select id into v_product1_id from public.products where sku = 'POM-001';
 -- Barber POS order (completed, paid)
 insert into public.pos_orders (id, business_id, branch_id, customer_id, staff_id, order_number, subtotal, discount_amount, tax_amount, total_amount, payment_status, order_status)
 values
-  ('po000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, v_customer1_id, v_staff1_id, 'POS-BR-20260514-001', 60.00, 0, 0, 60.00, 'paid', 'completed')
+  ('c1000000-0000-0000-0000-000000000001', v_barber_biz_id, v_barber_main_branch_id, v_customer1_id, v_staff1_id, 'POS-BR-20260514-001', 60.00, 0, 0, 60.00, 'paid', 'completed')
 on conflict (id) do nothing;
 
 select id into v_order1_id from public.pos_orders where order_number = 'POS-BR-20260514-001';
@@ -384,7 +384,7 @@ on conflict (id) do nothing;
 -- Coffee POS order (completed, paid)
 insert into public.pos_orders (id, business_id, branch_id, customer_id, staff_id, order_number, subtotal, discount_amount, tax_amount, total_amount, payment_status, order_status)
 values
-  ('po000000-0000-0000-0000-000000000002', v_coffee_biz_id, v_coffee_main_branch_id, v_customer4_id, null, 'POS-CF-20260514-001', 41.00, 4.10, 0, 36.90, 'paid', 'completed')
+  ('c1000000-0000-0000-0000-000000000002', v_coffee_biz_id, v_coffee_main_branch_id, v_customer4_id, null, 'POS-CF-20260514-001', 41.00, 4.10, 0, 36.90, 'paid', 'completed')
 on conflict (id) do nothing;
 
 select id into v_order2_id from public.pos_orders where order_number = 'POS-CF-20260514-001';
@@ -402,11 +402,11 @@ on conflict (id) do nothing;
 -- Payment for barber booking #4 (completed haircut)
 insert into public.payments (id, business_id, customer_id, reference_type, reference_id, payment_method, amount, status, paid_at, transaction_id)
 values
-  ('pm000000-0000-0000-0000-000000000001', v_barber_biz_id, v_customer1_id, 'booking', v_booking4_id, 'cash', 25.00, 'paid', now() - interval '3 days', 'CASH-0001'),
+  ('d0000000-0000-0000-0000-000000000001', v_barber_biz_id, v_customer1_id, 'booking', v_booking4_id, 'cash', 25.00, 'paid', now() - interval '3 days', 'CASH-0001'),
   -- Payment for barber POS order #1
-  ('pm000000-0000-0000-0000-000000000002', v_barber_biz_id, v_customer1_id, 'pos_order', v_order1_id, 'cash', 60.00, 'paid', now() - interval '2 days', 'CASH-0002'),
+  ('d0000000-0000-0000-0000-000000000002', v_barber_biz_id, v_customer1_id, 'pos_order', v_order1_id, 'cash', 60.00, 'paid', now() - interval '2 days', 'CASH-0002'),
   -- Payment for coffee POS order #2
-  ('pm000000-0000-0000-0000-000000000003', v_coffee_biz_id, v_customer4_id, 'pos_order', v_order2_id, 'qr', 36.90, 'paid', now() - interval '1 day', 'QR-0001')
+  ('d0000000-0000-0000-0000-000000000003', v_coffee_biz_id, v_customer4_id, 'pos_order', v_order2_id, 'qr', 36.90, 'paid', now() - interval '1 day', 'QR-0001')
 on conflict (id) do nothing;
 
 -- ============================================================================
@@ -415,20 +415,20 @@ on conflict (id) do nothing;
 -- Barber loyalty transactions for John
 insert into public.loyalty_transactions (id, business_id, customer_id, transaction_type, points, description, reference_type, balance_after)
 values
-  ('lt000000-0000-0000-0000-000000000001', v_barber_biz_id, v_customer1_id, 'earn', 50, 'Earned from haircut purchase', 'payment', 50),
-  ('lt000000-0000-0000-0000-000000000002', v_barber_biz_id, v_customer1_id, 'earn', 100, 'Earned from Premium Grooming signup', 'payment', 150),
-  ('lt000000-0000-0000-0000-000000000003', v_barber_biz_id, v_customer1_id, 'earn', 300, 'Earned from POS order #POS-BR-20260514-001', 'payment', 450),
-  ('lt000000-0000-0000-0000-000000000004', v_barber_biz_id, v_customer2_id, 'earn', 50, 'Welcome bonus points', 'payment', 50),
-  ('lt000000-0000-0000-0000-000000000005', v_barber_biz_id, v_customer2_id, 'earn', 160, 'Earned from visits', 'payment', 210)
+  ('e1000000-0000-0000-0000-000000000001', v_barber_biz_id, v_customer1_id, 'earn', 50, 'Earned from haircut purchase', 'payment', 50),
+  ('e1000000-0000-0000-0000-000000000002', v_barber_biz_id, v_customer1_id, 'earn', 100, 'Earned from Premium Grooming signup', 'payment', 150),
+  ('e1000000-0000-0000-0000-000000000003', v_barber_biz_id, v_customer1_id, 'earn', 300, 'Earned from POS order #POS-BR-20260514-001', 'payment', 450),
+  ('e1000000-0000-0000-0000-000000000004', v_barber_biz_id, v_customer2_id, 'earn', 50, 'Welcome bonus points', 'payment', 50),
+  ('e1000000-0000-0000-0000-000000000005', v_barber_biz_id, v_customer2_id, 'earn', 160, 'Earned from visits', 'payment', 210)
 on conflict (id) do nothing;
 
 -- Coffee loyalty transactions for Lisa
 insert into public.loyalty_transactions (id, business_id, customer_id, transaction_type, points, description, reference_type, balance_after)
 values
-  ('lt000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_customer4_id, 'earn', 50, 'Welcome bonus', 'payment', 50),
-  ('lt000000-0000-0000-0000-000000000007', v_coffee_biz_id, v_customer4_id, 'earn', 80, 'Earned from visits', 'payment', 130),
-  ('lt000000-0000-0000-0000-000000000008', v_coffee_biz_id, v_customer4_id, 'earn', 50, 'Earned from Coffee Lover signup', 'payment', 180),
-  ('lt000000-0000-0000-0000-000000000009', v_coffee_biz_id, v_customer5_id, 'earn', 90, 'Earned from visits', 'payment', 90)
+  ('e1000000-0000-0000-0000-000000000006', v_coffee_biz_id, v_customer4_id, 'earn', 50, 'Welcome bonus', 'payment', 50),
+  ('e1000000-0000-0000-0000-000000000007', v_coffee_biz_id, v_customer4_id, 'earn', 80, 'Earned from visits', 'payment', 130),
+  ('e1000000-0000-0000-0000-000000000008', v_coffee_biz_id, v_customer4_id, 'earn', 50, 'Earned from Coffee Lover signup', 'payment', 180),
+  ('e1000000-0000-0000-0000-000000000009', v_coffee_biz_id, v_customer5_id, 'earn', 90, 'Earned from visits', 'payment', 90)
 on conflict (id) do nothing;
 
 -- ============================================================================
@@ -436,11 +436,11 @@ on conflict (id) do nothing;
 -- ============================================================================
 insert into public.rewards (id, business_id, name, description, reward_type, points_required, discount_amount, discount_percent, free_item, is_active)
 values
-  ('rw000000-0000-0000-0000-000000000001', v_barber_biz_id, 'Free Hair Wash', 'Redeem a complimentary hair wash with every haircut', 'free_service', 100, null, null, null, true),
-  ('rw000000-0000-0000-0000-000000000002', v_barber_biz_id, 'RM5 Discount', 'Get RM5 off any service', 'discount', 100, 5.00, null, null, true),
-  ('rw000000-0000-0000-0000-000000000003', v_barber_biz_id, 'Free Pomade', 'Redeem a free Classic Pomade', 'free_item', 200, null, null, 'Classic Pomade', true),
-  ('rw000000-0000-0000-0000-000000000004', v_coffee_biz_id, 'Free Latte', 'Redeem a free Signature Latte', 'free_item', 100, null, null, 'Signature Latte', true),
-  ('rw000000-0000-0000-0000-000000000005', v_coffee_biz_id, 'RM3 Discount', 'Get RM3 off your bill', 'discount', 80, 3.00, null, null, true)
+  ('e2000000-0000-0000-0000-000000000001', v_barber_biz_id, 'Free Hair Wash', 'Redeem a complimentary hair wash with every haircut', 'free_service', 100, null, null, null, true),
+  ('e2000000-0000-0000-0000-000000000002', v_barber_biz_id, 'RM5 Discount', 'Get RM5 off any service', 'discount', 100, 5.00, null, null, true),
+  ('e2000000-0000-0000-0000-000000000003', v_barber_biz_id, 'Free Pomade', 'Redeem a free Classic Pomade', 'free_item', 200, null, null, 'Classic Pomade', true),
+  ('e2000000-0000-0000-0000-000000000004', v_coffee_biz_id, 'Free Latte', 'Redeem a free Signature Latte', 'free_item', 100, null, null, 'Signature Latte', true),
+  ('e2000000-0000-0000-0000-000000000005', v_coffee_biz_id, 'RM3 Discount', 'Get RM3 off your bill', 'discount', 80, 3.00, null, null, true)
 on conflict (id) do nothing;
 
 -- ============================================================================
@@ -485,15 +485,15 @@ on conflict (business_id, template_key, channel) do nothing;
 begin
   insert into auth.users (id, email, encrypted_password, email_confirmed_at, confirmation_sent_at, raw_user_meta_data, created_at, updated_at)
   values
-    ('au000000-0000-0000-0000-000000000001', 'barber_owner@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Ahmad Barber","role":"owner","business_name":"Classic Barber House","business_type":"barber_shop"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000002', 'coffee_owner@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Mei Ling Coffee","role":"owner","business_name":"Brew & Bean Cafe","business_type":"coffee_shop"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000003', 'staff1@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Ahmad Bin Ismail","role":"staff"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000004', 'staff2@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Siti Binti Rahman","role":"staff"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000005', 'customer1@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"John Tan","role":"customer"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000006', 'customer2@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Sarah Lim","role":"customer"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000007', 'customer3@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"David Chong","role":"customer"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000008', 'customer4@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Lisa Wong","role":"customer"}'::jsonb, now(), now()),
-    ('au000000-0000-0000-0000-000000000009', 'customer5@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Adam Malik","role":"customer"}'::jsonb, now(), now())
+    ('a1000000-0000-0000-0000-000000000001', 'barber_owner@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Ahmad Barber","role":"owner","business_name":"Classic Barber House","business_type":"barber_shop"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000002', 'coffee_owner@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Mei Ling Coffee","role":"owner","business_name":"Brew & Bean Cafe","business_type":"coffee_shop"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000003', 'staff1@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Ahmad Bin Ismail","role":"staff"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000004', 'staff2@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Siti Binti Rahman","role":"staff"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000005', 'customer1@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"John Tan","role":"customer"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000006', 'customer2@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Sarah Lim","role":"customer"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000007', 'customer3@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"David Chong","role":"customer"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000008', 'customer4@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Lisa Wong","role":"customer"}'::jsonb, now(), now()),
+    ('a1000000-0000-0000-0000-000000000009', 'customer5@demo.com', crypt('Demo@123456', gen_salt('bf')), now(), now(), '{"full_name":"Adam Malik","role":"customer"}'::jsonb, now(), now())
   on conflict (id) do nothing;
 
   -- Create identities for the users so they can sign in
