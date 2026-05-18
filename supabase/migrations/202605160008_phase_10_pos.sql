@@ -229,5 +229,6 @@ create index if not exists pos_receipts_order_id_idx on public.pos_receipts(orde
 create index if not exists pos_orders_completed_at_idx on public.pos_orders(completed_at) where completed_at is not null;
 
 -- 13. Triggers
-create trigger if not exists set_daily_closings_updated_at before update on public.daily_closings
+drop trigger if exists set_daily_closings_updated_at on public.daily_closings;
+create trigger set_daily_closings_updated_at before update on public.daily_closings
   for each row execute function public.set_updated_at();

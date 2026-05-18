@@ -80,7 +80,9 @@ create index if not exists commission_records_status_idx on public.commission_re
 create index if not exists commission_records_source_idx on public.commission_records(source_type, source_id);
 
 -- 7. Triggers
-create trigger if not exists set_commission_rules_updated_at before update on public.commission_rules
+drop trigger if exists set_commission_rules_updated_at on public.commission_rules;
+create trigger set_commission_rules_updated_at before update on public.commission_rules
   for each row execute function public.set_updated_at();
-create trigger if not exists set_commission_records_updated_at before update on public.commission_records
+drop trigger if exists set_commission_records_updated_at on public.commission_records;
+create trigger set_commission_records_updated_at before update on public.commission_records
   for each row execute function public.set_updated_at();

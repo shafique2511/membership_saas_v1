@@ -135,7 +135,8 @@ create index if not exists inventory_transactions_reference_idx on public.invent
 create index if not exists suppliers_business_id_idx on public.suppliers(business_id);
 
 -- 8. Triggers
-create trigger if not exists set_suppliers_updated_at before update on public.suppliers
+drop trigger if exists set_suppliers_updated_at on public.suppliers;
+create trigger set_suppliers_updated_at before update on public.suppliers
   for each row execute function public.set_updated_at();
 
 -- 9. Drop old low_stock index (created in phase 2) to replace with new one
