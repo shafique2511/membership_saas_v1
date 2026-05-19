@@ -70,16 +70,21 @@ export async function hasPermission(permission: Permission): Promise<boolean> {
     return staffOverride
   }
 
-  const roleOverride = await getRolePermissionOverride(profile.business_id, profile.role, permission)
+  const permissionRoleKey = await getStaffPermissionRoleKey(profile.business_id)
+  const roleOverride = await getRolePermissionOverride(profile.business_id, permissionRoleKey ?? profile.role, permission)
 
   if (roleOverride !== null) {
     return roleOverride
   }
 
+  if (permissionRoleKey) {
+    return false
+  }
+
   return roleHasPermission(profile.role, permission)
 }
 
-async function getRolePermissionOverride(businessId: string, role: UserRole, permission: Permission): Promise<boolean | null> {
+async function getRolePermissionOverride(businessId: string, role: string, permission: Permission): Promise<boolean | null> {
   const { data, error } = await supabase
     .from('staff_permissions')
     .select('is_granted')
@@ -93,6 +98,28 @@ async function getRolePermissionOverride(businessId: string, role: UserRole, per
   }
 
   return typeof data?.is_granted === 'boolean' ? data.is_granted : null
+}
+
+async function getStaffPermissionRoleKey(businessId: string): Promise<string | null> {
+  const currentUser = await getCurrentUser()
+
+  if (!currentUser) {
+    return null
+  }
+
+  const { data, error } = await supabase
+    .from('staff')
+    .select('permission_role_key')
+    .eq('business_id', businessId)
+    .eq('user_id', currentUser.id)
+    .eq('status', 'active')
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return typeof data?.permission_role_key === 'string' ? data.permission_role_key : null
 }
 
 async function getStaffPermissionOverride(businessId: string, permission: Permission): Promise<boolean | null> {
