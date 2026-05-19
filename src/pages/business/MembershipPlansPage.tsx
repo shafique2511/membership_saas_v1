@@ -10,7 +10,18 @@ import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { getPlans, createPlan, updatePlan, deletePlan, planTypeLabels, type MembershipPlan, type PlanType } from '@/services/memberships'
+import { getPlans, createPlan, updatePlan, deletePlan, planTypeLabels, type MembershipPlan, type PlanType, type RenewalSetting } from '@/services/memberships'
+
+function parseBenefits(value: string): Record<string, unknown> {
+  const trimmed = value.trim()
+  if (!trimmed) return {}
+  try {
+    const parsed = JSON.parse(trimmed) as unknown
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : { items: parsed }
+  } catch {
+    return { items: trimmed.split('\n').map((item) => item.trim()).filter(Boolean) }
+  }
+}
 
 export function MembershipPlansPage() {
   const { profile } = useAppContext()
@@ -23,7 +34,7 @@ export function MembershipPlansPage() {
   const [form, setForm] = useState({
     name: '', plan_type: 'subscription' as PlanType, description: '', price: '0',
     duration_days: '30', credit_amount: '0', visit_limit: '', points_bonus: '0',
-    discount_percent: '0', benefits: '',
+    discount_percent: '0', renewal_setting: 'manual' as RenewalSetting, benefits: '',
   })
 
   const load = useCallback(async () => {
@@ -45,6 +56,8 @@ export function MembershipPlansPage() {
       visit_limit: form.visit_limit ? Number(form.visit_limit) : null,
       points_bonus: Number(form.points_bonus),
       discount_percent: Number(form.discount_percent),
+      renewal_setting: form.renewal_setting,
+      benefits: parseBenefits(form.benefits),
     }
     if (editingId) {
       await updatePlan(editingId, payload)
@@ -53,7 +66,7 @@ export function MembershipPlansPage() {
     }
     setOpen(false)
     setEditingId(null)
-    setForm({ name: '', plan_type: 'subscription', description: '', price: '0', duration_days: '30', credit_amount: '0', visit_limit: '', points_bonus: '0', discount_percent: '0', benefits: '' })
+    setForm({ name: '', plan_type: 'subscription', description: '', price: '0', duration_days: '30', credit_amount: '0', visit_limit: '', points_bonus: '0', discount_percent: '0', renewal_setting: 'manual', benefits: '' })
     await load()
   }
 
@@ -91,6 +104,7 @@ export function MembershipPlansPage() {
                   visit_limit: String(r.visit_limit ?? ''),
                   points_bonus: String(r.points_bonus ?? '0'),
                   discount_percent: String(r.discount_percent ?? '0'),
+                  renewal_setting: String(r.renewal_setting ?? 'manual') as RenewalSetting,
                   benefits: typeof r.benefits === 'object' ? JSON.stringify(r.benefits) : '',
                 })
                 setOpen(true)
@@ -121,6 +135,7 @@ export function MembershipPlansPage() {
               {plan.visit_limit != null && <p>{plan.visit_limit} visits</p>}
               {plan.discount_percent > 0 && <p>{plan.discount_percent}% discount</p>}
               {plan.points_bonus > 0 && <p>+{plan.points_bonus} points</p>}
+              <p className="text-slate-500">Renewal: {plan.renewal_setting ?? 'manual'}</p>
             </CardContent>
           </Card>
         ))}
@@ -145,6 +160,9 @@ export function MembershipPlansPage() {
           <Field className="sm:col-span-2" label="Description" description="Explain what the customer receives with this plan.">
             <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </Field>
+          <Field className="sm:col-span-2" label="Benefits" description="Optional benefits shown on the member card. Use one benefit per line or a JSON object.">
+            <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Priority booking&#10;Free birthday reward" value={form.benefits} onChange={(e) => setForm({ ...form, benefits: e.target.value })} />
+          </Field>
           <Field label="Price" description="Amount charged when selling this plan.">
             <Input type="number" placeholder="Price (RM)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
           </Field>
@@ -162,6 +180,13 @@ export function MembershipPlansPage() {
           </Field>
           <Field label="Discount percent" description="Default discount members receive on eligible purchases.">
             <Input type="number" placeholder="Discount %" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: e.target.value })} />
+          </Field>
+          <Field label="Renewal setting" description="Default renewal behavior for customers assigned to this plan.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.renewal_setting} onChange={(e) => setForm({ ...form, renewal_setting: e.target.value as RenewalSetting })}>
+              <option value="manual">Manual renewal</option>
+              <option value="auto">Auto renewal</option>
+              <option value="reminder">Reminder only</option>
+            </select>
           </Field>
         </div>
       </FormModal>

@@ -7,6 +7,7 @@ import { getCustomerMemberships, type CustomerMembership } from '@/services/cust
 import { getPlans, type MembershipPlan } from '@/services/memberships'
 import { WalletCards, Sparkles, CheckCircle, QrCode } from 'lucide-react'
 import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
+import { createQrDataUrl } from '@/utils/qr'
 
 const STATUS_STYLES: Record<string, string> = {
   active: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
@@ -23,6 +24,7 @@ export function CustomerMembershipsPage() {
 
   const [memberships, setMemberships] = useState<CustomerMembership[]>([])
   const [plans, setPlans] = useState<MembershipPlan[]>([])
+  const [qrCards, setQrCards] = useState<Record<string, string>>({})
   const [showBuy, setShowBuy] = useState(false)
   const [buying, setBuying] = useState(false)
 
@@ -37,6 +39,22 @@ export function CustomerMembershipsPage() {
   }, [customerId, bizId])
 
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
+  useEffect(() => {
+    const codes = memberships.filter((m) => m.qr_code)
+    if (codes.length === 0) {
+      setQrCards({})
+      return
+    }
+    let cancelled = false
+    void Promise.all(codes.map(async (m) => [m.id, await createQrDataUrl(m.qr_code ?? '')] as const))
+      .then((items) => {
+        if (!cancelled) setQrCards(Object.fromEntries(items))
+      })
+      .catch(() => {
+        if (!cancelled) setQrCards({})
+      })
+    return () => { cancelled = true }
+  }, [memberships])
 
   async function handleBuy(planId: string) {
     if (!customerId || !bizId) return
@@ -102,9 +120,18 @@ export function CustomerMembershipsPage() {
                   )}
                 </div>
                 {m.qr_code && (
-                  <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                    <QrCode className="h-4 w-4" />
-                    <span className="truncate">ID: {m.qr_code}</span>
+                  <div className="mt-3 flex items-center gap-3 rounded-lg border border-slate-100 p-2 dark:border-slate-800">
+                    {qrCards[m.id] ? (
+                      <img className="h-16 w-16 rounded bg-white" src={qrCards[m.id]} alt="Membership QR code" />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded bg-slate-50 dark:bg-slate-800">
+                        <QrCode className="h-6 w-6 text-slate-400" />
+                      </div>
+                    )}
+                    <div className="min-w-0 text-xs text-slate-500">
+                      <p className="font-medium text-slate-700 dark:text-slate-200">Member card</p>
+                      <p className="truncate">ID: {m.qr_code}</p>
+                    </div>
                   </div>
                 )}
               </CardContent>

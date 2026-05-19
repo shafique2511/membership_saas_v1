@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 export type PlanType = 'subscription' | 'prepaid_credit' | 'visit_package' | 'vip'
 export type MembershipStatus = 'active' | 'expired' | 'frozen' | 'cancelled' | 'pending_payment'
 export type UsageType = 'credit' | 'visit' | 'discount' | 'manual_adjustment'
+export type RenewalSetting = 'manual' | 'auto' | 'reminder'
 
 export interface MembershipPlan {
   id: string
@@ -17,6 +18,7 @@ export interface MembershipPlan {
   points_bonus: number
   discount_percent: number
   benefits: Record<string, unknown>
+  renewal_setting: RenewalSetting
   is_active: boolean
   created_at: string
   updated_at: string
@@ -34,6 +36,9 @@ export interface Membership {
   remaining_visits: number
   auto_renew: boolean
   qr_code: string | null
+  frozen_at?: string | null
+  freeze_until?: string | null
+  cancelled_at?: string | null
   created_at: string
   updated_at: string
   membership_plans?: MembershipPlan | MembershipPlan[] | null
@@ -156,6 +161,7 @@ export async function assignMembership(input: {
 
   const startDate = input.start_date ?? new Date().toISOString().slice(0, 10)
   const endDate = new Date(new Date(startDate).getTime() + plan.duration_days * 86400000).toISOString().slice(0, 10)
+  const qrCode = `luxantara:membership:${input.business_id}:${input.customer_id}:${input.plan_id}:${Date.now()}`
 
   const { data, error } = await supabase
     .from('memberships')
@@ -168,8 +174,8 @@ export async function assignMembership(input: {
       end_date: endDate,
       remaining_credit: plan.credit_amount,
       remaining_visits: plan.visit_limit ?? 0,
-      auto_renew: input.auto_renew ?? false,
-      qr_code: `${input.customer_id}-${Date.now()}`,
+      auto_renew: input.auto_renew ?? plan.renewal_setting === 'auto',
+      qr_code: qrCode,
     })
     .select('*,membership_plans(*),customers(full_name,phone,email)')
     .single()
@@ -191,11 +197,19 @@ export async function updateMembership(id: string, input: Partial<Membership>): 
 }
 
 export async function freezeMembership(id: string): Promise<Membership> {
-  return updateMembership(id, { status: 'frozen' as MembershipStatus })
+  const usedRpc = await callMembershipRpc('freeze_membership', { target_membership_id: id })
+  if (!usedRpc) return updateMembership(id, { status: 'frozen' as MembershipStatus })
+  const mem = await getMembership(id)
+  if (!mem) throw new Error('Membership not found after freeze')
+  return mem
 }
 
 export async function cancelMembership(id: string): Promise<Membership> {
-  return updateMembership(id, { status: 'cancelled' as MembershipStatus })
+  const usedRpc = await callMembershipRpc('cancel_membership', { target_membership_id: id })
+  if (!usedRpc) return updateMembership(id, { status: 'cancelled' as MembershipStatus })
+  const mem = await getMembership(id)
+  if (!mem) throw new Error('Membership not found after cancellation')
+  return mem
 }
 
 export async function renewMembership(id: string): Promise<Membership> {
@@ -203,6 +217,24 @@ export async function renewMembership(id: string): Promise<Membership> {
   if (error) throw error
   const mem = await getMembership(id)
   if (!mem) throw new Error('Membership not found after renewal')
+  return mem
+}
+
+export async function unfreezeMembership(id: string): Promise<Membership> {
+  const usedRpc = await callMembershipRpc('unfreeze_membership', { target_membership_id: id })
+  if (!usedRpc) return updateMembership(id, { status: 'active' as MembershipStatus, frozen_at: null, freeze_until: null })
+  const mem = await getMembership(id)
+  if (!mem) throw new Error('Membership not found after unfreeze')
+  return mem
+}
+
+export async function changeMembershipPlan(id: string, planId: string): Promise<Membership> {
+  await callMembershipRpc('change_membership_plan', {
+    target_membership_id: id,
+    target_plan_id: planId,
+  })
+  const mem = await getMembership(id)
+  if (!mem) throw new Error('Membership not found after plan change')
   return mem
 }
 
@@ -227,42 +259,32 @@ export async function recordUsage(input: {
   visits_used?: number
   notes?: string
 }): Promise<MembershipUsage> {
-  const { data, error } = await supabase
-    .from('membership_usage')
-    .insert({
-      business_id: input.business_id,
-      membership_id: input.membership_id,
-      customer_id: input.customer_id,
-      booking_id: input.booking_id ?? null,
-      usage_type: input.usage_type,
-      amount_used: input.amount_used ?? 0,
-      visits_used: input.visits_used ?? 0,
-      notes: input.notes ?? null,
-    })
-    .select('*')
-    .single()
-
+  const { data, error } = await supabase.rpc('record_membership_usage', {
+    p_business_id: input.business_id,
+    p_membership_id: input.membership_id,
+    p_customer_id: input.customer_id,
+    p_booking_id: input.booking_id ?? null,
+    p_usage_type: input.usage_type,
+    p_amount_used: input.amount_used ?? 0,
+    p_visits_used: input.visits_used ?? 0,
+    p_notes: input.notes ?? null,
+  })
   if (error) throw error
 
-  if ((input.visits_used ?? 0) > 0 || (input.amount_used ?? 0) > 0) {
-    const { data: mem } = await supabase
-      .from('memberships')
-      .select('remaining_visits,remaining_credit')
-      .eq('id', input.membership_id)
-      .single()
+  const { data: usage, error: usageError } = await supabase
+    .from('membership_usage')
+    .select('*')
+    .eq('id', data as string)
+    .single()
+  if (usageError) throw usageError
+  return usage as MembershipUsage
+}
 
-    if (mem) {
-      await supabase
-        .from('memberships')
-        .update({
-          remaining_visits: Math.max(0, (mem.remaining_visits ?? 0) - (input.visits_used ?? 0)),
-          remaining_credit: Math.max(0, Number(mem.remaining_credit ?? 0) - Number(input.amount_used ?? 0)),
-        })
-        .eq('id', input.membership_id)
-    }
-  }
-
-  return data as MembershipUsage
+async function callMembershipRpc(name: string, args: Record<string, unknown>): Promise<boolean> {
+  const result = await supabase.rpc(name, args)
+  if (!result) return false
+  if (result.error) throw result.error
+  return true
 }
 
 export async function searchCustomers(businessId: string, query: string) {

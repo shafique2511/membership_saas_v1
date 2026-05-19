@@ -10,10 +10,12 @@ import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import {
-  getMembership, getUsage, recordUsage, updateMembership, freezeMembership,
-  cancelMembership, renewMembership, getMembershipStatusColor, planTypeLabels,
-  type Membership, type MembershipUsage, type PlanType,
+  getMembership, getUsage, getPlans, recordUsage, freezeMembership,
+  cancelMembership, renewMembership, unfreezeMembership, changeMembershipPlan,
+  getMembershipStatusColor, planTypeLabels,
+  type Membership, type MembershipPlan, type MembershipUsage, type PlanType,
 } from '@/services/memberships'
+import { createQrDataUrl } from '@/utils/qr'
 
 export function MembershipDetailsPage() {
   const { profile } = useAppContext()
@@ -21,17 +23,29 @@ export function MembershipDetailsPage() {
   const { membershipId = '' } = useParams()
   const [membership, setMembership] = useState<Membership | null>(null)
   const [usage, setUsage] = useState<MembershipUsage[]>([])
+  const [plans, setPlans] = useState<MembershipPlan[]>([])
+  const [qrDataUrl, setQrDataUrl] = useState('')
   const [openUsage, setOpenUsage] = useState(false)
+  const [openPlanChange, setOpenPlanChange] = useState(false)
   const [usageForm, setUsageForm] = useState({ usage_type: 'visit' as string, visits_used: '1', amount_used: '0', notes: '' })
+  const [planChangeForm, setPlanChangeForm] = useState({ plan_id: '' })
 
   const load = useCallback(async () => {
     if (!membershipId) return
     const m = await getMembership(membershipId)
     setMembership(m)
     if (m) setUsage(await getUsage(membershipId))
-  }, [membershipId])
+    if (businessId) setPlans(await getPlans(businessId))
+  }, [businessId, membershipId])
 
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
+  useEffect(() => {
+    if (!membership?.qr_code) {
+      setQrDataUrl('')
+      return
+    }
+    void createQrDataUrl(membership.qr_code).then(setQrDataUrl).catch(() => setQrDataUrl(''))
+  }, [membership?.qr_code])
 
   const plan = membership?.membership_plans
     ? (Array.isArray(membership.membership_plans) ? membership.membership_plans[0] : membership.membership_plans)
@@ -64,7 +78,7 @@ export function MembershipDetailsPage() {
 
   async function handleUnfreeze() {
     if (!membership) return
-    await updateMembership(membership.id, { status: 'active' as const })
+    await unfreezeMembership(membership.id)
     await load()
   }
 
@@ -77,6 +91,14 @@ export function MembershipDetailsPage() {
   async function handleRenew() {
     if (!membership) return
     await renewMembership(membership.id)
+    await load()
+  }
+
+  async function handlePlanChange() {
+    if (!membership || !planChangeForm.plan_id) return
+    await changeMembershipPlan(membership.id, planChangeForm.plan_id)
+    setOpenPlanChange(false)
+    setPlanChangeForm({ plan_id: '' })
     await load()
   }
 
@@ -94,6 +116,7 @@ export function MembershipDetailsPage() {
             {membership.status === 'active' && <Button variant="outline" onClick={handleFreeze}>Freeze</Button>}
             {membership.status === 'frozen' && <Button variant="outline" onClick={handleUnfreeze}>Unfreeze</Button>}
             {(membership.status === 'active' || membership.status === 'expired') && <Button variant="outline" onClick={handleRenew}>Renew</Button>}
+            {membership.status !== 'cancelled' && <Button variant="outline" onClick={() => { setPlanChangeForm({ plan_id: membership.plan_id }); setOpenPlanChange(true) }}>Upgrade/Downgrade</Button>}
             {membership.status !== 'cancelled' && <Button variant="destructive" onClick={handleCancel}>Cancel</Button>}
             <Button onClick={() => setOpenUsage(true)}>Record usage</Button>
           </div>
@@ -138,15 +161,7 @@ export function MembershipDetailsPage() {
             {membership.qr_code ? (
               <div className="space-y-2">
                 <div className="flex h-32 w-32 items-center justify-center rounded-lg border-2 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-                  <div className="text-center">
-                    <svg className="mx-auto h-20 w-20 text-slate-800 dark:text-slate-200" viewBox="0 0 100 100" fill="currentColor">
-                      <rect x="10" y="10" width="30" height="30" /><rect x="50" y="10" width="10" height="10" />
-                      <rect x="10" y="50" width="10" height="10" /><rect x="30" y="50" width="30" height="10" />
-                      <rect x="10" y="70" width="30" height="10" /><rect x="50" y="30" width="10" height="30" />
-                      <rect x="70" y="10" width="20" height="20" /><rect x="70" y="40" width="10" height="10" />
-                      <rect x="80" y="60" width="10" height="10" /><rect x="70" y="80" width="20" height="10" />
-                    </svg>
-                  </div>
+                  {qrDataUrl ? <img className="h-28 w-28" src={qrDataUrl} alt="Membership QR code" /> : <span className="text-xs text-slate-400">Generating QR...</span>}
                 </div>
                 <p className="text-xs text-slate-400">ID: {membership.qr_code.slice(0, 16)}...</p>
               </div>
@@ -210,6 +225,19 @@ export function MembershipDetailsPage() {
           </Field>
           <Field label="Notes" description="Optional usage note shown in membership history.">
             <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Notes" value={usageForm.notes} onChange={(e) => setUsageForm({ ...usageForm, notes: e.target.value })} />
+          </Field>
+        </div>
+      </FormModal>
+
+      <FormModal open={openPlanChange} title="Upgrade or downgrade" submitLabel="Change plan" onSubmit={handlePlanChange} onOpenChange={(v) => { if (!v) setOpenPlanChange(false) }}>
+        <div className="space-y-3">
+          <Field label="New plan" description="Select the plan this member should move to. Balances and expiry will reset to the selected plan rules.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={planChangeForm.plan_id} onChange={(e) => setPlanChangeForm({ plan_id: e.target.value })}>
+              <option value="">Select plan</option>
+              {plans.filter((p) => p.is_active).map((p) => (
+                <option key={p.id} value={p.id}>{p.name} - {planTypeLabels[p.plan_type]} - RM {Number(p.price).toLocaleString()}</option>
+              ))}
+            </select>
           </Field>
         </div>
       </FormModal>
