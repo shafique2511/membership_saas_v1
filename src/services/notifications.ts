@@ -83,7 +83,9 @@ const NOTIFICATION_TYPES = [
   'booking_confirmation', 'booking_reminder', 'booking_cancellation',
   'booking_reschedule', 'payment_confirmation', 'membership_expiry',
   'membership_renewal', 'birthday_message', 'no_show_warning', 'promo_broadcast',
-  'receipt_message',
+  'receipt_message', 'inactive_customer_promo', 'membership_expiring_soon',
+  'birthday_reward', 'no_show_follow_up', 'first_time_thank_you',
+  'high_spender_vip_reward',
 ] as const
 
 const CHANNELS = ['email', 'whatsapp', 'telegram', 'sms', 'in_app'] as const
@@ -91,7 +93,7 @@ const CHANNELS = ['email', 'whatsapp', 'telegram', 'sms', 'in_app'] as const
 const ALL_VARIABLES = [
   'customer_name', 'business_name', 'booking_date', 'booking_time',
   'service_name', 'staff_name', 'membership_name', 'expiry_date',
-  'amount', 'payment_status',
+  'amount', 'payment_status', 'promo_code', 'reward_name',
 ] as const
 
 export function renderTemplate(template: string, variables: TemplateVariables): string {

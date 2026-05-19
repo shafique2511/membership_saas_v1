@@ -1,4 +1,4 @@
-import { FileText, Send, History, Megaphone, Settings2 } from 'lucide-react'
+import { BellRing, FileText, Send, History, Megaphone, Settings2 } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
@@ -7,6 +7,7 @@ const tabs = [
   { href: '/business/notifications/send', label: 'Send', icon: Send },
   { href: '/business/notifications/log', label: 'Log', icon: History },
   { href: '/business/notifications/broadcasts', label: 'Broadcasts', icon: Megaphone },
+  { href: '/business/notifications/automation', label: 'Automation', icon: BellRing },
   { href: '/business/notifications/settings', label: 'Settings', icon: Settings2 },
 ]
 

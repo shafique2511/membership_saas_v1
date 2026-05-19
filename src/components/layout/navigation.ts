@@ -19,6 +19,7 @@ import {
   FileText,
   Database,
   Bot,
+  BellRing,
   LayoutDashboard,
   type LucideIcon,
 } from 'lucide-react'
@@ -71,6 +72,7 @@ export const businessNavSections: NavSection[] = [
     title: 'Growth',
     items: [
       { label: 'Marketing', href: '/business/marketing', icon: Megaphone, module: 'marketing' },
+      { label: 'Notifications', href: '/business/notifications', icon: BellRing, module: 'notification' },
       { label: 'Reports', href: '/business/reports', icon: BarChart3, module: 'reports' },
       { label: 'AI Assistant', href: '/business/ai-assistant', icon: Bot, module: 'ai_assistant' },
     ],

@@ -73,6 +73,7 @@ import { ManualSendPage } from '@/pages/business/notifications/ManualSendPage'
 import { NotificationLogPage } from '@/pages/business/notifications/NotificationLogPage'
 import { BroadcastsPage } from '@/pages/business/notifications/BroadcastsPage'
 import { NotificationSettingsPage } from '@/pages/business/notifications/NotificationSettingsPage'
+import { RetentionAutomationPage } from '@/pages/business/notifications/RetentionAutomationPage'
 import { ReportsDashboardPage } from '@/pages/business/reports/ReportsDashboardPage'
 import { SalesReportPage } from '@/pages/business/reports/SalesReportPage'
 import { BookingReportPage } from '@/pages/business/reports/BookingReportPage'
@@ -296,6 +297,7 @@ function App() {
               <Route path="notifications/send" element={<ManualSendPage />} />
               <Route path="notifications/log" element={<NotificationLogPage />} />
               <Route path="notifications/broadcasts" element={<BroadcastsPage />} />
+              <Route path="notifications/automation" element={<RetentionAutomationPage />} />
               <Route path="notifications/settings" element={<NotificationSettingsPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="marketing" moduleName="Marketing module" />}>
