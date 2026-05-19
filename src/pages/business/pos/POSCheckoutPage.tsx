@@ -4,14 +4,15 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { supabase } from '@/lib/supabase'
+import { toastError, toastSuccess } from '@/lib/toast'
 import { POSTabs } from '@/pages/business/pos/POSTabs'
 import {
-  searchCustomers, getProducts, getServices, getMembershipPlansForPOS,
+  searchCustomers, getProducts, getServices, getMembershipPlansForPOS, getActiveMembershipsForPOS,
   getNextOrderNumber, createOrder, addOrderItems, recordPayments,
-  recordDiscounts, recordPointsRedemption,
+  recordDiscounts, recordMembershipUsage, recordPointsRedemption,
   completePOSOrder, updateOrderPaymentStatus, updateOrderPoints,
   getTodaySalesSummary, getDailyClosing, openDailyClosing,
-  createReceipt, paymentMethodLabels,
+  createReceipt, paymentMethodLabels, type POSMembership,
 } from '@/services/pos'
 import { calculatePointsDiscount, getLoyaltySettings, type LoyaltySettings } from '@/services/loyalty'
 
@@ -23,6 +24,8 @@ interface CartItem {
   unit_price: number
   total_price: number
 }
+
+const checkoutPaymentMethods = ['cash', 'qr', 'card', 'bank_transfer', 'credit'] as const
 
 function FieldLabel({
   children,
@@ -49,6 +52,8 @@ export function POSCheckoutPage() {
   const [customerSearch, setCustomerSearch] = useState('')
   const [customerResults, setCustomerResults] = useState<{ id: string; full_name: string; phone: string | null; points_balance: number }[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<{ id: string; full_name: string; phone: string | null; points_balance: number } | null>(null)
+  const [customerMemberships, setCustomerMemberships] = useState<POSMembership[]>([])
+  const [selectedMembershipId, setSelectedMembershipId] = useState('')
   const [walkInName, setWalkInName] = useState('')
   const [walkInPhone, setWalkInPhone] = useState('')
 
@@ -61,6 +66,7 @@ export function POSCheckoutPage() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [discountPercent, setDiscountPercent] = useState(0)
   const [discountFixed, setDiscountFixed] = useState(0)
+  const [membershipDiscount, setMembershipDiscount] = useState(0)
   const [pointsRedeem, setPointsRedeem] = useState(0)
   const [pointsDiscount, setPointsDiscount] = useState(0)
   const [loyaltySettings, setLoyaltySettings] = useState<LoyaltySettings | null>(null)
@@ -91,10 +97,32 @@ export function POSCheckoutPage() {
     return () => window.clearTimeout(t)
   }, [customerSearch, businessId])
 
+  useEffect(() => {
+    if (!businessId || !selectedCustomer?.id) {
+      setCustomerMemberships([])
+      setSelectedMembershipId('')
+      setMembershipDiscount(0)
+      return
+    }
+    void getActiveMembershipsForPOS(businessId, selectedCustomer.id)
+      .then(setCustomerMemberships)
+      .catch(() => setCustomerMemberships([]))
+  }, [businessId, selectedCustomer?.id])
+
   const subtotal = cart.reduce((s, i) => s + i.total_price, 0)
   const discountAmt = discountFixed > 0 ? discountFixed : (subtotal * discountPercent / 100)
-  const totalAfterDiscount = Math.max(0, subtotal - discountAmt - pointsDiscount)
+  const totalAfterDiscount = Math.max(0, subtotal - discountAmt - membershipDiscount - pointsDiscount)
   const total = totalAfterDiscount
+  const selectedMembership = customerMemberships.find((m) => m.id === selectedMembershipId)
+
+  useEffect(() => {
+    if (!selectedMembershipId) {
+      setMembershipDiscount(0)
+      return
+    }
+    const plan = Array.isArray(selectedMembership?.membership_plans) ? selectedMembership?.membership_plans[0] : selectedMembership?.membership_plans
+    setMembershipDiscount(plan?.discount_percent ? subtotal * Number(plan.discount_percent) / 100 : 0)
+  }, [selectedMembership?.membership_plans, selectedMembershipId, subtotal])
 
   function addToCart(item: { item_type: CartItem['item_type']; item_id: string | null; item_name: string; unit_price: number }) {
     setCart((prev) => {
@@ -125,17 +153,36 @@ export function POSCheckoutPage() {
 
   function addPaymentMethod() {
     const used = new Set(payments.map((p) => p.method))
-    const next = ['cash', 'qr', 'card', 'bank_transfer', 'credit', 'points'].find((m) => !used.has(m))
+    const next = checkoutPaymentMethods.find((m) => !used.has(m))
     if (next) setPayments((prev) => [...prev, { method: next, amount: String(total - totalPaid > 0 ? total - totalPaid : 0) }])
   }
 
   async function handleCompleteOrder() {
     setSaving(true)
     try {
-      const orderNumber = await getNextOrderNumber(businessId)
       const customerId = selectedCustomer?.id ?? null
-  const customerName = selectedCustomer?.full_name ?? (walkInName || null)
-  const customerPhone = selectedCustomer?.phone ?? (walkInPhone || null)
+      const customerName = selectedCustomer?.full_name ?? (walkInName || null)
+      const customerPhone = selectedCustomer?.phone ?? (walkInPhone || null)
+      const validPayments = payments.filter((p) => Number(p.amount) > 0)
+      const creditPayment = validPayments
+        .filter((p) => p.method === 'credit')
+        .reduce((sum, p) => sum + Number(p.amount), 0)
+      const hasMembershipSale = cart.some((item) => item.item_type === 'membership')
+
+      if (hasMembershipSale && !customerId) {
+        throw new Error('Select an existing customer before selling a membership.')
+      }
+      if (creditPayment > 0 && !selectedMembershipId) {
+        throw new Error('Select a customer membership before using prepaid credit.')
+      }
+      if (creditPayment > Number(selectedMembership?.remaining_credit ?? 0)) {
+        throw new Error('Prepaid credit payment is higher than the selected membership balance.')
+      }
+      if (pointsRedeem > 0 && !customerId) {
+        throw new Error('Select an existing customer before redeeming loyalty points.')
+      }
+
+      const orderNumber = await getNextOrderNumber(businessId)
 
       const order = await createOrder({
         business_id: businessId,
@@ -144,13 +191,12 @@ export function POSCheckoutPage() {
         customer_phone: customerPhone,
         order_number: orderNumber,
         subtotal,
-        discount_amount: discountAmt + pointsDiscount,
+        discount_amount: discountAmt + membershipDiscount + pointsDiscount,
         total_amount: total,
       })
 
       await addOrderItems(order.id, cart)
 
-      const validPayments = payments.filter((p) => Number(p.amount) > 0)
       await recordPayments(businessId, order.id, customerId, validPayments.map((p) => ({ payment_method: p.method, amount: Number(p.amount) })))
 
       if (discountAmt > 0) {
@@ -162,9 +208,27 @@ export function POSCheckoutPage() {
         }])
       }
 
+      if (membershipDiscount > 0 && selectedMembershipId) {
+        await recordDiscounts(order.id, [{
+          discount_type: 'membership',
+          discount_value: membershipDiscount,
+          discount_amount: membershipDiscount,
+          description: 'Membership benefit',
+        }])
+      }
+
       if (pointsRedeem > 0) {
         await recordPointsRedemption(order.id, businessId, customerId ?? '', pointsRedeem, pointsDiscount)
       }
+
+      const membershipUsages = []
+      if (selectedMembershipId && membershipDiscount > 0) {
+        membershipUsages.push({ membership_id: selectedMembershipId, usage_type: 'discount', amount_used: 0, visits_used: 0 })
+      }
+      if (selectedMembershipId && creditPayment > 0) {
+        membershipUsages.push({ membership_id: selectedMembershipId, usage_type: 'credit', amount_used: creditPayment, visits_used: 0 })
+      }
+      await recordMembershipUsage(order.id, membershipUsages)
 
       const isFullyPaid = totalPaid >= total
       await updateOrderPaymentStatus(order.id, isFullyPaid ? 'paid' : totalPaid > 0 ? 'partial' : 'unpaid')
@@ -192,7 +256,8 @@ export function POSCheckoutPage() {
             order_number: orderNumber,
             items: cart,
             subtotal,
-            discount: discountAmt + pointsDiscount,
+            discount: discountAmt + membershipDiscount + pointsDiscount,
+            membership_discount: membershipDiscount,
             total,
             payments: validPayments,
             customer: customerName,
@@ -202,10 +267,11 @@ export function POSCheckoutPage() {
       }
 
       setOrderResult({ order_number: orderNumber, total, change: isFullyPaid ? change : 0 })
+      toastSuccess(`Order ${orderNumber} completed`)
       setStep('complete')
     } catch (e) {
       console.error(e)
-      alert('Failed to complete order')
+      toastError(e, 'Failed to complete order')
     } finally {
       setSaving(false)
     }
@@ -214,11 +280,14 @@ export function POSCheckoutPage() {
   function resetOrder() {
     setCart([])
     setSelectedCustomer(null)
+    setCustomerMemberships([])
+    setSelectedMembershipId('')
     setWalkInName('')
     setWalkInPhone('')
     setCustomerSearch('')
     setDiscountPercent(0)
     setDiscountFixed(0)
+    setMembershipDiscount(0)
     setPointsRedeem(0)
     setPointsDiscount(0)
     setPayments([{ method: 'cash', amount: '' }])
@@ -393,6 +462,7 @@ export function POSCheckoutPage() {
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between"><span>Subtotal</span><span>RM {subtotal.toFixed(2)}</span></div>
               {discountAmt > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-RM {discountAmt.toFixed(2)}</span></div>}
+              {membershipDiscount > 0 && <div className="flex justify-between text-green-600"><span>Membership</span><span>-RM {membershipDiscount.toFixed(2)}</span></div>}
               {pointsDiscount > 0 && <div className="flex justify-between text-blue-600"><span>Points ({pointsRedeem})</span><span>-RM {pointsDiscount.toFixed(2)}</span></div>}
               <div className="flex justify-between border-t pt-2 text-lg font-bold"><span>Total</span><span>RM {total.toFixed(2)}</span></div>
               <div className="flex justify-between text-xs text-slate-400"><span>Today's sales</span><span>RM {Number(todaySummary.totalSales ?? 0).toFixed(2)} ({todaySummary.totalOrders ?? 0} orders)</span></div>
@@ -402,6 +472,29 @@ export function POSCheckoutPage() {
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Discount</CardTitle></CardHeader>
             <CardContent className="space-y-2">
+              {customerMemberships.length > 0 && (
+                <div className="rounded-md bg-teal-50 p-2 text-xs dark:bg-teal-900/30">
+                  <p className="mb-1 font-medium text-teal-700 dark:text-teal-300">Membership benefit</p>
+                  <select className="h-9 w-full rounded-md border border-teal-200 bg-white px-2 text-xs dark:border-teal-800 dark:bg-slate-900" value={selectedMembershipId} onChange={(e) => {
+                    const membershipId = e.target.value
+                    const membership = customerMemberships.find((m) => m.id === membershipId)
+                    const plan = Array.isArray(membership?.membership_plans) ? membership?.membership_plans[0] : membership?.membership_plans
+                    setSelectedMembershipId(membershipId)
+                    setMembershipDiscount(plan?.discount_percent ? subtotal * Number(plan.discount_percent) / 100 : 0)
+                  }}>
+                    <option value="">No membership benefit</option>
+                    {customerMemberships.map((m) => {
+                      const plan = Array.isArray(m.membership_plans) ? m.membership_plans[0] : m.membership_plans
+                      return <option key={m.id} value={m.id}>{plan?.name ?? 'Membership'} - {Number(plan?.discount_percent ?? 0)}% off - RM {Number(m.remaining_credit ?? 0).toFixed(2)} credit</option>
+                    })}
+                  </select>
+                  {selectedMembership && (
+                    <p className="mt-1 text-teal-700 dark:text-teal-300">
+                      Credit RM {Number(selectedMembership.remaining_credit).toFixed(2)} - Visits {selectedMembership.remaining_visits}
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="grid gap-2 sm:grid-cols-2">
                 <div>
                   <FieldLabel htmlFor="pos-discount-percent" description="Percentage discount for the whole cart. Clears fixed discount.">
@@ -453,8 +546,21 @@ export function POSCheckoutPage() {
                       newPayments[idx] = { ...newPayments[idx], method: e.target.value }
                       setPayments(newPayments)
                     }}>
-                      {Object.entries(paymentMethodLabels).map(([k, v]) => <option key={k} value={k} disabled={payments.some((pp) => pp.method === k && pp !== p)}>{v}</option>)}
+                      {checkoutPaymentMethods.map((k) => (
+                        <option
+                          key={k}
+                          value={k}
+                          disabled={(k === 'credit' && !selectedMembershipId) || payments.some((pp) => pp.method === k && pp !== p)}
+                        >
+                          {paymentMethodLabels[k]}
+                        </option>
+                      ))}
                     </select>
+                    {p.method === 'credit' && selectedMembership && (
+                      <p className="mt-1 text-[11px] text-teal-700 dark:text-teal-300">
+                        Available credit: RM {Number(selectedMembership.remaining_credit).toFixed(2)}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <FieldLabel htmlFor={`pos-payment-amount-${idx}`} description="Amount collected with this payment method.">
@@ -476,7 +582,10 @@ export function POSCheckoutPage() {
               <div className="flex justify-between text-xs"><span>Total paid</span><span className="font-medium">RM {totalPaid.toFixed(2)}</span></div>
               {remaining > 0 && <div className="flex justify-between text-xs text-amber-600"><span>Remaining</span><span>RM {remaining.toFixed(2)}</span></div>}
               {totalPaid >= total && totalPaid > 0 && <div className="flex justify-between text-xs text-green-600"><span>Change</span><span>RM {(totalPaid - total).toFixed(2)}</span></div>}
-              {payments.length < 6 && totalPaid < total && (
+              {!selectedMembershipId && (
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Select a customer membership to enable prepaid credit.</p>
+              )}
+              {payments.length < checkoutPaymentMethods.length && totalPaid < total && (
                 <Button size="sm" variant="outline" className="w-full" onClick={addPaymentMethod}>+ Split payment</Button>
               )}
             </CardContent>
@@ -484,10 +593,10 @@ export function POSCheckoutPage() {
 
           <Button
             className="w-full py-6 text-lg"
-            disabled={cart.length === 0 || total <= 0 || saving || (totalPaid < total && totalPaid > 0)}
+            disabled={cart.length === 0 || saving}
             onClick={handleCompleteOrder}
           >
-            {saving ? 'Processing...' : remaining <= 0 ? `Complete - RM ${total.toFixed(2)}` : `Collect RM ${remaining.toFixed(2)}`}
+            {saving ? 'Processing...' : totalPaid <= 0 ? `Complete unpaid - RM ${total.toFixed(2)}` : remaining > 0 ? `Complete partial - RM ${totalPaid.toFixed(2)}` : `Complete - RM ${total.toFixed(2)}`}
           </Button>
         </div>
       </div>

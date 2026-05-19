@@ -56,6 +56,31 @@ export interface POSPayment {
   status: string
 }
 
+export interface POSMembership {
+  id: string
+  customer_id: string
+  plan_id: string
+  status: string
+  remaining_credit: number
+  remaining_visits: number
+  auto_renew: boolean
+  membership_plans?: {
+    id: string
+    name: string
+    plan_type: string
+    discount_percent: number
+    credit_amount: number
+    visit_limit: number | null
+  } | {
+    id: string
+    name: string
+    plan_type: string
+    discount_percent: number
+    credit_amount: number
+    visit_limit: number | null
+  }[] | null
+}
+
 export interface DailyClosing {
   id: string
   business_id: string
@@ -130,6 +155,20 @@ export async function getMembershipPlansForPOS(businessId: string) {
   return data ?? []
 }
 
+export async function getActiveMembershipsForPOS(businessId: string, customerId: string): Promise<POSMembership[]> {
+  const { data, error } = await supabase
+    .from('memberships')
+    .select('id, customer_id, plan_id, status, remaining_credit, remaining_visits, auto_renew, membership_plans(id, name, plan_type, discount_percent, credit_amount, visit_limit)')
+    .eq('business_id', businessId)
+    .eq('customer_id', customerId)
+    .eq('status', 'active')
+    .gte('end_date', new Date().toISOString().slice(0, 10))
+    .order('end_date', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as POSMembership[]
+}
+
 export async function getNextOrderNumber(businessId: string): Promise<string> {
   const { data: last } = await supabase
     .from('pos_orders')
@@ -166,7 +205,7 @@ export async function createOrder(data: {
       tax_amount: data.tax_amount ?? 0,
       total_amount: data.total_amount,
       notes: data.notes || null,
-      order_status: 'completed',
+      order_status: 'open',
       payment_status: 'unpaid',
     })
     .select()
