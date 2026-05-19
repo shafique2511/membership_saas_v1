@@ -183,6 +183,7 @@ export async function getNextOrderNumber(businessId: string): Promise<string> {
 export async function createOrder(data: {
   business_id: string
   customer_id?: string | null
+  staff_id?: string | null
   customer_name?: string | null
   customer_phone?: string | null
   order_number: string
@@ -197,6 +198,7 @@ export async function createOrder(data: {
     .insert({
       business_id: data.business_id,
       customer_id: data.customer_id || null,
+      staff_id: data.staff_id || null,
       customer_name: data.customer_name || null,
       customer_phone: data.customer_phone || null,
       order_number: data.order_number,

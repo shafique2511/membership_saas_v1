@@ -23,10 +23,18 @@ export interface Staff {
 
 export interface StaffService {
   id: string
+  business_id: string
   staff_id: string
   service_id: string
   commission_type: 'fixed' | 'percentage'
   commission_value: number
+}
+
+export interface StaffAssignableService {
+  id: string
+  name: string
+  price: number
+  duration_minutes: number
 }
 
 export interface CommissionRule {
@@ -94,7 +102,17 @@ export async function getStaffServices(staffId: string) {
   return data ?? []
 }
 
-export async function assignStaffService(data: { staff_id: string; service_id: string; commission_type: string; commission_value: number }) {
+export async function getAssignableServices(businessId: string) {
+  const { data } = await supabase
+    .from('services')
+    .select('id, name, price, duration_minutes')
+    .eq('business_id', businessId)
+    .eq('is_active', true)
+    .order('name')
+  return data ?? []
+}
+
+export async function assignStaffService(data: { business_id: string; staff_id: string; service_id: string; commission_type: string; commission_value: number }) {
   const { error } = await supabase.from('staff_services').upsert(data, { onConflict: 'staff_id,service_id' })
   if (error) throw error
 }

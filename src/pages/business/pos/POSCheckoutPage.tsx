@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { supabase } from '@/lib/supabase'
 import { toastError, toastSuccess } from '@/lib/toast'
 import { POSTabs } from '@/pages/business/pos/POSTabs'
+import { getStaff, type Staff } from '@/services/staff'
 import {
   searchCustomers, getProducts, getServices, getMembershipPlansForPOS, getActiveMembershipsForPOS,
   getNextOrderNumber, createOrder, addOrderItems, recordPayments,
@@ -54,6 +55,8 @@ export function POSCheckoutPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<{ id: string; full_name: string; phone: string | null; points_balance: number } | null>(null)
   const [customerMemberships, setCustomerMemberships] = useState<POSMembership[]>([])
   const [selectedMembershipId, setSelectedMembershipId] = useState('')
+  const [staff, setStaff] = useState<Staff[]>([])
+  const [selectedStaffId, setSelectedStaffId] = useState('')
   const [walkInName, setWalkInName] = useState('')
   const [walkInPhone, setWalkInPhone] = useState('')
 
@@ -81,6 +84,7 @@ export function POSCheckoutPage() {
     setProducts(await getProducts(businessId) as { id: string; name: string; selling_price: number; stock_quantity: number }[])
     setServices(await getServices(businessId) as { id: string; name: string; price: number }[])
     setMembershipPlans(await getMembershipPlansForPOS(businessId) as { id: string; name: string; price: number; plan_type: string }[])
+    setStaff(await getStaff(businessId, { status: 'active' }) as Staff[])
     setTodaySummary(await getTodaySalesSummary(businessId))
     setLoyaltySettings(await getLoyaltySettings(businessId))
     const closing = await getDailyClosing(businessId)
@@ -187,6 +191,7 @@ export function POSCheckoutPage() {
       const order = await createOrder({
         business_id: businessId,
         customer_id: customerId,
+        staff_id: selectedStaffId || null,
         customer_name: customerName,
         customer_phone: customerPhone,
         order_number: orderNumber,
@@ -282,6 +287,7 @@ export function POSCheckoutPage() {
     setSelectedCustomer(null)
     setCustomerMemberships([])
     setSelectedMembershipId('')
+    setSelectedStaffId('')
     setWalkInName('')
     setWalkInPhone('')
     setCustomerSearch('')
@@ -377,6 +383,19 @@ export function POSCheckoutPage() {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Staff</CardTitle></CardHeader>
+            <CardContent>
+              <FieldLabel htmlFor="pos-staff" description="Optional staff member credited for this POS sale and commission.">
+                Sales staff
+              </FieldLabel>
+              <select id="pos-staff" className="mt-1 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={selectedStaffId} onChange={(e) => setSelectedStaffId(e.target.value)}>
+                <option value="">No staff assigned</option>
+                {staff.map((s) => <option key={s.id} value={s.id}>{s.full_name} - {s.role}</option>)}
+              </select>
             </CardContent>
           </Card>
 

@@ -8,7 +8,22 @@ import { FormModal } from '@/components/ui/FormModal'
 import { DataTable } from '@/components/ui/DataTable'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
-import { getStaffMember, updateStaff, getStaffServices, removeStaffService, getCommissionRecords, updateCommissionRecord, getStaffAppointments, type Staff, type StaffService, type CommissionRecord } from '@/services/staff'
+import { toastError, toastSuccess } from '@/lib/toast'
+import {
+  assignStaffService,
+  getAssignableServices,
+  getCommissionRecords,
+  getStaffAppointments,
+  getStaffMember,
+  getStaffServices,
+  removeStaffService,
+  updateCommissionRecord,
+  updateStaff,
+  type CommissionRecord,
+  type Staff,
+  type StaffAssignableService,
+  type StaffService,
+} from '@/services/staff'
 
 export function StaffDetailsPage() {
   const { profile } = useAppContext()
@@ -16,6 +31,7 @@ export function StaffDetailsPage() {
   const { staffId = '' } = useParams()
   const [staff, setStaff] = useState<(Staff & { branches?: { name: string }[] }) | null>(null)
   const [services, setServices] = useState<(StaffService & { services?: { name: string; price: number }[] })[]>([])
+  const [availableServices, setAvailableServices] = useState<StaffAssignableService[]>([])
   const [commissions, setCommissions] = useState<(CommissionRecord & { staff?: { full_name: string }[] })[]>([])
   const [appointments, setAppointments] = useState<Record<string, unknown>[]>([])
   const [editOpen, setEditOpen] = useState(false)
@@ -24,11 +40,17 @@ export function StaffDetailsPage() {
     full_name: '', phone: '', email: '', role: '', commission_rate: '0',
     commission_type: 'percentage', target_sales: '0', target_bookings: '0', notes: '',
   })
+  const [serviceForm, setServiceForm] = useState({
+    service_id: '',
+    commission_type: 'percentage',
+    commission_value: '0',
+  })
 
   const load = useCallback(async () => {
     if (!staffId) return
     setStaff(await getStaffMember(staffId) as (Staff & { branches?: { name: string }[] }) | null)
     setServices(await getStaffServices(staffId) as (StaffService & { services?: { name: string; price: number }[] })[])
+    setAvailableServices(await getAssignableServices(businessId) as StaffAssignableService[])
     setCommissions(await getCommissionRecords(businessId, { staff_id: staffId }) as (CommissionRecord & { staff?: { full_name: string }[] })[])
     const today = new Date()
     const weekFromNow = new Date(today.getTime() + 7 * 86400000)
@@ -60,6 +82,25 @@ export function StaffDetailsPage() {
     await load()
   }
 
+  async function handleAssignService() {
+    if (!staffId || !businessId || !serviceForm.service_id) return
+    try {
+      await assignStaffService({
+        business_id: businessId,
+        staff_id: staffId,
+        service_id: serviceForm.service_id,
+        commission_type: serviceForm.commission_type,
+        commission_value: Number(serviceForm.commission_value),
+      })
+      toastSuccess('Service assigned')
+      setServiceOpen(false)
+      setServiceForm({ service_id: '', commission_type: 'percentage', commission_value: '0' })
+      await load()
+    } catch (error) {
+      toastError(error, 'Failed to assign service')
+    }
+  }
+
   if (!staff) return <div className="py-20 text-center text-slate-500">Loading...</div>
   const branch = Array.isArray(staff.branches) ? staff.branches[0] : staff.branches
 
@@ -68,7 +109,7 @@ export function StaffDetailsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">{staff.full_name}</h2>
-          <p className="text-sm text-slate-500">{staff.role} · {branch?.name ?? 'No branch'} · <Badge variant={staff.status === 'active' ? undefined : 'muted'}>{staff.status}</Badge></p>
+          <p className="text-sm text-slate-500">{staff.role} - {branch?.name ?? 'No branch'} - <Badge variant={staff.status === 'active' ? undefined : 'muted'}>{staff.status}</Badge></p>
         </div>
         <Button variant="outline" onClick={() => setEditOpen(true)}>Edit profile</Button>
       </div>
@@ -181,8 +222,26 @@ export function StaffDetailsPage() {
         </div>
       </FormModal>
 
-      <FormModal open={serviceOpen} title="Assign service" submitLabel="" onSubmit={() => {}} onOpenChange={(v) => { if (!v) setServiceOpen(false) }}>
-        <p className="text-sm text-slate-500">Service assignment modal would open here with service selector.</p>
+      <FormModal open={serviceOpen} title="Assign service" submitLabel="Assign" onSubmit={handleAssignService} onOpenChange={(v) => { if (!v) setServiceOpen(false) }}>
+        <div className="space-y-3">
+          <Field label="Service" description="Service this staff member can perform. Booking commission can use this override.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={serviceForm.service_id} onChange={(e) => setServiceForm({ ...serviceForm, service_id: e.target.value })}>
+              <option value="">Select service</option>
+              {availableServices.map((service) => (
+                <option key={service.id} value={service.id}>{service.name} - RM {Number(service.price).toFixed(2)}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Commission type" description="Override commission type for this staff and service pair.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={serviceForm.commission_type} onChange={(e) => setServiceForm({ ...serviceForm, commission_type: e.target.value })}>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed amount (RM)</option>
+            </select>
+          </Field>
+          <Field label="Commission value" description="Percentage or fixed RM amount for this service.">
+            <Input type="number" value={serviceForm.commission_value} onChange={(e) => setServiceForm({ ...serviceForm, commission_value: e.target.value })} />
+          </Field>
+        </div>
       </FormModal>
     </div>
   )
