@@ -3,11 +3,19 @@ import { Database, Download, FileArchive, ShieldCheck } from 'lucide-react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field } from '@/components/ui/Field'
 import { DataTable } from '@/components/ui/DataTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { SettingsTabs } from './SettingsTabs'
-import { downloadJson, exportBusinessData, listDataExportRequests, logDataExportRequest, type DataExportRequest } from '@/services/dataGovernance'
+import {
+  businessExportOptions,
+  downloadBusinessExport,
+  listDataExportRequests,
+  type BusinessExportFormat,
+  type BusinessExportScope,
+  type DataExportRequest,
+} from '@/services/dataGovernance'
 
 const policyItems = [
   {
@@ -33,7 +41,8 @@ export function DataOwnershipPage() {
   const businessId = profile?.business_id ?? ''
   const [exports, setExports] = useState<DataExportRequest[]>([])
   const [loading, setLoading] = useState(true)
-  const [exporting, setExporting] = useState(false)
+  const [exportingScope, setExportingScope] = useState<BusinessExportScope | null>(null)
+  const [format, setFormat] = useState<BusinessExportFormat>('zip')
   const [error, setError] = useState('')
 
   const load = useCallback(async () => {
@@ -53,20 +62,24 @@ export function DataOwnershipPage() {
     return () => window.clearTimeout(t)
   }, [load])
 
-  async function handleExport() {
-    if (!businessId || !hasPermission('data.export')) return
-    setExporting(true)
+  function canExport(scope: BusinessExportScope) {
+    if (profile?.role === 'owner' || profile?.role === 'super_admin') return true
+    if (profile?.role !== 'manager') return false
+    const option = businessExportOptions.find((item) => item.scope === scope)
+    return option ? hasPermission(option.permission) : false
+  }
+
+  async function handleExport(scope: BusinessExportScope) {
+    if (!businessId || !canExport(scope)) return
+    setExportingScope(scope)
     setError('')
     try {
-      const payload = await exportBusinessData(businessId)
-      const fileName = `luxantara-business-export-${businessId}-${new Date().toISOString().slice(0, 10)}.json`
-      downloadJson(fileName, payload)
-      await logDataExportRequest(businessId, fileName, payload.row_counts)
+      await downloadBusinessExport({ businessId, scope, format })
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
-      setExporting(false)
+      setExportingScope(null)
     }
   }
 
@@ -77,10 +90,20 @@ export function DataOwnershipPage() {
           <h2 className="text-lg font-semibold">Data ownership & backup</h2>
           <p className="text-sm text-slate-500">Export your business data and review ownership, backup, migration, and shutdown rights.</p>
         </div>
-        <Button onClick={handleExport} disabled={exporting || !hasPermission('data.export')}>
-          <Download className="h-4 w-4" />
-          {exporting ? 'Preparing export...' : 'Export business data'}
-        </Button>
+        <div className="w-full sm:w-56">
+          <Field label="Export format">
+            <select
+              className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+              value={format}
+              onChange={(event) => setFormat(event.target.value as BusinessExportFormat)}
+            >
+              <option value="zip">ZIP</option>
+              <option value="csv">CSV</option>
+              <option value="excel">Excel</option>
+              <option value="json">JSON</option>
+            </select>
+          </Field>
+        </div>
       </div>
 
       <SettingsTabs />
@@ -106,6 +129,29 @@ export function DataOwnershipPage() {
           </Card>
         ))}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Download className="h-4 w-4" />
+            Business owner backup
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {businessExportOptions.map((option) => (
+            <Button
+              key={option.scope}
+              variant={option.scope === 'business_full' ? 'default' : 'outline'}
+              className="justify-start"
+              onClick={() => void handleExport(option.scope)}
+              disabled={Boolean(exportingScope) || !canExport(option.scope)}
+            >
+              <Download className="h-4 w-4" />
+              {exportingScope === option.scope ? 'Preparing...' : option.label}
+            </Button>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

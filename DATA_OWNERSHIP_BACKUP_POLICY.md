@@ -11,9 +11,9 @@ Business-owned data includes customer profiles, bookings, memberships, loyalty r
 
 Platform-owned data includes source code, product design, hosting, infrastructure configuration, Luxantara branding, global packages, module catalog, platform billing configuration, platform audit logs, backup logs, and operational tooling.
 
-Each business owner can export their own tenant data from `Business > Settings > Data & Backup`. Exports are JSON files containing tenant-scoped tables and row counts. Export actions are logged in `public.data_export_requests`.
+Each business owner can export their own tenant data from `Business > Settings > Data & Backup`. Exports support CSV, Excel, JSON, and ZIP formats. Full business ZIP backups include tenant-scoped CSV files, reports metadata, an uploaded files placeholder folder, and `backup_manifest.json`. Export actions are logged in `public.data_export_requests`.
 
-The platform owner may create full platform backups for disaster recovery, hosting migration, legal compliance, restore testing, security incident response, or planned platform shutdown. Full platform backups are privileged operational artifacts and must be created outside browser code using trusted infrastructure or Supabase tooling. Backup actions are logged in `public.platform_backup_logs`.
+The platform owner may create full platform backups for disaster recovery, hosting migration, legal compliance, restore testing, security incident response, or planned platform shutdown. Full platform backups are privileged operational artifacts and must be created outside browser code using trusted infrastructure or Supabase tooling. Backup requests and download tracking are logged in `public.backup_requests`, `public.backup_downloads`, and `public.platform_backup_logs`.
 
 When a business leaves the platform, support should include a business data export, export structure notes, and reasonable transfer assistance for customers, bookings, memberships, payments, inventory, and loyalty records. The platform is not required to transfer source code, platform-owned infrastructure, or Luxantara branding.
 
@@ -31,5 +31,7 @@ Security requirements:
 - Never expose service-role keys in frontend code.
 - Business exports must remain tenant-scoped.
 - Platform backups must be created only by trusted operators.
+- Platform backup requests require a reason and privileged confirmation.
+- Backup download links should use signed URLs with expiry.
 - Export and backup logs must be retained for auditability.
 - RLS must remain enabled on export and backup log tables.

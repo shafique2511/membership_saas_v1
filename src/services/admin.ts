@@ -470,6 +470,30 @@ export interface BackupRequestRow {
   created_at: string
   ready_at: string | null
   expires_at: string | null
+  download_count?: number
+  encryption_status?: string
+  signed_url_expires_at?: string | null
+}
+
+export interface BackupDownloadRow {
+  id: string
+  backup_request_id: string
+  business_id: string | null
+  downloaded_by: string | null
+  signed_url_expires_at: string | null
+  created_at: string
+}
+
+export interface ShutdownBackupTrackingRow {
+  id: string
+  business_id: string
+  backup_request_id: string | null
+  status: string
+  generated_at: string | null
+  downloaded_at: string | null
+  downloaded_by: string | null
+  notes: string | null
+  created_at: string
 }
 
 export interface ShutdownSettingsRow {
@@ -514,21 +538,66 @@ export async function listBackupRequests() {
 export async function createPlatformBackupRequest(input: {
   request_type: string
   reason: string
+  business_id?: string | null
+  export_format?: string
+  password_confirmed?: boolean
+  two_factor_confirmed?: boolean
 }) {
-  const { data, error } = await supabase
-    .from('backup_requests')
-    .insert({
-      request_type: input.request_type,
-      scope: 'platform',
-      export_format: 'zip',
-      status: 'pending',
-      reason: input.reason,
-    })
-    .select('*')
-    .single()
+  const isBusinessScoped = input.request_type === 'single_business'
+  const { data: id, error: rpcError } = await supabase.rpc('create_backup_request', {
+    p_request_type: input.request_type,
+    p_scope: isBusinessScoped ? 'business' : 'platform',
+    p_export_format: input.export_format ?? 'zip',
+    p_business_id: input.business_id ?? null,
+    p_reason: input.reason,
+    p_tables_included: [],
+    p_password_confirmed: input.password_confirmed ?? false,
+    p_two_factor_confirmed: input.two_factor_confirmed ?? false,
+  })
 
+  if (rpcError) throw rpcError
+
+  const { data, error } = await supabase.from('backup_requests').select('*').eq('id', id).single()
   if (error) throw error
   return data as BackupRequestRow
+}
+
+export async function listBackupDownloads() {
+  const { data, error } = await supabase
+    .from('backup_downloads')
+    .select('*,businesses(name),user_profiles(full_name,email)')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function recordBackupDownload(backupRequestId: string) {
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+  const { data, error } = await supabase.rpc('record_backup_download', {
+    p_backup_request_id: backupRequestId,
+    p_signed_url_expires_at: expiresAt,
+  })
+  if (error) throw error
+  return data as string
+}
+
+export async function queueShutdownOwnerNotices() {
+  const { data, error } = await supabase.rpc('queue_shutdown_owner_notices')
+  if (error) throw error
+  return Number(data ?? 0)
+}
+
+export async function listShutdownBackupTracking() {
+  const { data, error } = await supabase
+    .from('shutdown_business_backup_tracking')
+    .select('*,businesses(name)')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error) throw error
+  return data ?? []
 }
 
 export async function getShutdownSettings() {
