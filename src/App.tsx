@@ -51,6 +51,7 @@ import { ProductDetailsPage } from '@/pages/business/inventory/ProductDetailsPag
 import { ProductsPage } from '@/pages/business/inventory/ProductsPage'
 import { StockAdjustmentPage, StockInPage, StockOutPage } from '@/pages/business/inventory/StockPages'
 import { StockTransferPage } from '@/pages/business/inventory/StockTransferPage'
+import { SuppliersPage } from '@/pages/business/inventory/SuppliersPage'
 import { StaffListPage } from '@/pages/business/staff/StaffListPage'
 import { StaffDetailsPage } from '@/pages/business/staff/StaffDetailsPage'
 import { StaffSchedulePage } from '@/pages/business/staff/StaffSchedulePage'
@@ -236,6 +237,7 @@ function App() {
               <Route path="inventory" element={<ProductsPage />} />
               <Route path="inventory/products" element={<ProductsPage />} />
               <Route path="inventory/products/:productId" element={<ProductDetailsPage />} />
+              <Route path="inventory/suppliers" element={<SuppliersPage />} />
               <Route path="inventory/stock-in" element={<StockInPage />} />
               <Route path="inventory/stock-out" element={<StockOutPage />} />
               <Route path="inventory/adjustments" element={<StockAdjustmentPage />} />

@@ -8,6 +8,7 @@ import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
 import { getProducts, createProduct, updateProduct, getCategories, getSuppliers, type Product, type Supplier } from '@/services/inventory'
+import { getBranches } from '@/services/branches'
 
 export function ProductsPage() {
   const { profile } = useAppContext()
@@ -15,6 +16,7 @@ export function ProductsPage() {
   const [products, setProducts] = useState<(Product & { suppliers?: { name: string }[] })[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [branches, setBranches] = useState<{ id: string; name: string }[]>([])
   const [catFilter, setCatFilter] = useState('')
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
@@ -23,7 +25,7 @@ export function ProductsPage() {
     name: '', sku: '', barcode: '', category: '', description: '',
     unit: 'pcs', cost_price: '0', selling_price: '0',
     stock_quantity: '0', low_stock_threshold: '0',
-    min_stock_level: '0', max_stock_level: '', supplier_id: '', is_active: true,
+    min_stock_level: '0', max_stock_level: '', supplier_id: '', branch_id: '', is_active: true,
   })
 
   const load = useCallback(async () => {
@@ -31,6 +33,7 @@ export function ProductsPage() {
     setProducts(await getProducts(businessId, { category: catFilter || undefined, search: search || undefined }) as (Product & { suppliers?: { name: string }[] })[])
     setCategories(await getCategories(businessId))
     setSuppliers(await getSuppliers(businessId))
+    setBranches(await getBranches(businessId) as { id: string; name: string }[])
   }, [businessId, catFilter, search])
 
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
@@ -43,7 +46,7 @@ export function ProductsPage() {
       stock_quantity: Number(form.stock_quantity), low_stock_threshold: Number(form.low_stock_threshold),
       min_stock_level: Number(form.min_stock_level),
       max_stock_level: form.max_stock_level ? Number(form.max_stock_level) : null,
-      supplier_id: form.supplier_id || null, is_active: form.is_active,
+      supplier_id: form.supplier_id || null, branch_id: form.branch_id || null, is_active: form.is_active,
     }
     if (editingId) {
       await updateProduct(editingId, payload as Partial<Product>)
@@ -52,7 +55,7 @@ export function ProductsPage() {
     }
     setOpen(false)
     setEditingId(null)
-    setForm({ name: '', sku: '', barcode: '', category: '', description: '', unit: 'pcs', cost_price: '0', selling_price: '0', stock_quantity: '0', low_stock_threshold: '0', min_stock_level: '0', max_stock_level: '', supplier_id: '', is_active: true })
+    setForm({ name: '', sku: '', barcode: '', category: '', description: '', unit: 'pcs', cost_price: '0', selling_price: '0', stock_quantity: '0', low_stock_threshold: '0', min_stock_level: '0', max_stock_level: '', supplier_id: '', branch_id: '', is_active: true })
     await load()
   }
 
@@ -99,7 +102,7 @@ export function ProductsPage() {
                   cost_price: String(r.cost_price ?? '0'), selling_price: String(r.selling_price ?? '0'),
                   stock_quantity: String(r.stock_quantity ?? '0'), low_stock_threshold: String(r.low_stock_threshold ?? '0'),
                   min_stock_level: String(r.min_stock_level ?? '0'), max_stock_level: String(r.max_stock_level ?? ''),
-                  supplier_id: String(r.supplier_id ?? ''), is_active: Boolean(r.is_active),
+                  supplier_id: String(r.supplier_id ?? ''), branch_id: String(r.branch_id ?? ''), is_active: Boolean(r.is_active),
                 })
                 setOpen(true)
               }}>Edit</Button>
@@ -154,6 +157,12 @@ export function ProductsPage() {
             <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.supplier_id} onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}>
               <option value="">No supplier</option>
               {suppliers.filter((s) => s.is_active).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Branch" description="Inventory location for this stock row. Leave empty for main inventory.">
+            <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
+              <option value="">Main inventory</option>
+              {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </Field>
           <label className="flex items-center gap-2 text-sm">

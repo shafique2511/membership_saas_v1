@@ -4,6 +4,7 @@ import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/DataTable'
+import { toastError, toastSuccess } from '@/lib/toast'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
 import { getProducts, recordStockMovement, type Product } from '@/services/inventory'
 
@@ -21,8 +22,13 @@ export function LowStockAlertsPage() {
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
 
   async function handleStockIn(productId: string) {
-    await recordStockMovement({ business_id: businessId, product_id: productId, quantity: 10, transaction_type: 'stock_in', notes: 'Auto restock from low stock alert' })
-    await load()
+    try {
+      await recordStockMovement({ business_id: businessId, product_id: productId, quantity: 10, transaction_type: 'stock_in', notes: 'Quick restock from low stock alert' })
+      toastSuccess('Added 10 stock')
+      await load()
+    } catch (error) {
+      toastError(error, 'Failed to add stock')
+    }
   }
 
   return (

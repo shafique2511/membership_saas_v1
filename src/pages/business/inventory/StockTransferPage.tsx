@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
+import { toastError, toastSuccess } from '@/lib/toast'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
 import { getProducts, transferStock, type Product } from '@/services/inventory'
 import { getBranches } from '@/services/branches'
@@ -37,16 +38,25 @@ export function StockTransferPage() {
 
   async function handleTransfer() {
     if (!fromBranch || !toBranch || !productId || !quantity) return
-    if (fromBranch === toBranch) { alert('Source and destination must differ'); return }
+    if (fromBranch === toBranch) {
+      toastError(new Error('Source and destination branches must differ.'))
+      return
+    }
     setSaving(true)
-    await transferStock({
-      business_id: businessId, product_id: productId, quantity: Number(quantity),
-      from_branch_id: fromBranch, to_branch_id: toBranch, notes: notes || undefined,
-    })
-    setSaving(false)
-    setQuantity('')
-    setNotes('')
-    await load()
+    try {
+      await transferStock({
+        business_id: businessId, product_id: productId, quantity: Number(quantity),
+        from_branch_id: fromBranch, to_branch_id: toBranch, notes: notes || undefined,
+      })
+      toastSuccess('Stock transferred')
+      setQuantity('')
+      setNotes('')
+      await load()
+    } catch (error) {
+      toastError(error, 'Failed to transfer stock')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -76,7 +86,7 @@ export function StockTransferPage() {
               <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={productId} onChange={(e) => setProductId(e.target.value)}>
                 <option value="">Select product</option>
                 {products.filter((p) => p.is_active).map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} — Stock: {p.stock_quantity} {p.unit}</option>
+                  <option key={p.id} value={p.id}>{p.name} - Stock: {p.stock_quantity} {p.unit}</option>
                 ))}
               </select>
             </Field>

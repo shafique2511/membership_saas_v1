@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 const tabs = [
   { label: 'Products', href: '/business/inventory/products' },
+  { label: 'Suppliers', href: '/business/inventory/suppliers' },
   { label: 'Stock in', href: '/business/inventory/stock-in' },
   { label: 'Stock out', href: '/business/inventory/stock-out' },
   { label: 'Adjustments', href: '/business/inventory/adjustments' },

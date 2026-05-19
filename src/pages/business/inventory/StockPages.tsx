@@ -6,6 +6,7 @@ import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
 import { supabase } from '@/lib/supabase'
+import { toastError, toastSuccess } from '@/lib/toast'
 import { getProducts, recordStockMovement, type Product } from '@/services/inventory'
 
 export function StockInPage() {
@@ -44,15 +45,23 @@ function StockMovementPage({ type, title, description, submitLabel, negate }: {
   async function handleSubmit() {
     if (!selectedProduct || !quantity) return
     setSaving(true)
-    const q = Number(quantity)
-    await recordStockMovement({
-      business_id: businessId, product_id: selectedProduct,
-      quantity: negate ? -q : q, transaction_type: type,
-      notes: notes || undefined, branch_id: selectedBranch || undefined,
-    })
-    setSaving(false)
-    setQuantity('')
-    setNotes('')
+    try {
+      const q = negate ? Math.abs(Number(quantity)) : Number(quantity)
+      if (!q) throw new Error('Quantity must not be zero.')
+      await recordStockMovement({
+        business_id: businessId, product_id: selectedProduct,
+        quantity: negate ? -q : q, transaction_type: type,
+        notes: notes || undefined, branch_id: selectedBranch || undefined,
+      })
+      toastSuccess('Stock movement recorded')
+      setQuantity('')
+      setNotes('')
+      await load()
+    } catch (error) {
+      toastError(error, 'Failed to record stock movement')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const product = products.find((p) => p.id === selectedProduct)
@@ -71,7 +80,7 @@ function StockMovementPage({ type, title, description, submitLabel, negate }: {
             <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)}>
               <option value="">Select product</option>
               {products.filter((p) => p.is_active).map((p) => (
-                <option key={p.id} value={p.id}>{p.name} — Stock: {p.stock_quantity} {p.unit}</option>
+                <option key={p.id} value={p.id}>{p.name} - Stock: {p.stock_quantity} {p.unit}</option>
               ))}
             </select>
           </Field>

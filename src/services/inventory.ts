@@ -114,6 +114,16 @@ export async function createSupplier(data: Partial<Supplier>) {
   if (error) throw error
 }
 
+export async function updateSupplier(id: string, data: Partial<Supplier>) {
+  const { error } = await supabase.from('suppliers').update(data).eq('id', id)
+  if (error) throw error
+}
+
+export async function deactivateSupplier(id: string) {
+  const { error } = await supabase.from('suppliers').update({ is_active: false }).eq('id', id)
+  if (error) throw error
+}
+
 export async function getInventoryTransactions(businessId: string, filters?: {
   product_id?: string; transaction_type?: string; branch_id?: string;
   date_from?: string; date_to?: string; limit?: number

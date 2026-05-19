@@ -8,6 +8,7 @@ import { DataTable } from '@/components/ui/DataTable'
 import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
+import { toastError, toastSuccess } from '@/lib/toast'
 import { InventoryTabs } from '@/pages/business/inventory/InventoryTabs'
 import { getProduct, getInventoryTransactions, recordStockMovement, type Product, type InventoryTransaction } from '@/services/inventory'
 
@@ -32,19 +33,24 @@ export function ProductDetailsPage() {
   async function handleAction() {
     if (!product) return
     const q = Number(qty)
-    if (!q || q <= 0) return
+    if (!q || (open !== 'adjust' && q <= 0)) return
 
-    if (open === 'in') {
-      await recordStockMovement({ business_id: businessId, product_id: productId, quantity: q, transaction_type: 'stock_in', notes: reason || undefined })
-    } else if (open === 'out') {
-      await recordStockMovement({ business_id: businessId, product_id: productId, quantity: -q, transaction_type: 'stock_out', notes: reason || undefined })
-    } else if (open === 'adjust') {
-      await recordStockMovement({ business_id: businessId, product_id: productId, quantity: q, transaction_type: 'adjustment', notes: reason || undefined })
+    try {
+      if (open === 'in') {
+        await recordStockMovement({ business_id: businessId, product_id: productId, quantity: q, transaction_type: 'stock_in', notes: reason || undefined })
+      } else if (open === 'out') {
+        await recordStockMovement({ business_id: businessId, product_id: productId, quantity: -q, transaction_type: 'stock_out', notes: reason || undefined })
+      } else if (open === 'adjust') {
+        await recordStockMovement({ business_id: businessId, product_id: productId, quantity: q, transaction_type: 'adjustment', notes: reason || undefined })
+      }
+      toastSuccess('Stock updated')
+      setOpen(null)
+      setQty('')
+      setReason('')
+      await load()
+    } catch (error) {
+      toastError(error, 'Failed to update stock')
     }
-    setOpen(null)
-    setQty('')
-    setReason('')
-    await load()
   }
 
   if (!product) return <div className="py-20 text-center text-slate-500">Loading...</div>
