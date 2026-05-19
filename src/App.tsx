@@ -80,6 +80,10 @@ import { StaffReportPage } from '@/pages/business/reports/StaffReportPage'
 import { InventoryReportPage as InvReportPage } from '@/pages/business/reports/InventoryReportPage'
 import { PaymentReportPage } from '@/pages/business/reports/PaymentReportPage'
 import { ProfitReportPage } from '@/pages/business/reports/ProfitReportPage'
+import { LoyaltyReportPage } from '@/pages/business/reports/LoyaltyReportPage'
+import { NoShowReportPage } from '@/pages/business/reports/NoShowReportPage'
+import { BranchReportPage } from '@/pages/business/reports/BranchReportPage'
+import { MarketingReportPage } from '@/pages/business/reports/MarketingReportPage'
 import { ExportCenterPage } from '@/pages/business/reports/ExportCenterPage'
 import { PaymentsPage } from '@/pages/business/payments/PaymentsPage'
 import { PaymentDetailsPage } from '@/pages/business/payments/PaymentDetailsPage'
@@ -271,10 +275,14 @@ function App() {
               <Route path="reports/bookings" element={<BookingReportPage />} />
               <Route path="reports/memberships" element={<MembershipReportPage />} />
               <Route path="reports/customers" element={<CustomerReportPage />} />
+              <Route path="reports/loyalty" element={<LoyaltyReportPage />} />
               <Route path="reports/staff" element={<StaffReportPage />} />
               <Route path="reports/inventory" element={<InvReportPage />} />
               <Route path="reports/payments" element={<PaymentReportPage />} />
               <Route path="reports/profit" element={<ProfitReportPage />} />
+              <Route path="reports/no-shows" element={<NoShowReportPage />} />
+              <Route path="reports/branches" element={<BranchReportPage />} />
+              <Route path="reports/marketing" element={<MarketingReportPage />} />
               <Route path="reports/export" element={<ExportCenterPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="notification" moduleName="Notification module" />}>

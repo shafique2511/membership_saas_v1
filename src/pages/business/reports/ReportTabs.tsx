@@ -1,4 +1,4 @@
-import { LayoutDashboard, DollarSign, CalendarCheck, Users, UserCheck, Star, Briefcase, Package, CreditCard, TrendingUp, Download } from 'lucide-react'
+import { LayoutDashboard, DollarSign, CalendarCheck, Users, UserCheck, Star, Briefcase, Package, CreditCard, TrendingUp, Download, Ban, Building2, Megaphone } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
@@ -13,6 +13,9 @@ const tabs = [
   { href: '/business/reports/inventory', label: 'Inventory', icon: Package },
   { href: '/business/reports/payments', label: 'Payments', icon: CreditCard },
   { href: '/business/reports/profit', label: 'Profit', icon: TrendingUp },
+  { href: '/business/reports/no-shows', label: 'No-shows', icon: Ban },
+  { href: '/business/reports/branches', label: 'Branches', icon: Building2 },
+  { href: '/business/reports/marketing', label: 'Marketing', icon: Megaphone },
   { href: '/business/reports/export', label: 'Export', icon: Download },
 ]
 
