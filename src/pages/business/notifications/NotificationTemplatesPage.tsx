@@ -138,7 +138,7 @@ export function NotificationTemplatesPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {CHANNELS.filter((ch) => ch !== 'sms').map((channel) => {
+                  {CHANNELS.map((channel) => {
                     const t = typeTemplates.find((tm) => tm.channel === channel)
                     return (
                       <div key={channel} className="flex items-start gap-3 border-b pb-2 last:border-0">

@@ -90,7 +90,7 @@ export function BroadcastsPage() {
             </Field>
             <Field label="Channel" description="Where customers will receive this broadcast.">
               <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={channel} onChange={(e) => setChannel(e.target.value)}>
-                {CHANNELS.filter((c) => c !== 'sms').map((c) => <option key={c} value={c}>{c}</option>)}
+                {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </Field>
             {channel === 'email' && (

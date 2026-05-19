@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { NotificationTabs } from './NotificationTabs'
-import { sendNotification, NOTIFICATION_TYPES, CHANNELS, ALL_VARIABLES, renderTemplate } from '@/services/notifications'
+import { sendNotificationWithResult, NOTIFICATION_TYPES, CHANNELS, ALL_VARIABLES, renderTemplate } from '@/services/notifications'
 
 export function ManualSendPage() {
   const { profile } = useAppContext()
@@ -16,6 +16,7 @@ export function ManualSendPage() {
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<string | null>(null)
+  const [actionUrl, setActionUrl] = useState<string | null>(null)
 
   const insertVar = (v: string) => {
     setMessage((prev) => prev + `{${v}}`)
@@ -25,14 +26,16 @@ export function ManualSendPage() {
     if (!message) return
     setSending(true)
     setResult(null)
-    const ok = await sendNotification(businessId, {
+    setActionUrl(null)
+    const sendResult = await sendNotificationWithResult(businessId, {
       channel,
       notificationType: type,
       title: title || type.replace(/_/g, ' '),
       message,
       recipient: recipient || undefined,
     })
-    setResult(ok ? 'Sent successfully' : 'Failed to send')
+    setResult(sendResult.success ? (sendResult.actionUrl ? 'WhatsApp link ready' : 'Sent successfully') : (sendResult.error ?? 'Failed to send'))
+    setActionUrl(sendResult.actionUrl)
     setSending(false)
   }
 
@@ -109,12 +112,17 @@ export function ManualSendPage() {
               </div>
             )}
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => { setMessage(''); setTitle(''); setRecipient(''); setResult(null) }}>Clear</Button>
+              <Button variant="outline" onClick={() => { setMessage(''); setTitle(''); setRecipient(''); setResult(null); setActionUrl(null) }}>Clear</Button>
               <Button onClick={handleSend} disabled={sending || !message}>
-                {sending ? 'Sending...' : 'Send'}
+                {sending ? 'Sending...' : channel === 'whatsapp' ? 'Generate WhatsApp link' : 'Send'}
               </Button>
             </div>
-            {result && <p className={`text-sm ${result.includes('Success') ? 'text-emerald-600' : 'text-red-600'}`}>{result}</p>}
+            {result && <p className={`text-sm ${actionUrl || result.toLowerCase().includes('success') ? 'text-emerald-600' : 'text-red-600'}`}>{result}</p>}
+            {actionUrl && (
+              <a href={actionUrl} target="_blank" rel="noopener noreferrer" className="inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+                Open WhatsApp
+              </a>
+            )}
           </CardContent>
         </Card>
       </div>

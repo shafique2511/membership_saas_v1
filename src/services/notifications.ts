@@ -35,6 +35,9 @@ export interface Notification {
   status: string
   template_id: string | null
   error_message: string | null
+  action_url: string | null
+  delivery_provider: string | null
+  metadata: Record<string, unknown> | null
   read_at: string | null
   recipient: string | null
   sent_at: string | null
@@ -80,6 +83,7 @@ const NOTIFICATION_TYPES = [
   'booking_confirmation', 'booking_reminder', 'booking_cancellation',
   'booking_reschedule', 'payment_confirmation', 'membership_expiry',
   'membership_renewal', 'birthday_message', 'no_show_warning', 'promo_broadcast',
+  'receipt_message',
 ] as const
 
 const CHANNELS = ['email', 'whatsapp', 'telegram', 'sms', 'in_app'] as const
@@ -98,10 +102,25 @@ export function renderTemplate(template: string, variables: TemplateVariables): 
   return result
 }
 
+export function normalizeWhatsAppNumber(phone: string): string {
+  return phone.replace(/[^\d]/g, '')
+}
+
+export function buildWhatsAppLink(phone: string, message: string): string {
+  return `https://wa.me/${normalizeWhatsAppNumber(phone)}?text=${encodeURIComponent(message)}`
+}
+
 const mockChannelSend = async (_channel: string, recipient: string, _subject: string | null, _body: string): Promise<{ success: boolean; error?: string }> => {
   await new Promise((r) => setTimeout(r, 300))
   if (!recipient) return { success: false, error: 'No recipient specified' }
   return { success: true }
+}
+
+export interface SendNotificationResult {
+  success: boolean
+  status: string
+  actionUrl: string | null
+  error?: string
 }
 
 // ---- Templates ----
@@ -145,6 +164,7 @@ export async function deleteTemplate(id: string): Promise<void> {
 
 export async function resetToDefaults(businessId: string): Promise<void> {
   await supabase.rpc('seed_default_templates', { p_business_id: businessId })
+  await supabase.rpc('seed_phase17_notification_templates', { p_business_id: businessId })
 }
 
 // ---- Channel Settings ----
@@ -179,9 +199,31 @@ export async function sendNotification(
     templateId?: string
   },
 ): Promise<boolean> {
+  const result = await sendNotificationWithResult(businessId, params)
+  return result.success
+}
+
+export async function sendNotificationWithResult(
+  businessId: string,
+  params: {
+    channel: string
+    notificationType: string
+    title: string
+    message: string
+    customerId?: string
+    recipient?: string
+    templateId?: string
+  },
+): Promise<SendNotificationResult> {
   const channelName = params.channel as typeof CHANNELS[number]
 
-  const mockResult = await mockChannelSend(channelName, params.recipient ?? '', params.title, params.message)
+  const actionUrl = channelName === 'whatsapp' && params.recipient
+    ? buildWhatsAppLink(params.recipient, params.message)
+    : null
+  const mockResult = channelName === 'whatsapp'
+    ? { success: Boolean(params.recipient), error: params.recipient ? undefined : 'No WhatsApp recipient specified' }
+    : await mockChannelSend(channelName, params.recipient ?? '', params.title, params.message)
+  const status = channelName === 'whatsapp' && mockResult.success ? 'queued' : mockResult.success ? 'sent' : 'failed'
 
   const { error } = await supabase.from('notifications').insert({
     business_id: businessId,
@@ -192,13 +234,16 @@ export async function sendNotification(
     message: params.message,
     recipient: params.recipient,
     template_id: params.templateId,
-    status: mockResult.success ? 'sent' : 'failed',
+    status,
     error_message: mockResult.error,
-    sent_at: mockResult.success ? new Date().toISOString() : null,
+    action_url: actionUrl,
+    delivery_provider: channelName === 'whatsapp' ? 'wa_link' : 'mock',
+    metadata: { whatsapp_first: channelName === 'whatsapp' },
+    sent_at: status === 'sent' ? new Date().toISOString() : null,
   })
 
   if (error) console.error('Failed to log notification:', error)
-  return mockResult.success
+  return { success: mockResult.success, status, actionUrl, error: mockResult.error }
 }
 
 export async function sendTemplatedNotification(

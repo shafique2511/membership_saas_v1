@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { NotificationTabs } from './NotificationTabs'
 import { getNotifications, type Notification } from '@/services/notifications'
 
-const channelIcons: Record<string, string> = {
-  email: '✉️',
-  whatsapp: '💬',
-  telegram: '📱',
-  sms: '📨',
-  in_app: '🔔',
+const channelLabels: Record<string, string> = {
+  email: 'Email',
+  whatsapp: 'WhatsApp',
+  telegram: 'Telegram',
+  sms: 'SMS',
+  in_app: 'In-app',
 }
 
 export function NotificationLogPage() {
@@ -81,15 +81,16 @@ export function NotificationLogPage() {
                   <th className="pb-2 font-medium">Type</th>
                   <th className="pb-2 font-medium">Title</th>
                   <th className="pb-2 font-medium">Status</th>
+                  <th className="pb-2 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((n) => (
                   <tr key={n.id} className="border-b last:border-0">
-                    <td className="py-2 text-muted-foreground text-xs">{new Date(n.created_at).toLocaleString()}</td>
-                    <td className="py-2">{channelIcons[n.channel] ?? n.channel} {n.channel}</td>
+                    <td className="py-2 text-xs text-muted-foreground">{new Date(n.created_at).toLocaleString()}</td>
+                    <td className="py-2">{channelLabels[n.channel] ?? n.channel}</td>
                     <td className="py-2 capitalize">{n.notification_type.replace(/_/g, ' ')}</td>
-                    <td className="py-2 max-w-[250px] truncate">{n.title}</td>
+                    <td className="max-w-[250px] truncate py-2">{n.title}</td>
                     <td className="py-2">
                       <span className={`text-xs font-medium ${
                         n.status === 'sent' ? 'text-emerald-600' :
@@ -97,12 +98,19 @@ export function NotificationLogPage() {
                         n.status === 'queued' ? 'text-amber-600' :
                         'text-muted-foreground'
                       }`}>{n.status}</span>
-                      {n.error_message && <span className="text-xs text-red-500 ml-1">({n.error_message})</span>}
+                      {n.error_message && <span className="ml-1 text-xs text-red-500">({n.error_message})</span>}
+                    </td>
+                    <td className="py-2">
+                      {n.action_url ? (
+                        <a href={n.action_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">Open</a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
                     </td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={5} className="py-4 text-center text-muted-foreground">No notifications sent yet.</td></tr>
+                  <tr><td colSpan={6} className="py-4 text-center text-muted-foreground">No notifications sent yet.</td></tr>
                 )}
               </tbody>
             </table>
