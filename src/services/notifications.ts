@@ -85,7 +85,7 @@ const NOTIFICATION_TYPES = [
   'membership_renewal', 'birthday_message', 'no_show_warning', 'promo_broadcast',
   'receipt_message', 'inactive_customer_promo', 'membership_expiring_soon',
   'birthday_reward', 'no_show_follow_up', 'first_time_thank_you',
-  'high_spender_vip_reward',
+  'high_spender_vip_reward', 'waitlist_slot_available',
 ] as const
 
 const CHANNELS = ['email', 'whatsapp', 'telegram', 'sms', 'in_app'] as const
@@ -167,6 +167,7 @@ export async function deleteTemplate(id: string): Promise<void> {
 export async function resetToDefaults(businessId: string): Promise<void> {
   await supabase.rpc('seed_default_templates', { p_business_id: businessId })
   await supabase.rpc('seed_phase17_notification_templates', { p_business_id: businessId })
+  await supabase.rpc('seed_phase22_waitlist_templates', { p_business_id: businessId })
 }
 
 // ---- Channel Settings ----

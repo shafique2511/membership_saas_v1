@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
-import { getServices, getStaff, getResources, getAvailableSlots, createBooking, createGuestBooking, type BookingType, type ServiceRow, type StaffRow, type ResourceRow, type AvailableSlot } from '@/services/bookings'
+import { getServices, getStaff, getResources, getAvailableSlots, createBooking, createGuestBooking, createWaitlistEntry, type BookingType, type ServiceRow, type StaffRow, type ResourceRow, type AvailableSlot } from '@/services/bookings'
 import { Scissors, UserRound, Calendar, Clock, DollarSign, CheckCircle } from 'lucide-react'
 import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
 
@@ -37,6 +37,7 @@ export function CustomerBookingPage() {
 
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [waitlistDone, setWaitlistDone] = useState(false)
   const [error, setError] = useState('')
 
   const loadData = useCallback(async () => {
@@ -111,6 +112,38 @@ export function CustomerBookingPage() {
     }
   }
 
+  async function handleJoinWaitlist() {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setError('Name and phone are required to join the waitlist.')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    try {
+      await createWaitlistEntry({
+        business_id: bizId,
+        full_name: customerName.trim(),
+        phone: customerPhone.trim(),
+        email: customerEmail.trim() || null,
+        staff_id: selectedStaff || null,
+        service_id: selectedService || null,
+        resource_id: selectedResource || null,
+        booking_type: bookingType,
+        requested_date: selectedDate,
+        requested_time_start: null,
+        requested_time_end: null,
+        notes: notes || null,
+      })
+      setWaitlistDone(true)
+      setDone(true)
+    } catch (err) {
+      setError(String(err instanceof Error ? err.message : err))
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const selectedServiceData = services.find((s) => s.id === selectedService)
 
   if (done) {
@@ -121,8 +154,10 @@ export function CustomerBookingPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
               <CheckCircle className="h-8 w-8" />
             </div>
-            <h2 className="text-xl font-semibold">Booking confirmed!</h2>
-            <p className="mt-2 text-sm text-slate-500">Your appointment has been booked.</p>
+            <h2 className="text-xl font-semibold">{waitlistDone ? 'You joined the waitlist' : 'Booking confirmed!'}</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              {waitlistDone ? 'We will contact you when a matching slot becomes available.' : 'Your appointment has been booked.'}
+            </p>
             <div className="mt-6 flex justify-center gap-2">
               <Button variant="outline" onClick={() => navigate(portalHome)}>Home</Button>
               <Button onClick={() => navigate(`${routeBase}/history`)}>View bookings</Button>
@@ -248,7 +283,30 @@ export function CustomerBookingPage() {
                 </div>
               </div>
             ) : (
-              <p className="py-8 text-center text-sm text-slate-400">No available slots. Try another date.</p>
+              <div className="space-y-4 rounded-lg border border-dashed border-slate-300 p-4 dark:border-slate-700">
+                <div className="text-center">
+                  <p className="font-medium">No available slots for this date.</p>
+                  <p className="mt-1 text-sm text-slate-500">Join the waitlist and staff will contact you when a matching slot opens.</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label="Name" description="Name staff will use when contacting you.">
+                    <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Your name" />
+                  </Field>
+                  <Field label="Phone" description="Phone number for the available-slot notification.">
+                    <Input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="Your phone" />
+                  </Field>
+                  <Field className="sm:col-span-2" label="Email" description="Optional backup contact email.">
+                    <Input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Your email" />
+                  </Field>
+                  <Field className="sm:col-span-2" label="Notes" description="Optional preferred time, staff, or other request.">
+                    <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Preferred time or notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+                  </Field>
+                </div>
+                {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+                <Button onClick={handleJoinWaitlist} disabled={loading || !selectedService} className="w-full">
+                  {loading ? 'Joining...' : 'Join waitlist'}
+                </Button>
+              </div>
             )}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setStep(1)} className="flex-1">Back</Button>

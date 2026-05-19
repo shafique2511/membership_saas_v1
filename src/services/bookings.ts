@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 export type BookingType = 'appointment' | 'table' | 'room' | 'event' | 'walk_in'
 export type BookingStatus = 'pending' | 'confirmed' | 'checked_in' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
 export type PaymentStatus = 'unpaid' | 'partial' | 'paid' | 'refunded'
+export type WaitlistStatus = 'waiting' | 'notified' | 'booked' | 'expired' | 'cancelled'
 
 export interface BookingRow {
   id: string
@@ -91,6 +92,37 @@ export interface AvailableSlot {
   resource_id?: string | null
 }
 
+export interface WaitlistEntryRow {
+  id: string
+  business_id: string
+  branch_id: string | null
+  customer_id: string | null
+  service_id: string | null
+  staff_id: string | null
+  resource_id: string | null
+  booking_type: BookingType
+  customer_name: string | null
+  customer_phone: string | null
+  customer_email: string | null
+  requested_date: string | null
+  requested_time_start: string | null
+  requested_time_end: string | null
+  party_size: number
+  priority: number
+  status: WaitlistStatus
+  notes: string | null
+  expires_at: string | null
+  notified_at: string | null
+  converted_booking_id: string | null
+  created_at: string
+  updated_at: string
+  customers?: { full_name: string; phone: string | null; email: string | null } | { full_name: string; phone: string | null; email: string | null }[] | null
+  services?: { name: string; duration_minutes: number; price: number } | { name: string; duration_minutes: number; price: number }[] | null
+  staff?: { full_name: string } | { full_name: string }[] | null
+  resources?: { name: string; resource_type: string } | { name: string; resource_type: string }[] | null
+  branches?: { name: string } | { name: string }[] | null
+}
+
 export interface BookingCreateInput {
   business_id: string
   branch_id?: string | null
@@ -145,6 +177,22 @@ export interface BookingFilters {
   status?: BookingStatus | BookingStatus[]
   booking_type?: BookingType
   customer_id?: string
+}
+
+export interface WaitlistCreateInput {
+  business_id: string
+  full_name: string
+  phone: string
+  email?: string | null
+  branch_id?: string | null
+  staff_id?: string | null
+  service_id?: string | null
+  resource_id?: string | null
+  booking_type?: BookingType
+  requested_date?: string | null
+  requested_time_start?: string | null
+  requested_time_end?: string | null
+  notes?: string | null
 }
 
 export function getStatusColor(status: string): string {
@@ -308,6 +356,59 @@ export async function deleteBooking(id: string): Promise<void> {
 
 export async function transitionBooking(id: string, status: BookingStatus): Promise<BookingRow> {
   return updateBooking(id, { status })
+}
+
+export async function getWaitlistEntries(businessId: string, status?: WaitlistStatus | WaitlistStatus[]): Promise<WaitlistEntryRow[]> {
+  let query = supabase
+    .from('waitlist_entries')
+    .select('*,customers(full_name,phone,email),services(name,duration_minutes,price),staff(full_name),resources(name,resource_type),branches(name)')
+    .eq('business_id', businessId)
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: true })
+
+  if (status) {
+    if (Array.isArray(status)) query = query.in('status', status)
+    else query = query.eq('status', status)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return (data ?? []) as WaitlistEntryRow[]
+}
+
+export async function createWaitlistEntry(input: WaitlistCreateInput): Promise<string> {
+  const { data, error } = await supabase.rpc('create_waitlist_entry', {
+    p_business_id: input.business_id,
+    p_full_name: input.full_name,
+    p_phone: input.phone,
+    p_email: input.email ?? null,
+    p_branch_id: input.branch_id ?? null,
+    p_staff_id: input.staff_id ?? null,
+    p_service_id: input.service_id ?? null,
+    p_resource_id: input.resource_id ?? null,
+    p_booking_type: input.booking_type ?? 'appointment',
+    p_requested_date: input.requested_date ?? null,
+    p_requested_time_start: input.requested_time_start ?? null,
+    p_requested_time_end: input.requested_time_end ?? null,
+    p_notes: input.notes ?? null,
+  })
+
+  if (error) throw error
+  return data as string
+}
+
+export async function updateWaitlistEntry(id: string, updates: Partial<WaitlistEntryRow>): Promise<void> {
+  const { error } = await supabase.from('waitlist_entries').update(updates).eq('id', id)
+  if (error) throw error
+}
+
+export async function convertWaitlistToBooking(waitlistId: string): Promise<string> {
+  const { data, error } = await supabase.rpc('convert_waitlist_to_booking', {
+    p_waitlist_id: waitlistId,
+  })
+
+  if (error) throw error
+  return data as string
 }
 
 export async function getAvailableSlots(

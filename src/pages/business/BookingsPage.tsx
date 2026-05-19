@@ -28,6 +28,9 @@ import {
   updateBooking,
   deleteBooking,
   transitionBooking,
+  getWaitlistEntries,
+  convertWaitlistToBooking,
+  updateWaitlistEntry,
   getAvailableSlots,
   getStatusColor,
   nextStatuses,
@@ -41,6 +44,7 @@ import {
   type BranchRow,
   type CustomerRow,
   type AvailableSlot,
+  type WaitlistEntryRow,
 } from '@/services/bookings'
 
 type ViewMode = 'list' | 'daily' | 'weekly' | 'monthly'
@@ -108,6 +112,7 @@ export function BookingsPage() {
   const [customerSearch, setCustomerSearch] = useState('')
   const [customerResults, setCustomerResults] = useState<CustomerRow[]>([])
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([])
+  const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntryRow[]>([])
 
   const [openCreate, setOpenCreate] = useState(false)
   const [openDetail, setOpenDetail] = useState<BookingRow | null>(null)
@@ -128,7 +133,12 @@ export function BookingsPage() {
       f.date_to = filters.date_to ?? todayISO()
       delete f.date
     }
-    setBookings(await getBookings(businessId, f))
+    const [nextBookings, nextWaitlist] = await Promise.all([
+      getBookings(businessId, f),
+      getWaitlistEntries(businessId, ['waiting', 'notified']),
+    ])
+    setBookings(nextBookings)
+    setWaitlistEntries(nextWaitlist)
   }, [businessId, filters, viewMode])
 
   const loadRelated = useCallback(async () => {
@@ -241,6 +251,16 @@ export function BookingsPage() {
   async function handleDelete(id: string) {
     await deleteBooking(id)
     setOpenDetail(null)
+    await load()
+  }
+
+  async function handleConvertWaitlist(entryId: string) {
+    await convertWaitlistToBooking(entryId)
+    await load()
+  }
+
+  async function handleCancelWaitlist(entryId: string) {
+    await updateWaitlistEntry(entryId, { status: 'cancelled' })
     await load()
   }
 
@@ -505,6 +525,67 @@ export function BookingsPage() {
           <span key={s} className={`inline-block rounded-full px-2 py-0.5 font-medium ${getStatusColor(s)}`}>{s}</span>
         ))}
       </div>
+
+      <Card>
+        <CardContent className="space-y-4 p-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-semibold">Waitlist</h3>
+              <p className="text-sm text-slate-500">Customers waiting for full slots or cancelled openings.</p>
+            </div>
+            <Badge variant="muted">{waitlistEntries.length} active</Badge>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-slate-500 dark:border-slate-800">
+                  <th className="pb-2 font-medium">Customer</th>
+                  <th className="pb-2 font-medium">Preferred slot</th>
+                  <th className="pb-2 font-medium">Service</th>
+                  <th className="pb-2 font-medium">Staff</th>
+                  <th className="pb-2 font-medium">Status</th>
+                  <th className="pb-2 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {waitlistEntries.map((entry) => {
+                  const customer = Array.isArray(entry.customers) ? entry.customers[0] : entry.customers
+                  const service = Array.isArray(entry.services) ? entry.services[0] : entry.services
+                  const staff = Array.isArray(entry.staff) ? entry.staff[0] : entry.staff
+                  return (
+                    <tr key={entry.id} className="border-b last:border-0 dark:border-slate-800">
+                      <td className="py-3">
+                        <div className="font-medium">{entry.customer_name ?? customer?.full_name ?? 'Customer'}</div>
+                        <div className="text-xs text-slate-500">{entry.customer_phone ?? customer?.phone ?? '-'}</div>
+                      </td>
+                      <td className="py-3">
+                        <div>{entry.requested_date ? new Date(entry.requested_date).toLocaleDateString('en', { day: 'numeric', month: 'short' }) : 'Any date'}</div>
+                        <div className="text-xs text-slate-500">{entry.requested_time_start?.slice(0, 5) ?? 'Any time'}{entry.requested_time_end ? ` - ${entry.requested_time_end.slice(0, 5)}` : ''}</div>
+                      </td>
+                      <td className="py-3">{service?.name ?? '-'}</td>
+                      <td className="py-3">{staff?.full_name ?? 'Any'}</td>
+                      <td className="py-3">
+                        <Badge variant={entry.status === 'notified' ? 'warning' : 'muted'}>{entry.status}</Badge>
+                      </td>
+                      <td className="py-3">
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" onClick={() => void handleConvertWaitlist(entry.id)}>Convert</Button>
+                          <Button size="sm" variant="outline" onClick={() => void handleCancelWaitlist(entry.id)}>Cancel</Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+                {waitlistEntries.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-6 text-center text-slate-500">No active waitlist entries.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <FormModal
         open={openCreate}
