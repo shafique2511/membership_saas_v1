@@ -43,6 +43,8 @@ export type Permission =
   | 'customers.view_basic'
   | 'customers.create'
   | 'customers.edit'
+  | 'crm.notes.add'
+  | 'crm.tags.manage'
   | 'bookings.manage'
   | 'bookings.view_assigned'
   | 'bookings.view'

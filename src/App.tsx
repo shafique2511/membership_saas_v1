@@ -31,6 +31,8 @@ import { BookingsPage } from '@/pages/business/BookingsPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
 import { BusinessSetupWizardPage } from '@/pages/business/BusinessSetupWizardPage'
 import { CustomerMembershipsPage as BizCustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
+import { CrmPage } from '@/pages/business/crm/CrmPage'
+import { CustomerCrmDetailsPage } from '@/pages/business/crm/CustomerCrmDetailsPage'
 import { MembershipDetailsPage } from '@/pages/business/MembershipDetailsPage'
 import { MembershipPlansPage } from '@/pages/business/MembershipPlansPage'
 import { BirthdayRewardsPage } from '@/pages/business/loyalty/BirthdayRewardsPage'
@@ -185,7 +187,7 @@ function App() {
             <Route path="dashboard" element={<Navigate to="/business" replace />} />
             <Route path="calendar" element={<Navigate to="/business/bookings" replace />} />
             <Route path="bookings" element={<Navigate to="/business/bookings" replace />} />
-            <Route path="customers" element={<Navigate to="/business/memberships" replace />} />
+            <Route path="customers" element={<Navigate to="/business/customers" replace />} />
             <Route path="members" element={<Navigate to="/business/memberships" replace />} />
             <Route path="pos" element={<Navigate to="/business/pos" replace />} />
             <Route path="products" element={<Navigate to="/business/inventory/products" replace />} />
@@ -211,6 +213,10 @@ function App() {
             <Route path="add-ons" element={<AddOnManagementPage />} />
             <Route path="usage" element={<UsageLimitsPage />} />
             <Route path="packages" element={<PackageComparisonPage />} />
+            <Route element={<ModuleRoute moduleKey="core" moduleName="Simple CRM" />}>
+              <Route path="customers" element={<CrmPage />} />
+              <Route path="customers/:customerId" element={<CustomerCrmDetailsPage />} />
+            </Route>
             <Route element={<ModuleRoute moduleKey="booking" moduleName="Booking module" />}>
               <Route path="bookings" element={<BookingsPage />} />
             </Route>

@@ -48,7 +48,7 @@ export const businessNavSections: NavSection[] = [
     title: 'Operations',
     items: [
       { label: 'POS', href: '/business/pos', icon: ShoppingCart, module: 'pos' },
-      { label: 'Customers', href: '/business/memberships', icon: Users, module: 'membership' },
+      { label: 'Customers', href: '/business/customers', icon: Users, module: 'core' },
       { label: 'Memberships', href: '/business/memberships', icon: WalletCards, module: 'membership' },
       { label: 'Loyalty', href: '/business/loyalty', icon: Gift, module: 'loyalty' },
     ],
