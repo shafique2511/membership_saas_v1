@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -22,13 +22,17 @@ export function BroadcastPage() {
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<string | null>(null)
 
-  async function loadSegments() {
+  const loadSegments = useCallback(async () => {
+    if (!businessId) return
     const [s, p] = await Promise.all([getSegments(businessId), getPromoCodes(businessId)])
     setSegments(s)
     setPromos(p)
-  }
+  }, [businessId])
 
-  useState(() => { void loadSegments() })
+  useEffect(() => {
+    const t = window.setTimeout(() => void loadSegments(), 0)
+    return () => window.clearTimeout(t)
+  }, [loadSegments])
 
   async function handleSend() {
     if (!name || !message) return

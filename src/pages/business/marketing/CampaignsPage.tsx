@@ -15,7 +15,17 @@ const statusVariant: Record<string, BadgeVariant> = {
   cancelled: 'danger',
 }
 
-const campaignTypes = ['promo_code', 'discount', 'birthday', 'inactive_customer', 'referral', 'broadcast'] as const
+const campaignTypes = ['promo_code', 'discount', 'member_only_promo', 'birthday', 'inactive_customer', 'referral', 'broadcast'] as const
+
+const defaultMessages: Record<string, string> = {
+  promo_code: 'Use our latest promo code on your next visit.',
+  discount: 'Enjoy a special discount for a limited time.',
+  member_only_promo: 'Exclusive member offer available for a limited time.',
+  birthday: 'Happy birthday! Visit us this month for a special treat.',
+  inactive_customer: 'We miss you. Come back soon and enjoy a special offer.',
+  referral: 'Refer a friend and enjoy a reward after their first visit.',
+  broadcast: '',
+}
 
 export function CampaignsPage() {
   const { profile } = useAppContext()
@@ -24,6 +34,7 @@ export function CampaignsPage() {
   const [segments, setSegments] = useState<CustomerSegment[]>([])
   const [promos, setPromos] = useState<PromoCode[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [scheduledAt, setScheduledAt] = useState('')
   const [form, setForm] = useState<Partial<MarketingCampaign>>({
     campaign_type: 'broadcast', status: 'draft', message: '', name: '', channel: 'in_app',
   })
@@ -42,8 +53,19 @@ export function CampaignsPage() {
   }, [load])
 
   async function handleCreate() {
-    await createCampaign(businessId, form)
+    if (!form.name?.trim() || !form.message?.trim()) return
+    await createCampaign(businessId, {
+      ...form,
+      status: scheduledAt ? 'scheduled' : form.status ?? 'draft',
+      scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+      audience_filter: {
+        type: form.campaign_type,
+        segment_id: form.segment_id ?? null,
+        member_only: form.campaign_type === 'member_only_promo',
+      },
+    })
     setShowForm(false)
+    setScheduledAt('')
     setForm({ campaign_type: 'broadcast', status: 'draft', message: '', name: '', channel: 'in_app' })
     await load()
   }
@@ -68,7 +90,11 @@ export function CampaignsPage() {
                 <Input value={form.name ?? ''} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
               </Field>
               <Field label="Type" description="Campaign purpose, used for reporting and default behavior.">
-                <select className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={form.campaign_type} onChange={(e) => setForm((f) => ({ ...f, campaign_type: e.target.value }))}>
+                <select
+                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                  value={form.campaign_type}
+                  onChange={(e) => setForm((f) => ({ ...f, campaign_type: e.target.value, message: f.message || defaultMessages[e.target.value] || '' }))}
+                >
                   {campaignTypes.map((t) => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
                 </select>
               </Field>
@@ -91,6 +117,9 @@ export function CampaignsPage() {
                   <option value="">No promo code</option>
                   {promos.filter((p) => p.is_active).map((p) => <option key={p.id} value={p.id}>{p.code}</option>)}
                 </select>
+              </Field>
+              <Field label="Schedule" description="Optional future send time. Leave blank to keep the campaign as draft.">
+                <Input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />
               </Field>
             </div>
             <Field label="Message" description="Campaign content sent to customers.">

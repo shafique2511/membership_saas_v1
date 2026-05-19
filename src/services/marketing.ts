@@ -29,12 +29,19 @@ export interface PromoCode {
   min_purchase: number
   applies_to: string
   applicable_ids: string[]
+  member_only: boolean
   start_date: string
   end_date: string
   is_active: boolean
   description: string | null
   created_at: string
   updated_at: string
+}
+
+export interface MarketingTargetOption {
+  id: string
+  name: string
+  type: 'service' | 'product' | 'membership'
 }
 
 export interface CustomerSegment {
@@ -62,7 +69,7 @@ export interface CampaignResult {
   updated_at: string
 }
 
-const CAMPAIGN_TYPES = ['promo_code', 'discount', 'birthday', 'inactive_customer', 'referral', 'broadcast'] as const
+const CAMPAIGN_TYPES = ['promo_code', 'discount', 'member_only_promo', 'birthday', 'inactive_customer', 'referral', 'broadcast'] as const
 const SEGMENT_TYPES = ['new_customers', 'active_members', 'expiring_members', 'vip_customers', 'inactive_customers', 'birthday_month', 'high_spenders', 'no_show_customers', 'by_service'] as const
 const DISCOUNT_TYPES = ['percentage', 'fixed', 'free_item'] as const
 
@@ -116,38 +123,52 @@ export async function getPromoCodeById(id: string): Promise<PromoCode | null> {
 }
 
 export async function createPromoCode(businessId: string, promo: Partial<PromoCode>): Promise<string | null> {
+  const normalizedCode = promo.code?.trim().toUpperCase()
   const { data } = await supabase
     .from('promo_codes')
-    .insert({ business_id: businessId, ...promo })
+    .insert({ business_id: businessId, ...promo, code: normalizedCode })
     .select('id')
     .single()
   return data?.id ?? null
 }
 
 export async function updatePromoCode(id: string, updates: Partial<PromoCode>): Promise<void> {
-  await supabase.from('promo_codes').update(updates).eq('id', id)
+  const payload = updates.code ? { ...updates, code: updates.code.trim().toUpperCase() } : updates
+  await supabase.from('promo_codes').update(payload).eq('id', id)
 }
 
 export async function deletePromoCode(id: string): Promise<void> {
   await supabase.from('promo_codes').delete().eq('id', id)
 }
 
-export async function validatePromoCode(businessId: string, code: string, amount: number): Promise<{ valid: boolean; discount?: number; message?: string }> {
+export async function validatePromoCode(
+  businessId: string,
+  code: string,
+  amount: number,
+  context: { customerId?: string | null; itemType?: string; itemId?: string | null } = {},
+): Promise<{ valid: boolean; discount?: number; message?: string }> {
   const { data } = await supabase
     .from('promo_codes')
     .select('*')
     .eq('business_id', businessId)
-    .eq('code', code)
+    .eq('code', code.trim().toUpperCase())
     .single()
 
   if (!data) return { valid: false, message: 'Invalid promo code' }
   if (!data.is_active) return { valid: false, message: 'Promo code is inactive' }
   if (data.usage_limit > 0 && data.used_count >= data.usage_limit) return { valid: false, message: 'Promo code usage limit reached' }
+  if (data.member_only && !context.customerId) return { valid: false, message: 'This promo is for members only' }
 
   const now = new Date().toISOString().slice(0, 10)
   if (now < data.start_date) return { valid: false, message: 'Promo code not yet valid' }
   if (now > data.end_date) return { valid: false, message: 'Promo code has expired' }
   if (data.min_purchase > 0 && amount < Number(data.min_purchase)) return { valid: false, message: `Minimum purchase of ${data.min_purchase} required` }
+  if (data.applies_to && data.applies_to !== 'all' && context.itemType && data.applies_to !== context.itemType) {
+    return { valid: false, message: `Promo code only applies to ${data.applies_to}s` }
+  }
+  if (Array.isArray(data.applicable_ids) && data.applicable_ids.length > 0 && context.itemId && !data.applicable_ids.includes(context.itemId)) {
+    return { valid: false, message: 'Promo code does not apply to this item' }
+  }
 
   const discount =
     data.discount_type === 'percentage'
@@ -192,6 +213,20 @@ export async function calculateSegmentCount(businessId: string, segmentType: str
     p_criteria: criteria,
   })
   return data ?? 0
+}
+
+export async function getMarketingTargetOptions(businessId: string): Promise<MarketingTargetOption[]> {
+  const [services, products, plans] = await Promise.all([
+    supabase.from('services').select('id, name').eq('business_id', businessId).eq('is_active', true).order('name'),
+    supabase.from('products').select('id, name').eq('business_id', businessId).eq('is_active', true).order('name'),
+    supabase.from('membership_plans').select('id, name').eq('business_id', businessId).eq('is_active', true).order('name'),
+  ])
+
+  return [
+    ...(services.data ?? []).map((item) => ({ id: item.id, name: item.name, type: 'service' as const })),
+    ...(products.data ?? []).map((item) => ({ id: item.id, name: item.name, type: 'product' as const })),
+    ...(plans.data ?? []).map((item) => ({ id: item.id, name: item.name, type: 'membership' as const })),
+  ]
 }
 
 export async function recalculateAllSegments(businessId: string): Promise<void> {
