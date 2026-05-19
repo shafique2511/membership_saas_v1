@@ -3,6 +3,7 @@ import type { BusinessType } from '@/types'
 
 export interface Business {
   id: string
+  slug?: string | null
   name: string
   business_type: BusinessType
   logo_url: string | null

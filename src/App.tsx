@@ -108,6 +108,7 @@ import { AccountSettingsPage } from '@/pages/business/settings/AccountSettingsPa
 import { SecuritySettingsPage } from '@/pages/business/settings/SecuritySettingsPage'
 import { WhiteLabelSettingsPage } from '@/pages/business/settings/WhiteLabelSettingsPage'
 import { DataOwnershipPage } from '@/pages/business/settings/DataOwnershipPage'
+import { QrCodesPage } from '@/pages/business/settings/QrCodesPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
 import { BusinessSubscriptionPage } from '@/pages/business/BusinessSubscriptionPage'
@@ -124,6 +125,7 @@ import { CustomerPointsPage } from '@/pages/customer/CustomerPointsPage'
 import { CustomerBookingHistoryPage } from '@/pages/customer/CustomerBookingHistoryPage'
 import { CustomerPaymentHistoryPage } from '@/pages/customer/CustomerPaymentHistoryPage'
 import { CustomerProfilePage } from '@/pages/customer/CustomerProfilePage'
+import { CustomerReviewPage } from '@/pages/customer/CustomerReviewPage'
 import { PublicHomePage } from '@/pages/public/PublicHomePage'
 import { PublicInfoPage } from '@/pages/public/PublicInfoPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
@@ -334,6 +336,7 @@ function App() {
               <Route path="settings/white-label" element={<WhiteLabelSettingsPage />} />
               <Route path="settings/account" element={<AccountSettingsPage />} />
               <Route path="settings/security" element={<SecuritySettingsPage />} />
+              <Route path="settings/qr-codes" element={<QrCodesPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="data_ownership_backup" moduleName="Data Ownership & Backup module" />}>
               <Route path="settings/data-ownership" element={<DataOwnershipPage />} />
@@ -343,6 +346,7 @@ function App() {
         <Route path="biz/:businessId" element={<CustomerPublicPage />} />
         <Route path="b/:businessSlug" element={<CustomerPublicPage />} />
         <Route path="b/:businessSlug/book" element={<CustomerBookingPage />} />
+        <Route path="b/:businessSlug/review" element={<CustomerReviewPage />} />
         <Route path="b/:businessSlug/login" element={<CustomerLoginPage />} />
         <Route path="b/:businessSlug/register" element={<AuthLayout />}>
           <Route index element={<CustomerRegisterPage />} />
