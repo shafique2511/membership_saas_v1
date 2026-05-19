@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getWhiteLabelSettings, upsertWhiteLabelSettings, type WhiteLabelSettings } from '@/services/whiteLabel'
-import { Paintbrush, Globe, Image, Eye } from 'lucide-react'
+import { Paintbrush, Globe, Image, Eye, Network } from 'lucide-react'
+import { SettingsTabs } from './SettingsTabs'
 
 export function WhiteLabelSettingsPage() {
   const { profile, hasModule } = useAppContext()
@@ -22,6 +24,9 @@ export function WhiteLabelSettingsPage() {
     support_email: '',
     footer_text: '',
     hide_platform_branding: false,
+    reseller_name: '',
+    reseller_support_email: '',
+    reseller_footer_text: '',
   })
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -40,6 +45,9 @@ export function WhiteLabelSettingsPage() {
         support_email: s.support_email ?? '',
         footer_text: s.footer_text ?? '',
         hide_platform_branding: s.hide_platform_branding,
+        reseller_name: s.reseller_name ?? '',
+        reseller_support_email: s.reseller_support_email ?? '',
+        reseller_footer_text: s.reseller_footer_text ?? '',
       })
     }
   }, [businessId])
@@ -67,10 +75,12 @@ export function WhiteLabelSettingsPage() {
       await upsertWhiteLabelSettings(businessId, {
         brand_name: '', logo_url: '', primary_color: '#0f766e', secondary_color: '#0d9488',
         custom_domain: '', support_email: '', footer_text: '', hide_platform_branding: false,
+        reseller_name: '', reseller_support_email: '', reseller_footer_text: '',
       })
       setForm({
         brand_name: '', logo_url: '', primary_color: '#0f766e', secondary_color: '#0d9488',
         custom_domain: '', support_email: '', footer_text: '', hide_platform_branding: false,
+        reseller_name: '', reseller_support_email: '', reseller_footer_text: '',
       })
       setMessage('Reset to defaults.')
     } finally { setSaving(false) }
@@ -79,6 +89,7 @@ export function WhiteLabelSettingsPage() {
   if (!whiteLabelEnabled) {
     return (
       <div className="space-y-6">
+        <SettingsTabs />
         <div>
           <h2 className="text-lg font-semibold">White label</h2>
           <p className="text-sm text-slate-500">Custom branding for your business.</p>
@@ -96,6 +107,7 @@ export function WhiteLabelSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <SettingsTabs />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">White label</h2>
@@ -146,11 +158,44 @@ export function WhiteLabelSettingsPage() {
               <Field label="Custom domain" description="Domain customers can use for your branded portal after DNS setup.">
                 <Input value={form.custom_domain} onChange={(e) => setForm((f) => ({ ...f, custom_domain: e.target.value }))} placeholder="members.yourbusiness.com" />
               </Field>
+              <div className="rounded-lg border bg-slate-50 p-3 text-xs dark:bg-slate-900">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="font-medium">Domain status</span>
+                  <Badge variant={settings?.domain_status === 'verified' ? 'success' : settings?.domain_status === 'failed' ? 'danger' : 'warning'}>
+                    {settings?.domain_status?.replaceAll('_', ' ') ?? 'not configured'}
+                  </Badge>
+                </div>
+                <p className="text-slate-500 dark:text-slate-400">
+                  Prepared for app.luxantaramembers.com, admin.luxantaramembers.com, business slug subdomains, and verified custom booking domains.
+                </p>
+                {settings?.domain_dns_records && Object.keys(settings.domain_dns_records).length > 0 ? (
+                  <div className="mt-3 rounded-md bg-white p-2 font-mono text-[11px] dark:bg-slate-950">
+                    <p>Type: {String(settings.domain_dns_records.type ?? 'CNAME')}</p>
+                    <p>Host: {String(settings.domain_dns_records.host ?? form.custom_domain)}</p>
+                    <p>Value: {String(settings.domain_dns_records.value ?? 'customer.luxantaramembers.com')}</p>
+                  </div>
+                ) : null}
+              </div>
               <Field label="Support email" description="Customer-facing support email shown on branded pages.">
                 <Input value={form.support_email} onChange={(e) => setForm((f) => ({ ...f, support_email: e.target.value }))} placeholder="support@yourbusiness.com" />
               </Field>
               <Field label="Footer text" description="Optional small print shown at the bottom of branded customer pages.">
                 <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.footer_text} onChange={(e) => setForm((f) => ({ ...f, footer_text: e.target.value }))} placeholder="© 2026 Your Business. All rights reserved." />
+              </Field>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Network className="h-4 w-4" /> Reseller-ready structure</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <Field label="Reseller name" description="Optional reseller or operator name for future reseller portals.">
+                <Input value={form.reseller_name} onChange={(e) => setForm((f) => ({ ...f, reseller_name: e.target.value }))} placeholder="Agency or operator name" />
+              </Field>
+              <Field label="Reseller support email" description="Optional support email for reseller-managed businesses.">
+                <Input value={form.reseller_support_email} onChange={(e) => setForm((f) => ({ ...f, reseller_support_email: e.target.value }))} placeholder="support@reseller.com" />
+              </Field>
+              <Field label="Reseller footer text" description="Optional footer override for reseller-managed customer portals.">
+                <textarea className="h-16 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.reseller_footer_text} onChange={(e) => setForm((f) => ({ ...f, reseller_footer_text: e.target.value }))} placeholder="Managed by your agency" />
               </Field>
             </CardContent>
           </Card>

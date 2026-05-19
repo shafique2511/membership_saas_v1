@@ -29,6 +29,8 @@ export function CustomerPortalLayout() {
   const brandName = wl?.brand_name || business?.name || 'Luxantara Members'
   const logoUrl = wl?.logo_url || business?.logo_url
   const hideBranding = wl?.hide_platform_branding ?? false
+  const supportEmail = wl?.support_email || wl?.reseller_support_email || business?.email
+  const footerText = wl?.footer_text || wl?.reseller_footer_text
 
   const customerTabs = [
     { label: 'Home', href: portalHome, icon: Home },
@@ -66,6 +68,16 @@ export function CustomerPortalLayout() {
       </header>
       <main className="flex-1 p-4 pb-24">
         <Outlet />
+        {(footerText || supportEmail) && (
+          <footer className="mt-8 space-y-1 border-t pt-4 text-center text-[11px] text-slate-400" style={{ borderColor: `${primary}22` }}>
+            {footerText ? <p>{footerText}</p> : null}
+            {supportEmail ? (
+              <a className="text-[11px] hover:underline" href={`mailto:${supportEmail}`} style={{ color: primary }}>
+                {supportEmail}
+              </a>
+            ) : null}
+          </footer>
+        )}
       </main>
       <nav className="fixed bottom-0 left-1/2 z-40 grid w-full max-w-lg -translate-x-1/2 grid-cols-5 border-t bg-white pb-2 pt-1 dark:bg-slate-950" style={{ borderColor: `${primary}22` }}>
         {customerTabs.map((tab) => (
