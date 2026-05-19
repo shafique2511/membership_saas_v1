@@ -142,10 +142,11 @@ describe('11. Payment recording', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
   it('createPayment creates payment', async () => {
-    mockFrom.mockReturnValue(mb({ id: 'pm-1' }))
+    mockRpc.mockResolvedValue({ data: 'pm-1', error: null })
 
     const result = await createPayment(businessId, { payment_method: 'cash', amount: 25, reference_type: 'booking', reference_id: 'bk-1' })
     expect(result).toBe('pm-1')
+    expect(mockRpc).toHaveBeenCalledWith('record_payment', expect.objectContaining({ p_business_id: businessId, p_payment_method: 'cash' }))
   })
 
   it('getPayments fetches payments', async () => {

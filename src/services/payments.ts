@@ -12,6 +12,11 @@ export interface Payment {
   status: string
   proof_url: string | null
   transaction_id: string | null
+  external_reference: string | null
+  gateway_provider: string | null
+  gateway_status: string | null
+  gateway_response: Record<string, unknown> | null
+  refunded_amount: number
   due_date: string | null
   notes: string | null
   verified_by: string | null
@@ -96,21 +101,22 @@ interface GatewayConfig {
   [key: string]: unknown
 }
 
+export const PAYMENT_METHODS = ['cash', 'bank_transfer', 'qr', 'card', 'stripe', 'billplz', 'toyyibpay', 'senangpay'] as const
+export const PAYMENT_REFERENCE_TYPES = ['booking', 'membership', 'pos_order', 'subscription', 'manual'] as const
+
 const mockTransactionId = () => 'TXN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase()
 
-const mockGatewaySimulation = async (method: string, _amount: number): Promise<{ success: boolean; transaction_id: string; message: string }> => {
+export const mockGatewaySimulation = async (method: string, _amount: number): Promise<{ success: boolean; transaction_id: string; message: string; provider: string; status: string }> => {
   await new Promise((r) => setTimeout(r, 500))
-  if (method === 'cash') return { success: true, transaction_id: mockTransactionId(), message: 'Cash payment recorded' }
-  if (method === 'card') return { success: true, transaction_id: mockTransactionId(), message: 'Card payment processed (mock)' }
-  if (method === 'qr') return { success: true, transaction_id: mockTransactionId(), message: 'QR payment simulated' }
-  if (method === 'bank_transfer') return { success: true, transaction_id: mockTransactionId(), message: 'Bank transfer reference created' }
-  if (method === 'stripe') return { success: true, transaction_id: 'pi_' + mockTransactionId(), message: 'Stripe payment simulated (sandbox)' }
-  if (method === 'billplz') return { success: true, transaction_id: 'bill_' + mockTransactionId(), message: 'Billplz bill created (sandbox)' }
-  if (method === 'toyyibpay') return { success: true, transaction_id: 'toyyib_' + mockTransactionId(), message: 'ToyyibPay bill created (sandbox)' }
-  if (method === 'senangpay') return { success: true, transaction_id: 'senang_' + mockTransactionId(), message: 'SenangPay transaction simulated (sandbox)' }
-  if (method === 'credit') return { success: true, transaction_id: mockTransactionId(), message: 'Credit payment recorded' }
-  if (method === 'points') return { success: true, transaction_id: mockTransactionId(), message: 'Points redemption recorded' }
-  return { success: true, transaction_id: mockTransactionId(), message: 'Payment recorded' }
+  if (method === 'cash') return { success: true, transaction_id: mockTransactionId(), message: 'Cash payment recorded', provider: 'manual', status: 'recorded' }
+  if (method === 'card') return { success: true, transaction_id: mockTransactionId(), message: 'Card payment recorded (mock)', provider: 'manual_card', status: 'succeeded' }
+  if (method === 'qr') return { success: true, transaction_id: mockTransactionId(), message: 'QR payment simulated', provider: 'manual_qr', status: 'succeeded' }
+  if (method === 'bank_transfer') return { success: true, transaction_id: mockTransactionId(), message: 'Bank transfer reference created', provider: 'manual_bank_transfer', status: 'pending_verification' }
+  if (method === 'stripe') return { success: true, transaction_id: 'pi_' + mockTransactionId(), message: 'Stripe payment simulated (sandbox)', provider: 'stripe', status: 'succeeded' }
+  if (method === 'billplz') return { success: true, transaction_id: 'bill_' + mockTransactionId(), message: 'Billplz bill created (sandbox)', provider: 'billplz', status: 'succeeded' }
+  if (method === 'toyyibpay') return { success: true, transaction_id: 'toyyib_' + mockTransactionId(), message: 'ToyyibPay bill created (sandbox)', provider: 'toyyibpay', status: 'succeeded' }
+  if (method === 'senangpay') return { success: true, transaction_id: 'senang_' + mockTransactionId(), message: 'SenangPay transaction simulated (sandbox)', provider: 'senangpay', status: 'succeeded' }
+  return { success: true, transaction_id: mockTransactionId(), message: 'Payment recorded', provider: 'manual', status: 'recorded' }
 }
 
 export const gatewayMocks = {
@@ -153,62 +159,89 @@ export async function createPayment(
   },
 ): Promise<string | null> {
   const isOnline = ['stripe', 'billplz', 'toyyibpay', 'senangpay', 'card', 'qr'].includes(params.payment_method)
-  const isCashOrTransfer = ['cash', 'bank_transfer', 'credit', 'points'].includes(params.payment_method)
+  const isManualPending = ['bank_transfer'].includes(params.payment_method)
 
   let transactionId: string | null = null
+  let gatewayProvider: string | null = null
+  let gatewayStatus: string | null = null
+  let gatewayResponse: Record<string, unknown> | null = null
   let status = 'pending'
 
   if (isOnline) {
     const result = await mockGatewaySimulation(params.payment_method, params.amount)
     transactionId = result.transaction_id
+    gatewayProvider = result.provider
+    gatewayStatus = result.status
+    gatewayResponse = result
     status = result.success ? 'paid' : 'failed'
   } else if (params.payment_method === 'cash') {
     status = 'paid'
     transactionId = mockTransactionId()
-  } else if (isCashOrTransfer) {
-    transactionId = mockTransactionId()
+    gatewayProvider = 'manual'
+    gatewayStatus = 'recorded'
+  } else if (isManualPending) {
+    const result = await mockGatewaySimulation(params.payment_method, params.amount)
+    transactionId = result.transaction_id
+    gatewayProvider = result.provider
+    gatewayStatus = result.status
+    gatewayResponse = result
     status = params.proof_url ? 'pending' : 'unpaid'
   }
 
-  const { data } = await supabase
-    .from('payments')
-    .insert({
-      business_id: businessId,
-      customer_id: params.customer_id,
-      reference_type: params.reference_type,
-      reference_id: params.reference_id,
-      payment_method: params.payment_method,
-      amount: params.amount,
-      deposit_amount: params.deposit_amount,
-      due_date: params.due_date,
-      notes: params.notes,
-      proof_url: params.proof_url,
-      transaction_id: transactionId,
-      status,
-      paid_at: status === 'paid' ? new Date().toISOString() : null,
-    })
-    .select('id')
-    .single()
-  return data?.id ?? null
+  const { data, error } = await supabase.rpc('record_payment', {
+    p_business_id: businessId,
+    p_customer_id: params.customer_id ?? null,
+    p_reference_type: params.reference_type,
+    p_reference_id: params.reference_id ?? null,
+    p_payment_method: params.payment_method,
+    p_amount: params.amount,
+    p_deposit_amount: params.deposit_amount ?? null,
+    p_due_date: params.due_date ?? null,
+    p_notes: params.notes ?? null,
+    p_proof_url: params.proof_url ?? null,
+    p_transaction_id: transactionId,
+    p_status: status,
+    p_gateway_provider: gatewayProvider,
+    p_gateway_status: gatewayStatus,
+    p_gateway_response: gatewayResponse,
+  })
+  if (error) throw error
+  return data as string | null
 }
 
 export async function updatePayment(paymentId: string, updates: Partial<Payment>): Promise<void> {
-  await supabase.from('payments').update(updates).eq('id', paymentId)
+  const { error } = await supabase.from('payments').update(updates).eq('id', paymentId)
+  if (error) throw error
 }
 
 export async function uploadPaymentProof(paymentId: string, proofUrl: string): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('payments')
     .update({ proof_url: proofUrl, status: 'pending' })
     .eq('id', paymentId)
+  if (error) throw error
+}
+
+export async function uploadPaymentProofFile(businessId: string, paymentId: string, file: File): Promise<string> {
+  const extension = file.name.split('.').pop() || 'proof'
+  const path = `${businessId}/${paymentId}/${Date.now()}.${extension}`
+  const { error: uploadError } = await supabase.storage.from('payment-proofs').upload(path, file, { upsert: true })
+  if (uploadError) throw uploadError
+
+  const { data } = supabase.storage.from('payment-proofs').getPublicUrl(path)
+  const proofUrl = data.publicUrl
+  await uploadPaymentProof(paymentId, proofUrl)
+  return proofUrl
 }
 
 export async function verifyPayment(paymentId: string, verifiedBy: string): Promise<void> {
-  await supabase.rpc('verify_payment', { p_payment_id: paymentId, p_verified_by: verifiedBy })
+  const { error } = await supabase.rpc('verify_payment', { p_payment_id: paymentId, p_verified_by: verifiedBy })
+  if (error) throw error
 }
 
 export async function processRefund(paymentId: string, amount: number, reason: string): Promise<void> {
-  await supabase.rpc('process_refund', { p_payment_id: paymentId, p_amount: amount, p_reason: reason })
+  const { error } = await supabase.rpc('process_refund', { p_payment_id: paymentId, p_amount: amount, p_reason: reason })
+  if (error) throw error
 }
 
 export async function getRefunds(businessId: string): Promise<Refund[]> {
@@ -221,24 +254,27 @@ export async function getRefunds(businessId: string): Promise<Refund[]> {
 }
 
 export async function approveRefund(refundId: string, processedBy: string): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('refunds')
     .update({ status: 'approved', processed_by: processedBy, processed_at: new Date().toISOString() })
     .eq('id', refundId)
+  if (error) throw error
 }
 
 export async function completeRefund(refundId: string, refundMethod: string): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('refunds')
     .update({ status: 'completed', refund_method: refundMethod })
     .eq('id', refundId)
+  if (error) throw error
 }
 
 export async function rejectRefund(refundId: string): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('refunds')
     .update({ status: 'rejected' })
     .eq('id', refundId)
+  if (error) throw error
 }
 
 export async function getPendingVerifications(businessId: string): Promise<Payment[]> {

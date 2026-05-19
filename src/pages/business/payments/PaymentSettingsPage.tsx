@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { PaymentsTabs } from './PaymentsTabs'
-import { getPaymentSettings, upsertPaymentSettings, type PaymentSettings } from '@/services/payments'
+import { getPaymentSettings, PAYMENT_METHODS, upsertPaymentSettings, type PaymentSettings } from '@/services/payments'
+import { toastError, toastSuccess } from '@/lib/toast'
 
-const allMethods = ['cash', 'qr', 'card', 'bank_transfer', 'stripe', 'billplz', 'toyyibpay', 'senangpay', 'credit', 'points']
+const allMethods = [...PAYMENT_METHODS]
 
 export function PaymentSettingsPage() {
   const { profile } = useAppContext()
@@ -56,8 +57,14 @@ export function PaymentSettingsPage() {
 
   async function handleSave() {
     setSaving(true)
-    await upsertPaymentSettings(businessId, form)
-    setSaving(false)
+    try {
+      await upsertPaymentSettings(businessId, form)
+      toastSuccess('Payment settings saved')
+    } catch (error) {
+      toastError(error, 'Failed to save payment settings')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
