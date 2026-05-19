@@ -1,17 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getCustomerPoints, getCustomerUpcomingBooking, getCustomerMemberships, type CustomerMembership, type CustomerBooking, type CustomerPoints } from '@/services/customerPortal'
 import { CalendarDays, WalletCards, Gift, Coins, Sparkles, ArrowRight } from 'lucide-react'
-import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
+import { useCustomerAccount } from '@/hooks/useCustomerAccount'
 
 export function CustomerHomePage() {
-  const { routeBase } = useCustomerBusinessRoute()
-  const { profile } = useAppContext()
+  const { customer, customerId, routeBase } = useCustomerAccount()
   const navigate = useNavigate()
-  const customerId = profile?.id ?? ''
 
   const [points, setPoints] = useState<CustomerPoints | null>(null)
   const [upcoming, setUpcoming] = useState<CustomerBooking | null>(null)
@@ -38,7 +35,7 @@ export function CustomerHomePage() {
     <div className="space-y-4">
       <section className="rounded-xl bg-gradient-to-br from-teal-700 to-emerald-800 p-5 text-white shadow-lg">
         <p className="text-sm text-teal-100">Welcome back</p>
-        <h2 className="mt-1 text-2xl font-bold">{profile?.full_name ?? 'Guest'}</h2>
+        <h2 className="mt-1 text-2xl font-bold">{customer?.full_name ?? 'Guest'}</h2>
         {activeMembership ? (
           <div className="mt-4 rounded-lg bg-white/10 p-3 backdrop-blur-sm">
             <div className="flex items-center gap-2 text-sm text-teal-100">

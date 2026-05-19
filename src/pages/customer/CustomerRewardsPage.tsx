@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useAppContext } from '@/context/useAppContext'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { getRedeemableRewards, getCustomerPoints, type RedeemableReward, type CustomerPoints } from '@/services/customerPortal'
+import { customerRedeemReward, getRedeemableRewards, getCustomerPoints, type RedeemableReward, type CustomerPoints } from '@/services/customerPortal'
 import { Gift, Coins } from 'lucide-react'
-import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
+import { useCustomerAccount } from '@/hooks/useCustomerAccount'
 
 export function CustomerRewardsPage() {
-  const { businessId } = useCustomerBusinessRoute()
-  const { profile } = useAppContext()
-  const customerId = profile?.id ?? ''
-  const bizId = businessId || profile?.business_id || ''
+  const { businessId: bizId, customerId } = useCustomerAccount()
 
   const [rewards, setRewards] = useState<RedeemableReward[]>([])
   const [points, setPoints] = useState<CustomerPoints | null>(null)
@@ -33,14 +29,8 @@ export function CustomerRewardsPage() {
     setRedeeming(rewardId)
     setMessage('')
     try {
-      const { supabase } = await import('@/lib/supabase')
-      const { error } = await supabase.rpc('redeem_loyalty_points', {
-        p_customer_id: customerId,
-        p_points: rewards.find((r) => r.id === rewardId)?.points_required ?? 0,
-        p_description: 'Reward redemption',
-      })
-      if (error) throw error
-      setMessage('Reward redeemed! Check your rewards.')
+      await customerRedeemReward(rewardId)
+      setMessage('Reward redeemed. Show this screen to staff when using it.')
       await load()
     } catch (err) {
       setMessage(String(err instanceof Error ? err.message : err))
@@ -49,7 +39,7 @@ export function CustomerRewardsPage() {
     }
   }
 
-  const rewardIcons: Record<string, React.ReactNode> = {
+  const rewardIcons: Record<string, ReactNode> = {
     voucher: <Gift className="h-5 w-5" />,
     discount: <Gift className="h-5 w-5" />,
     free_service: <Gift className="h-5 w-5" />,

@@ -372,9 +372,13 @@ function App() {
           <Route path="b/:businessSlug" element={<CustomerPortalLayout />}>
             <Route element={<ModuleRoute moduleKey="customer_portal" moduleName="Customer Portal module" />}>
               <Route path="portal" element={<CustomerHomePage />} />
+              <Route path="book" element={<CustomerBookingPage />} />
               <Route path="membership" element={<CustomerMembershipsPage />} />
               <Route path="rewards" element={<CustomerRewardsPage />} />
+              <Route path="points" element={<CustomerPointsPage />} />
+              <Route path="bookings" element={<CustomerBookingHistoryPage />} />
               <Route path="history" element={<CustomerBookingHistoryPage />} />
+              <Route path="payments" element={<CustomerPaymentHistoryPage />} />
               <Route path="profile" element={<CustomerProfilePage />} />
             </Route>
           </Route>

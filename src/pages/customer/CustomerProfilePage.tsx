@@ -5,19 +5,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
-import { getCustomerByUserId, updateCustomerProfile } from '@/services/customerPortal'
+import { updateCustomerProfile } from '@/services/customerPortal'
 import { updatePassword } from '@/services/auth'
 import { UserRound, LogOut, KeyRound, Save } from 'lucide-react'
-import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
+import { useCustomerAccount } from '@/hooks/useCustomerAccount'
 
 export function CustomerProfilePage() {
-  const { businessId, businessSlug } = useCustomerBusinessRoute()
-  const { profile, logout } = useAppContext()
+  const { customer, businessSlug, refreshCustomer } = useCustomerAccount()
+  const { logout } = useAppContext()
   const navigate = useNavigate()
-  const customerId = profile?.id ?? ''
-  const bizId = businessId || profile?.business_id || ''
 
-  const [customer, setCustomer] = useState<Record<string, unknown> | null>(null)
   const [form, setForm] = useState({ full_name: '', phone: '', email: '', birthday: '', gender: '' })
   const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' })
   const [saving, setSaving] = useState(false)
@@ -25,19 +22,16 @@ export function CustomerProfilePage() {
   const [message, setMessage] = useState('')
 
   const load = useCallback(async () => {
-    if (!customerId || !bizId) return
-    const c = await getCustomerByUserId(customerId, bizId)
-    if (c) {
-      setCustomer(c)
+    if (customer) {
       setForm({
-        full_name: (c.full_name as string) ?? '',
-        phone: (c.phone as string) ?? '',
-        email: (c.email as string) ?? '',
-        birthday: (c.birthday as string) ?? '',
-        gender: (c.gender as string) ?? '',
+        full_name: customer.full_name ?? '',
+        phone: customer.phone ?? '',
+        email: customer.email ?? '',
+        birthday: customer.birthday ?? '',
+        gender: customer.gender ?? '',
       })
     }
-  }, [customerId, bizId])
+  }, [customer])
 
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
 
@@ -45,7 +39,8 @@ export function CustomerProfilePage() {
     if (!customer?.id) return
     setSaving(true)
     try {
-      await updateCustomerProfile(customer.id as string, form)
+      await updateCustomerProfile(customer.id, form)
+      await refreshCustomer()
       setMessage('Profile updated.')
     } catch (err) {
       setMessage(String(err))

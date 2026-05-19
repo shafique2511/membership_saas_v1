@@ -1,26 +1,23 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { getCustomerMemberships, type CustomerMembership } from '@/services/customerPortal'
+import { customerBuyMembership, getCustomerMemberships, type CustomerMembership } from '@/services/customerPortal'
 import { getPlans, type MembershipPlan } from '@/services/memberships'
 import { WalletCards, Sparkles, CheckCircle, QrCode } from 'lucide-react'
-import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
+import { useCustomerAccount } from '@/hooks/useCustomerAccount'
 import { createQrDataUrl } from '@/utils/qr'
 
 const STATUS_STYLES: Record<string, string> = {
   active: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
   expired: 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-400',
   frozen: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  pending_payment: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
   cancelled: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
 }
 
 export function CustomerMembershipsPage() {
-  const { businessId } = useCustomerBusinessRoute()
-  const { profile } = useAppContext()
-  const customerId = profile?.id ?? ''
-  const bizId = businessId || profile?.business_id || ''
+  const { businessId: bizId, customerId } = useCustomerAccount()
 
   const [memberships, setMemberships] = useState<CustomerMembership[]>([])
   const [plans, setPlans] = useState<MembershipPlan[]>([])
@@ -61,12 +58,8 @@ export function CustomerMembershipsPage() {
     setBuying(true)
     try {
       await assignMembership({
-        business_id: bizId,
-        customer_id: customerId,
         plan_id: planId,
-        start_date: new Date().toISOString().slice(0, 10),
         payment_method: 'cash',
-        amount_paid: 0,
       })
       setShowBuy(false)
       await load()
@@ -148,7 +141,7 @@ export function CustomerMembershipsPage() {
               <CardContent className="flex items-center justify-between pt-3">
                 <div>
                   <p className="font-medium">{m.plan_name}</p>
-                  <p className="text-xs text-slate-400">{m.status} · {new Date(m.end_date).toLocaleDateString()}</p>
+                  <p className="text-xs text-slate-400">{m.status} - {new Date(m.end_date).toLocaleDateString()}</p>
                 </div>
                 <Badge className={STATUS_STYLES[m.status] ?? ''}>{m.status}</Badge>
               </CardContent>
@@ -189,8 +182,11 @@ export function CustomerMembershipsPage() {
                   {p.points_bonus > 0 && <span>{p.points_bonus} bonus pts</span>}
                   {p.discount_percent > 0 && <span>{p.discount_percent}% discount</span>}
                 </div>
+                <p className="mt-3 rounded-md bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-200">
+                  Payment-ready: this creates a pending membership payment for staff or gateway confirmation.
+                </p>
                 <Button className="mt-3 w-full" onClick={() => handleBuy(p.id)} disabled={buying}>
-                  {buying ? 'Processing...' : `Buy RM ${p.price}`}
+                  {buying ? 'Processing...' : `Request membership RM ${p.price}`}
                 </Button>
               </CardContent>
             </Card>
@@ -202,21 +198,8 @@ export function CustomerMembershipsPage() {
 }
 
 async function assignMembership(input: {
-  business_id: string
-  customer_id: string
   plan_id: string
-  start_date: string
   payment_method: string
-  amount_paid: number
 }) {
-  const { supabase } = await import('@/lib/supabase')
-  const { error } = await supabase.rpc('assign_membership', {
-    p_business_id: input.business_id,
-    p_customer_id: input.customer_id,
-    p_plan_id: input.plan_id,
-    p_start_date: input.start_date,
-    p_payment_method: input.payment_method,
-    p_amount_paid: input.amount_paid,
-  })
-  if (error) throw error
+  await customerBuyMembership(input.plan_id, input.payment_method)
 }

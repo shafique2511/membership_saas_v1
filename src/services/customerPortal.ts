@@ -8,9 +8,14 @@ export interface CustomerBooking {
   end_time: string
   status: string
   total_amount: number
+  deposit_amount: number
   payment_status: string
   notes: string | null
+  cancellation_deadline_at: string | null
   created_at: string
+  service_id: string | null
+  staff_id: string | null
+  resource_id: string | null
   service_name: string | null
   staff_name: string | null
   branch_name: string | null
@@ -40,6 +45,8 @@ export interface CustomerPayment {
   transaction_id: string | null
   paid_at: string | null
   created_at: string
+  business_name?: string | null
+  customer_name?: string | null
 }
 
 export interface CustomerPoints {
@@ -71,6 +78,19 @@ export interface PublicBusiness {
   email: string | null
   address: string | null
   timezone: string
+}
+
+export interface CustomerAccount {
+  id: string
+  full_name: string
+  phone: string | null
+  email: string | null
+  points_balance: number
+  total_spent: number
+  visit_count: number
+  birthday: string | null
+  gender: string | null
+  status: string
 }
 
 export async function getPublicBusiness(businessId: string): Promise<PublicBusiness | null> {
@@ -115,14 +135,14 @@ export async function getRedeemableRewards(businessId: string): Promise<Redeemab
   return (data as RedeemableReward[]) ?? []
 }
 
-export async function getCustomerByUserId(userId: string, businessId: string) {
+export async function getCustomerByUserId(userId: string, businessId: string): Promise<CustomerAccount | null> {
   const { data } = await supabase
     .from('customers')
     .select('id, full_name, phone, email, points_balance, total_spent, visit_count, birthday, gender, status')
     .eq('user_id', userId)
     .eq('business_id', businessId)
-    .single()
-  return data
+    .maybeSingle()
+  return data as CustomerAccount | null
 }
 
 export async function updateCustomerProfile(customerId: string, updates: { full_name?: string; phone?: string; email?: string; birthday?: string; gender?: string }) {
@@ -161,4 +181,47 @@ export async function getCustomerUpcomingBooking(customerId: string): Promise<Cu
     .filter((b) => b.status !== 'cancelled' && b.status !== 'no_show')
     .find((b) => new Date(`${b.booking_date}T${b.start_time}`) >= now || b.status === 'confirmed')
   return upcoming ?? null
+}
+
+export async function customerCancelBooking(bookingId: string, reason = 'Cancelled by customer'): Promise<void> {
+  const { error } = await supabase.rpc('customer_cancel_booking', {
+    p_booking_id: bookingId,
+    p_reason: reason,
+  })
+  if (error) throw error
+}
+
+export async function customerRescheduleBooking(input: {
+  bookingId: string
+  bookingDate: string
+  startTime: string
+  endTime: string
+  staffId?: string | null
+  resourceId?: string | null
+}): Promise<void> {
+  const { error } = await supabase.rpc('customer_reschedule_booking', {
+    p_booking_id: input.bookingId,
+    p_booking_date: input.bookingDate,
+    p_start_time: input.startTime,
+    p_end_time: input.endTime,
+    p_staff_id: input.staffId ?? null,
+    p_resource_id: input.resourceId ?? null,
+  })
+  if (error) throw error
+}
+
+export async function customerBuyMembership(planId: string, paymentMethod = 'manual'): Promise<string> {
+  const { data, error } = await supabase.rpc('customer_buy_membership', {
+    p_plan_id: planId,
+    p_payment_method: paymentMethod,
+  })
+  if (error) throw error
+  return data as string
+}
+
+export async function customerRedeemReward(rewardId: string): Promise<void> {
+  const { error } = await supabase.rpc('customer_redeem_reward', {
+    p_reward_id: rewardId,
+  })
+  if (error) throw error
 }

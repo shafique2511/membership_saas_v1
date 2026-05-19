@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAppContext } from '@/context/useAppContext'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getCustomerPayments, type CustomerPayment } from '@/services/customerPortal'
-import { Wallet, CheckCircle, Clock, XCircle } from 'lucide-react'
+import { Wallet, CheckCircle, Clock, XCircle, ReceiptText, Printer } from 'lucide-react'
+import { useCustomerAccount } from '@/hooks/useCustomerAccount'
 
 const STATUS_ICONS: Record<string, React.ReactNode> = {
   paid: <CheckCircle className="h-4 w-4 text-green-500" />,
@@ -35,10 +36,10 @@ const METHOD_LABELS: Record<string, string> = {
 }
 
 export function CustomerPaymentHistoryPage() {
-  const { profile } = useAppContext()
-  const customerId = profile?.id ?? ''
+  const { customerId } = useCustomerAccount()
 
   const [payments, setPayments] = useState<CustomerPayment[]>([])
+  const [selectedReceipt, setSelectedReceipt] = useState<CustomerPayment | null>(null)
 
   const load = useCallback(async () => {
     if (!customerId) return
@@ -47,6 +48,24 @@ export function CustomerPaymentHistoryPage() {
   }, [customerId])
 
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
+
+  function printReceipt(payment: CustomerPayment) {
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer')
+    if (!printWindow) return
+    printWindow.document.write(`<!doctype html>
+<html><head><title>Receipt</title><style>
+body{font-family:Arial,sans-serif;margin:24px;color:#0f172a}.receipt{max-width:360px;margin:0 auto;border:1px solid #dbe3ea;border-radius:12px;padding:20px}h1{font-size:20px;margin:0 0 8px}.row{display:flex;justify-content:space-between;border-top:1px solid #e5e7eb;padding:10px 0;font-size:14px}.total{font-weight:700;font-size:18px}
+</style></head><body><div class="receipt">
+<h1>${payment.business_name ?? 'Receipt'}</h1>
+<p>${payment.customer_name ?? 'Customer receipt'}</p>
+<div class="row"><span>Date</span><span>${new Date(payment.created_at).toLocaleString('en-MY')}</span></div>
+<div class="row"><span>Method</span><span>${METHOD_LABELS[payment.payment_method] ?? payment.payment_method}</span></div>
+<div class="row"><span>Status</span><span>${payment.status}</span></div>
+<div class="row"><span>Reference</span><span>${payment.transaction_id ?? payment.id}</span></div>
+<div class="row total"><span>Total</span><span>RM ${payment.amount.toFixed(2)}</span></div>
+</div><script>window.onload=()=>window.print()</script></body></html>`)
+    printWindow.document.close()
+  }
 
   return (
     <div className="space-y-4">
@@ -85,10 +104,40 @@ export function CustomerPaymentHistoryPage() {
                 {p.transaction_id && (
                   <p className="mt-2 text-[10px] text-slate-400">Ref: {p.transaction_id}</p>
                 )}
+                <Button className="mt-3 w-full" variant="outline" size="sm" onClick={() => setSelectedReceipt(p)}>
+                  <ReceiptText className="mr-1 h-4 w-4" /> View receipt
+                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {selectedReceipt && (
+        <Card className="border-teal-200 dark:border-teal-800">
+          <CardContent className="space-y-3 pt-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-slate-500">Receipt</p>
+                <h3 className="font-semibold">{selectedReceipt.business_name ?? 'Luxantara Members'}</h3>
+              </div>
+              <Badge className={STATUS_STYLES[selectedReceipt.status] ?? ''}>{selectedReceipt.status}</Badge>
+            </div>
+            <div className="rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-900">
+              <div className="flex justify-between py-1"><span>Customer</span><span>{selectedReceipt.customer_name ?? '-'}</span></div>
+              <div className="flex justify-between py-1"><span>Payment method</span><span>{METHOD_LABELS[selectedReceipt.payment_method] ?? selectedReceipt.payment_method}</span></div>
+              <div className="flex justify-between py-1"><span>Date</span><span>{new Date(selectedReceipt.created_at).toLocaleDateString('en-MY')}</span></div>
+              <div className="flex justify-between py-1"><span>Reference</span><span className="max-w-40 truncate">{selectedReceipt.transaction_id ?? selectedReceipt.id}</span></div>
+              <div className="mt-2 flex justify-between border-t pt-2 text-base font-semibold"><span>Total</span><span>RM {selectedReceipt.amount.toFixed(2)}</span></div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => setSelectedReceipt(null)}>Close</Button>
+              <Button onClick={() => printReceipt(selectedReceipt)}>
+                <Printer className="mr-1 h-4 w-4" /> Print
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

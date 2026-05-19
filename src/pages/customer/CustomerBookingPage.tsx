@@ -1,21 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppContext } from '@/context/useAppContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { getServices, getStaff, getResources, getAvailableSlots, createBooking, createGuestBooking, createWaitlistEntry, type BookingType, type ServiceRow, type StaffRow, type ResourceRow, type AvailableSlot } from '@/services/bookings'
 import { Scissors, UserRound, Calendar, Clock, DollarSign, CheckCircle } from 'lucide-react'
-import { useCustomerBusinessRoute } from '@/hooks/useCustomerBusinessRoute'
+import { useCustomerAccount } from '@/hooks/useCustomerAccount'
 
 export function CustomerBookingPage() {
-  const { businessId, portalHome, routeBase } = useCustomerBusinessRoute()
-  const { profile } = useAppContext()
+  const { businessId, customer, customerId, portalHome, routeBase } = useCustomerAccount()
   const navigate = useNavigate()
-  const customerId = profile?.id ?? ''
 
-  const bizId = businessId || profile?.business_id || ''
+  const bizId = businessId || ''
 
   const [step, setStep] = useState(1)
   const [services, setServices] = useState<ServiceRow[]>([])
@@ -30,9 +27,9 @@ export function CustomerBookingPage() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10))
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null)
 
-  const [customerName, setCustomerName] = useState(profile?.full_name ?? '')
-  const [customerPhone, setCustomerPhone] = useState(profile?.phone ?? '')
-  const [customerEmail, setCustomerEmail] = useState(profile?.email ?? '')
+  const [customerName, setCustomerName] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
   const [notes, setNotes] = useState('')
 
   const [loading, setLoading] = useState(false)
@@ -52,6 +49,13 @@ export function CustomerBookingPage() {
   }, [bizId])
 
   useEffect(() => { void loadData() }, [loadData])
+
+  useEffect(() => {
+    if (!customer) return
+    setCustomerName(customer.full_name ?? '')
+    setCustomerPhone(customer.phone ?? '')
+    setCustomerEmail(customer.email ?? '')
+  }, [customer])
 
   useEffect(() => {
     if (!selectedDate || !bizId) return
@@ -158,6 +162,11 @@ export function CustomerBookingPage() {
             <p className="mt-2 text-sm text-slate-500">
               {waitlistDone ? 'We will contact you when a matching slot becomes available.' : 'Your appointment has been booked.'}
             </p>
+            {!waitlistDone && selectedServiceData?.price ? (
+              <p className="mt-2 text-xs text-slate-500">
+                Payment-ready: any required deposit or balance can be recorded by staff from the payment module.
+              </p>
+            ) : null}
             <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
               <Button variant="outline" className="w-full sm:w-auto" onClick={() => navigate(portalHome)}>Home</Button>
               <Button className="w-full sm:w-auto" onClick={() => navigate(`${routeBase}/history`)}>View bookings</Button>

@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useAppContext } from '@/context/useAppContext'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getCustomerPoints } from '@/services/customerPortal'
 import { supabase } from '@/lib/supabase'
 import { Coins, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react'
+import { useCustomerAccount } from '@/hooks/useCustomerAccount'
 
 interface PointsTx {
   id: string
@@ -14,8 +14,7 @@ interface PointsTx {
 }
 
 export function CustomerPointsPage() {
-  const { profile } = useAppContext()
-  const customerId = profile?.id ?? ''
+  const { customerId } = useCustomerAccount()
 
   const [points, setPoints] = useState<{ points_balance: number; total_earned: number; total_redeemed: number; total_expired: number } | null>(null)
   const [history, setHistory] = useState<PointsTx[]>([])
@@ -38,7 +37,7 @@ export function CustomerPointsPage() {
 
   useEffect(() => { const t = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(t) }, [load])
 
-  const txIcons: Record<string, React.ReactNode> = {
+  const txIcons: Record<string, ReactNode> = {
     earn: <TrendingUp className="h-4 w-4 text-green-500" />,
     redeem: <TrendingDown className="h-4 w-4 text-red-500" />,
     adjust: <RotateCcw className="h-4 w-4 text-blue-500" />,
