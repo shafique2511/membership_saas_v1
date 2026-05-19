@@ -13,6 +13,7 @@ import {
   getTodaySalesSummary, getDailyClosing, openDailyClosing,
   createReceipt, paymentMethodLabels,
 } from '@/services/pos'
+import { calculatePointsDiscount, getLoyaltySettings, type LoyaltySettings } from '@/services/loyalty'
 
 interface CartItem {
   item_type: 'product' | 'service' | 'membership'
@@ -62,6 +63,7 @@ export function POSCheckoutPage() {
   const [discountFixed, setDiscountFixed] = useState(0)
   const [pointsRedeem, setPointsRedeem] = useState(0)
   const [pointsDiscount, setPointsDiscount] = useState(0)
+  const [loyaltySettings, setLoyaltySettings] = useState<LoyaltySettings | null>(null)
 
   const [payments, setPayments] = useState<{ method: string; amount: string }[]>([{ method: 'cash', amount: '' }])
   const [orderResult, setOrderResult] = useState<{ order_number: string; total: number; change: number } | null>(null)
@@ -74,6 +76,7 @@ export function POSCheckoutPage() {
     setServices(await getServices(businessId) as { id: string; name: string; price: number }[])
     setMembershipPlans(await getMembershipPlansForPOS(businessId) as { id: string; name: string; price: number; plan_type: string }[])
     setTodaySummary(await getTodaySalesSummary(businessId))
+    setLoyaltySettings(await getLoyaltySettings(businessId))
     const closing = await getDailyClosing(businessId)
     if (!closing || closing.status === 'closed') {
       await openDailyClosing(businessId)
@@ -160,7 +163,7 @@ export function POSCheckoutPage() {
       }
 
       if (pointsRedeem > 0) {
-        await recordPointsRedemption(order.id, customerId ?? '', pointsRedeem, pointsDiscount)
+        await recordPointsRedemption(order.id, businessId, customerId ?? '', pointsRedeem, pointsDiscount)
       }
 
       const isFullyPaid = totalPaid >= total
@@ -419,13 +422,14 @@ export function POSCheckoutPage() {
                   <p className="text-blue-600">Balance: {selectedCustomer.points_balance} pts</p>
                   <div className="mt-1 flex gap-2">
                     <div className="flex-1">
-                      <FieldLabel htmlFor="pos-points-redeem" description="Every 100 points gives RM5 discount.">
+                      <FieldLabel htmlFor="pos-points-redeem" description={`${loyaltySettings?.redemption_rate ?? 100} points gives RM ${Number(loyaltySettings?.redemption_discount_amount ?? 5).toFixed(2)} discount.`}>
                         Points to redeem
                       </FieldLabel>
                       <Input id="pos-points-redeem" className="mt-1" type="number" placeholder="Example: 100" value={pointsRedeem || ''} onChange={(e) => {
-                        const pts = Number(e.target.value)
+                        const requested = Number(e.target.value)
+                        const pts = Math.min(Math.max(0, requested), selectedCustomer.points_balance)
                         setPointsRedeem(pts)
-                        setPointsDiscount(Math.floor(pts / 100) * 5)
+                        setPointsDiscount(calculatePointsDiscount(pts, loyaltySettings))
                       }} />
                     </div>
                     <span className="self-center text-xs">=RM {pointsDiscount}</span>

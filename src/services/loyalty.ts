@@ -21,7 +21,7 @@ export interface Reward {
   business_id: string
   name: string
   description: string | null
-  reward_type: 'voucher' | 'discount' | 'free_service' | 'free_item' | 'birthday' | 'referral'
+  reward_type: 'voucher' | 'discount' | 'free_service' | 'free_item' | 'birthday' | 'referral' | 'campaign'
   points_required: number
   discount_amount: number | null
   discount_percent: number | null
@@ -83,6 +83,20 @@ export const rewardTypeLabels: Record<string, string> = {
   free_item: 'Free item',
   birthday: 'Birthday',
   referral: 'Referral',
+  campaign: 'Campaign',
+}
+
+export function calculatePointsDiscount(points: number, settings: LoyaltySettings | null): number {
+  const redemptionRate = settings?.redemption_rate ?? 100
+  const discountAmount = Number(settings?.redemption_discount_amount ?? 5)
+  if (points < (settings?.min_redemption_points ?? redemptionRate)) return 0
+  return Math.floor(points / redemptionRate) * discountAmount
+}
+
+export function calculateEarnedPoints(amount: number, settings: LoyaltySettings | null): number {
+  const earningRate = Number(settings?.earning_rate ?? 1)
+  if (earningRate <= 0) return 0
+  return Math.floor(amount / earningRate)
 }
 
 export async function getLoyaltySettings(businessId: string): Promise<LoyaltySettings | null> {
@@ -130,6 +144,10 @@ export async function createReward(reward: {
   is_active?: boolean
 }): Promise<void> {
   await supabase.from('rewards').insert(reward)
+}
+
+export async function seedDefaultRewards(businessId: string): Promise<void> {
+  await supabase.rpc('seed_default_loyalty_rewards', { p_business_id: businessId })
 }
 
 export async function updateReward(id: string, data: Partial<Reward>): Promise<void> {
@@ -201,7 +219,25 @@ export async function adjustPoints(input: AdjustPointsInput): Promise<void> {
     p_customer_id: input.customer_id,
     p_points: input.points,
     p_description: input.description,
-    p_created_by: (await supabase.auth.getUser()).data.user?.id ?? '',
+    p_created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+  })
+}
+
+export async function redeemPoints(input: {
+  business_id: string
+  customer_id: string
+  points: number
+  reward_id?: string | null
+  reference_type?: 'reward' | 'pos_order' | 'booking'
+  reference_id?: string | null
+}): Promise<void> {
+  await supabase.rpc('redeem_loyalty_points', {
+    p_business_id: input.business_id,
+    p_customer_id: input.customer_id,
+    p_points: input.points,
+    p_reward_id: input.reward_id ?? null,
+    p_reference_type: input.reference_type ?? 'reward',
+    p_reference_id: input.reference_id ?? null,
   })
 }
 
@@ -269,5 +305,3 @@ export async function getUpcomingBirthdays(businessId: string): Promise<{ id: st
     .map((c) => ({ id: c.id, full_name: c.full_name, birthday: c.birthday!, phone: c.phone }))
     .slice(0, 20) as { id: string; full_name: string; birthday: string; phone: string | null }[]
 }
-
-

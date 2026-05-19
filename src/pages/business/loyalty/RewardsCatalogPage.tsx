@@ -7,7 +7,7 @@ import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { LoyaltyTabs } from '@/pages/business/loyalty/LoyaltyTabs'
-import { getRewards, createReward, updateReward, deleteReward, rewardTypeLabels, type Reward } from '@/services/loyalty'
+import { getRewards, createReward, updateReward, deleteReward, seedDefaultRewards, rewardTypeLabels, type Reward } from '@/services/loyalty'
 
 export function RewardsCatalogPage() {
   const { profile } = useAppContext()
@@ -41,7 +41,7 @@ export function RewardsCatalogPage() {
       payload.discount_amount = form.discount_amount ? Number(form.discount_amount) : null
       payload.discount_percent = form.discount_percent ? Number(form.discount_percent) : null
     }
-    if (form.reward_type === 'free_item') {
+    if (form.reward_type === 'free_item' || form.reward_type === 'free_service') {
       payload.free_item = form.free_item || null
       payload.item_name = form.item_name || null
     }
@@ -72,7 +72,10 @@ export function RewardsCatalogPage() {
           <h2 className="text-lg font-semibold">Rewards catalog</h2>
           <p className="text-sm text-slate-500">Create and manage rewards that customers can redeem with points.</p>
         </div>
-        <Button onClick={() => { setEditingId(null); setOpen(true) }}>Create reward</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => void seedDefaultRewards(businessId).then(load)}>Add defaults</Button>
+          <Button onClick={() => { setEditingId(null); setOpen(true) }}>Create reward</Button>
+        </div>
       </div>
       <LoyaltyTabs />
 
@@ -152,13 +155,13 @@ export function RewardsCatalogPage() {
               </Field>
             </>
           ) : null}
-          {form.reward_type === 'free_item' ? (
+          {form.reward_type === 'free_item' || form.reward_type === 'free_service' ? (
             <>
-              <Field label="Free item name" description="Name of the free product or service customer receives.">
-                <Input placeholder="Free item name" value={form.free_item} onChange={(e) => setForm({ ...form, free_item: e.target.value })} />
+              <Field label={form.reward_type === 'free_service' ? 'Free service name' : 'Free item name'} description="Name of the free product or service customer receives.">
+                <Input placeholder={form.reward_type === 'free_service' ? 'Free service name' : 'Free item name'} value={form.free_item} onChange={(e) => setForm({ ...form, free_item: e.target.value })} />
               </Field>
-              <Field label="Item detail" description="Optional internal item detail or SKU reference.">
-                <Input placeholder="Item detail" value={form.item_name} onChange={(e) => setForm({ ...form, item_name: e.target.value })} />
+              <Field label="Reward detail" description="Optional internal item, service, or SKU reference.">
+                <Input placeholder="Reward detail" value={form.item_name} onChange={(e) => setForm({ ...form, item_name: e.target.value })} />
               </Field>
             </>
           ) : null}

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { redeemPoints } from '@/services/loyalty'
 
 export interface POSOrder {
   id: string
@@ -213,7 +214,7 @@ export async function recordMembershipUsage(orderId: string, usages: { membershi
   if (error) throw error
 }
 
-export async function recordPointsRedemption(orderId: string, customerId: string, points: number, discountAmount: number) {
+export async function recordPointsRedemption(orderId: string, businessId: string, customerId: string, points: number, discountAmount: number) {
   const { error } = await supabase.from('pos_points_redemption').insert({
     order_id: orderId,
     customer_id: customerId,
@@ -221,6 +222,13 @@ export async function recordPointsRedemption(orderId: string, customerId: string
     discount_amount: discountAmount,
   })
   if (error) throw error
+  await redeemPoints({
+    business_id: businessId,
+    customer_id: customerId,
+    points,
+    reference_type: 'pos_order',
+    reference_id: orderId,
+  })
 }
 
 export async function completePOSOrder(orderId: string) {
