@@ -18,6 +18,7 @@ import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import {
   getBookings,
+  getBooking,
   getServices,
   getStaff,
   getResources,
@@ -28,6 +29,7 @@ import {
   updateBooking,
   deleteBooking,
   transitionBooking,
+  overrideBookingDepositRequirement,
   getWaitlistEntries,
   convertWaitlistToBooking,
   updateWaitlistEntry,
@@ -246,6 +248,13 @@ export function BookingsPage() {
     if (openDetail?.id === id) {
       setOpenDetail({ ...openDetail, status })
     }
+  }
+
+  async function handleOverrideDeposit(id: string) {
+    await overrideBookingDepositRequirement(id)
+    const updated = await getBooking(id)
+    setOpenDetail(updated)
+    await load()
   }
 
   async function handleDelete(id: string) {
@@ -853,7 +862,17 @@ export function BookingsPage() {
                   <p className="text-xs text-slate-500">Amount</p>
                   <p className="font-medium">RM {Number(openDetail.total_amount).toLocaleString()} {openDetail.deposit_amount > 0 && <span className="text-xs text-slate-400">(RM {openDetail.deposit_amount} deposit)</span>}</p>
                 </div>
+                <div>
+                  <p className="text-xs text-slate-500">Cancellation deadline</p>
+                  <p className="font-medium">{openDetail.cancellation_deadline_at ? new Date(openDetail.cancellation_deadline_at).toLocaleString() : '-'}</p>
+                </div>
               </div>
+
+              {openDetail.deposit_required_reason && !openDetail.deposit_override_at && (
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                  Deposit required: {openDetail.deposit_required_reason.replace(/_/g, ' ')}.
+                </div>
+              )}
 
               {openDetail.notes && (
                 <div>
@@ -868,6 +887,9 @@ export function BookingsPage() {
                     {ns === 'confirmed' ? 'Confirm' : ns === 'checked_in' ? 'Check in' : ns === 'in_progress' ? 'Start' : ns === 'completed' ? 'Complete' : ns === 'cancelled' ? 'Cancel' : ns === 'no_show' ? 'No show' : ns}
                   </Button>
                 ))}
+                {openDetail.deposit_required_reason && !openDetail.deposit_override_at && (
+                  <Button size="sm" variant="outline" onClick={() => void handleOverrideDeposit(openDetail.id)}>Override deposit</Button>
+                )}
                 <Button size="sm" variant="outline" onClick={openEditFromDetail}>Edit</Button>
                 <Button size="sm" variant="destructive" onClick={() => void handleDelete(openDetail.id)}>Delete</Button>
               </div>

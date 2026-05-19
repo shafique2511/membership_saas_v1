@@ -14,6 +14,8 @@ export function BookingRulesPage() {
     slot_duration_minutes: 60, buffer_time_minutes: 0, min_booking_notice_hours: 1,
     max_advance_days: 30, auto_confirm: false, deposit_required: false,
     deposit_percentage: 0, cancellation_policy: 'free', cancellation_fee_amount: 0,
+    cancellation_deadline_hours: 24, no_show_high_risk_threshold: 3,
+    high_risk_deposit_required: true, high_risk_deposit_percentage: 50,
     allow_walk_in: true, max_guests_per_booking: 1,
   })
   const [saving, setSaving] = useState(false)
@@ -78,6 +80,18 @@ export function BookingRulesPage() {
                 </Field>
               )}
               <label className="flex items-start gap-2 text-sm">
+                <input className="mt-1" type="checkbox" checked={form.high_risk_deposit_required} onChange={(e) => setForm({ ...form, high_risk_deposit_required: e.target.checked })} />
+                <span><span className="font-medium">Require deposit for high-risk customers</span><span className="block text-xs text-slate-500 dark:text-slate-400">Customers marked high-risk by repeated no-shows receive a required deposit.</span></span>
+              </label>
+              {form.high_risk_deposit_required && (
+                <Field label="High-risk deposit percentage" description="Percentage of booking total required from high-risk customers.">
+                  <Input type="number" min="0" max="100" value={form.high_risk_deposit_percentage} onChange={(e) => setForm({ ...form, high_risk_deposit_percentage: Number(e.target.value) })} />
+                </Field>
+              )}
+              <Field label="No-show high-risk threshold" description="Customer is marked high-risk after this many no-shows. Use 3 for the standard rule.">
+                <Input type="number" min="1" value={form.no_show_high_risk_threshold} onChange={(e) => setForm({ ...form, no_show_high_risk_threshold: Number(e.target.value) })} />
+              </Field>
+              <label className="flex items-start gap-2 text-sm">
                 <input className="mt-1" type="checkbox" checked={form.allow_walk_in} onChange={(e) => setForm({ ...form, allow_walk_in: e.target.checked })} />
                 <span><span className="font-medium">Allow walk-in bookings</span><span className="block text-xs text-slate-500 dark:text-slate-400">Staff can create bookings for customers who arrive without online booking.</span></span>
               </label>
@@ -93,6 +107,9 @@ export function BookingRulesPage() {
                   <option value="strict">Strict (no refund)</option>
                   <option value="none">No cancellation</option>
                 </select>
+              </Field>
+              <Field label="Cancellation deadline" description="How many hours before the booking customers can cancel without late-cancellation handling.">
+                <Input type="number" min="0" value={form.cancellation_deadline_hours} onChange={(e) => setForm({ ...form, cancellation_deadline_hours: Number(e.target.value) })} />
               </Field>
               {form.cancellation_policy === 'fee' && (
                 <Field label="Fee amount" description="Fixed cancellation fee charged when the policy is set to fee.">

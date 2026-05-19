@@ -22,6 +22,10 @@ export interface BookingRow {
   deposit_amount: number
   total_amount: number
   payment_status: PaymentStatus
+  deposit_required_reason: string | null
+  deposit_override_by: string | null
+  deposit_override_at: string | null
+  cancellation_deadline_at: string | null
   created_at: string
   updated_at: string
   customers?: { id: string; full_name: string; phone: string | null; email: string | null } | { id: string; full_name: string; phone: string | null; email: string | null }[] | null
@@ -356,6 +360,14 @@ export async function deleteBooking(id: string): Promise<void> {
 
 export async function transitionBooking(id: string, status: BookingStatus): Promise<BookingRow> {
   return updateBooking(id, { status })
+}
+
+export async function overrideBookingDepositRequirement(id: string, notes?: string): Promise<void> {
+  const { error } = await supabase.rpc('override_booking_deposit_requirement', {
+    p_booking_id: id,
+    p_notes: notes ?? 'Deposit requirement manually overridden from booking dashboard.',
+  })
+  if (error) throw error
 }
 
 export async function getWaitlistEntries(businessId: string, status?: WaitlistStatus | WaitlistStatus[]): Promise<WaitlistEntryRow[]> {

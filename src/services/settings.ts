@@ -12,6 +12,10 @@ export interface BookingRules {
   deposit_percentage: number
   cancellation_policy: string
   cancellation_fee_amount: number
+  cancellation_deadline_hours: number
+  no_show_high_risk_threshold: number
+  high_risk_deposit_required: boolean
+  high_risk_deposit_percentage: number
   allow_walk_in: boolean
   max_guests_per_booking: number
   created_at: string
@@ -82,6 +86,10 @@ export async function upsertBookingRules(businessId: string, rules: Partial<Book
     p_cancellation_fee_amount: rules.cancellation_fee_amount ?? null,
     p_allow_walk_in: rules.allow_walk_in ?? null,
     p_max_guests_per_booking: rules.max_guests_per_booking ?? null,
+    p_cancellation_deadline_hours: rules.cancellation_deadline_hours ?? null,
+    p_no_show_high_risk_threshold: rules.no_show_high_risk_threshold ?? null,
+    p_high_risk_deposit_required: rules.high_risk_deposit_required ?? null,
+    p_high_risk_deposit_percentage: rules.high_risk_deposit_percentage ?? null,
   })
   if (error) throw error
   return data as unknown as BookingRules

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { useAppContext } from '@/context/useAppContext'
-import { addCrmNote, addCustomerTag, defaultCrmTags, getCrmCustomer, getCrmNotes, removeCustomerTag, type CrmCustomer, type CrmNote } from '@/services/crm'
+import { addCrmNote, addCustomerTag, defaultCrmTags, getCrmCustomer, getCrmNotes, removeCustomerTag, resetCustomerNoShowCount, type CrmCustomer, type CrmNote } from '@/services/crm'
 import { formatCurrency } from '@/utils/format'
 
 export function CustomerCrmDetailsPage() {
@@ -57,6 +57,12 @@ export function CustomerCrmDetailsPage() {
     await load()
   }
 
+  async function handleResetNoShows() {
+    if (!customer) return
+    await resetCustomerNoShowCount(customer.id, true)
+    await load()
+  }
+
   if (!customer) {
     return <div className="text-sm text-muted-foreground">Loading CRM profile...</div>
   }
@@ -75,7 +81,13 @@ export function CustomerCrmDetailsPage() {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Lifetime Value</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(customer.lifetime_value)}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Last Visit</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{customer.last_visit ? new Date(customer.last_visit).toLocaleDateString() : 'Never'}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Visits</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{customer.visit_count}</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm">No-shows</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold text-red-600">{customer.no_show_count}</p></CardContent></Card>
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-sm">No-shows</CardTitle></CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-red-600">{customer.no_show_count}</p>
+            {customer.is_high_risk && <Badge variant="danger" className="mt-2">High risk</Badge>}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -86,6 +98,11 @@ export function CustomerCrmDetailsPage() {
             <div className="flex justify-between gap-3"><span className="text-muted-foreground">Favorite product</span><span>{customer.favorite_product ?? '-'}</span></div>
             <div className="flex justify-between gap-3"><span className="text-muted-foreground">Birthday</span><span>{customer.birthday ? new Date(customer.birthday).toLocaleDateString() : '-'}</span></div>
             <div className="flex justify-between gap-3"><span className="text-muted-foreground">Points</span><span>{customer.points_balance}</span></div>
+            <div className="flex justify-between gap-3"><span className="text-muted-foreground">High-risk reason</span><span>{customer.high_risk_reason ?? '-'}</span></div>
+            <div className="flex justify-between gap-3"><span className="text-muted-foreground">Last no-show reset</span><span>{customer.no_show_reset_at ? new Date(customer.no_show_reset_at).toLocaleString() : '-'}</span></div>
+            {(customer.no_show_count > 0 || customer.is_high_risk) && canManageTags && (
+              <Button size="sm" variant="outline" onClick={handleResetNoShows}>Reset no-show count</Button>
+            )}
             <div className="flex flex-wrap gap-1 pt-2">
               {customer.tags.length ? customer.tags.map((item) => (
                 <Badge key={item.id} variant="muted" className="gap-1">

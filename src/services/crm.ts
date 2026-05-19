@@ -12,6 +12,10 @@ export interface CrmCustomer {
   total_spent: number
   visit_count: number
   no_show_count: number
+  is_high_risk: boolean
+  high_risk_reason: string | null
+  high_risk_marked_at: string | null
+  no_show_reset_at: string | null
   status: string
   created_at: string
   updated_at: string
@@ -147,7 +151,7 @@ export async function getCrmCustomers(
 ): Promise<CrmCustomer[]> {
   let query = supabase
     .from('customers')
-    .select('id, business_id, branch_id, full_name, phone, email, birthday, points_balance, total_spent, visit_count, no_show_count, status, created_at, updated_at')
+    .select('id, business_id, branch_id, full_name, phone, email, birthday, points_balance, total_spent, visit_count, no_show_count, is_high_risk, high_risk_reason, high_risk_marked_at, no_show_reset_at, status, created_at, updated_at')
     .eq('business_id', businessId)
     .order('updated_at', { ascending: false })
     .limit(250)
@@ -182,7 +186,7 @@ export async function getCrmCustomers(
 export async function getCrmCustomer(customerId: string): Promise<CrmCustomer | null> {
   const { data, error } = await supabase
     .from('customers')
-    .select('id, business_id, branch_id, full_name, phone, email, birthday, points_balance, total_spent, visit_count, no_show_count, status, created_at, updated_at')
+    .select('id, business_id, branch_id, full_name, phone, email, birthday, points_balance, total_spent, visit_count, no_show_count, is_high_risk, high_risk_reason, high_risk_marked_at, no_show_reset_at, status, created_at, updated_at')
     .eq('id', customerId)
     .single()
   if (error) {
@@ -237,5 +241,14 @@ export async function addCustomerTag(input: { business_id: string; customer_id: 
 
 export async function removeCustomerTag(tagId: string): Promise<void> {
   const { error } = await supabase.from('customer_tags').delete().eq('id', tagId)
+  if (error) throw error
+}
+
+export async function resetCustomerNoShowCount(customerId: string, clearHighRisk = true, notes?: string): Promise<void> {
+  const { error } = await supabase.rpc('reset_customer_no_show_count', {
+    p_customer_id: customerId,
+    p_clear_high_risk: clearHighRisk,
+    p_notes: notes ?? 'No-show count reset from CRM.',
+  })
   if (error) throw error
 }
