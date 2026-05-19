@@ -77,7 +77,7 @@ export function CustomerCrmDetailsPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Lifetime Value</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(customer.lifetime_value)}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Last Visit</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{customer.last_visit ? new Date(customer.last_visit).toLocaleDateString() : 'Never'}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Visits</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{customer.visit_count}</p></CardContent></Card>
@@ -90,18 +90,18 @@ export function CustomerCrmDetailsPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
         <Card>
           <CardHeader><CardTitle>Customer Profile</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <div className="flex justify-between gap-3"><span className="text-muted-foreground">Favorite service</span><span>{customer.favorite_service ?? '-'}</span></div>
-            <div className="flex justify-between gap-3"><span className="text-muted-foreground">Favorite product</span><span>{customer.favorite_product ?? '-'}</span></div>
-            <div className="flex justify-between gap-3"><span className="text-muted-foreground">Birthday</span><span>{customer.birthday ? new Date(customer.birthday).toLocaleDateString() : '-'}</span></div>
-            <div className="flex justify-between gap-3"><span className="text-muted-foreground">Points</span><span>{customer.points_balance}</span></div>
-            <div className="flex justify-between gap-3"><span className="text-muted-foreground">High-risk reason</span><span>{customer.high_risk_reason ?? '-'}</span></div>
-            <div className="flex justify-between gap-3"><span className="text-muted-foreground">Last no-show reset</span><span>{customer.no_show_reset_at ? new Date(customer.no_show_reset_at).toLocaleString() : '-'}</span></div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3"><span className="text-muted-foreground">Favorite service</span><span>{customer.favorite_service ?? '-'}</span></div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3"><span className="text-muted-foreground">Favorite product</span><span>{customer.favorite_product ?? '-'}</span></div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3"><span className="text-muted-foreground">Birthday</span><span>{customer.birthday ? new Date(customer.birthday).toLocaleDateString() : '-'}</span></div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3"><span className="text-muted-foreground">Points</span><span>{customer.points_balance}</span></div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3"><span className="text-muted-foreground">High-risk reason</span><span>{customer.high_risk_reason ?? '-'}</span></div>
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3"><span className="text-muted-foreground">Last no-show reset</span><span>{customer.no_show_reset_at ? new Date(customer.no_show_reset_at).toLocaleString() : '-'}</span></div>
             {(customer.no_show_count > 0 || customer.is_high_risk) && canManageTags && (
-              <Button size="sm" variant="outline" onClick={handleResetNoShows}>Reset no-show count</Button>
+              <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={handleResetNoShows}>Reset no-show count</Button>
             )}
             <div className="flex flex-wrap gap-1 pt-2">
               {customer.tags.length ? customer.tags.map((item) => (
@@ -125,7 +125,7 @@ export function CustomerCrmDetailsPage() {
             <Field label="Custom tag" description="Optional custom tag for this customer.">
               <Input value={customTag} onChange={(e) => setCustomTag(e.target.value)} disabled={!canManageTags} />
             </Field>
-            <Button onClick={handleAddTag} disabled={!canManageTags}>Add tag</Button>
+            <Button className="w-full sm:w-auto" onClick={handleAddTag} disabled={!canManageTags}>Add tag</Button>
           </CardContent>
         </Card>
       </div>
@@ -155,7 +155,7 @@ export function CustomerCrmDetailsPage() {
                 <textarea className="h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={noteForm.body} onChange={(e) => setNoteForm((current) => ({ ...current, body: e.target.value }))} />
               </Field>
               <div className="md:col-span-3">
-                <Button onClick={handleAddNote} disabled={!noteForm.body.trim()}>Add note</Button>
+                <Button className="w-full sm:w-auto" onClick={handleAddNote} disabled={!noteForm.body.trim()}>Add note</Button>
               </div>
             </div>
           )}

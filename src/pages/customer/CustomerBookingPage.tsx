@@ -158,9 +158,9 @@ export function CustomerBookingPage() {
             <p className="mt-2 text-sm text-slate-500">
               {waitlistDone ? 'We will contact you when a matching slot becomes available.' : 'Your appointment has been booked.'}
             </p>
-            <div className="mt-6 flex justify-center gap-2">
-              <Button variant="outline" onClick={() => navigate(portalHome)}>Home</Button>
-              <Button onClick={() => navigate(`${routeBase}/history`)}>View bookings</Button>
+            <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
+              <Button variant="outline" className="w-full sm:w-auto" onClick={() => navigate(portalHome)}>Home</Button>
+              <Button className="w-full sm:w-auto" onClick={() => navigate(`${routeBase}/history`)}>View bookings</Button>
             </div>
           </CardContent>
         </Card>
@@ -169,19 +169,19 @@ export function CustomerBookingPage() {
   }
 
   const StepIndicator = ({ num, label }: { num: number; label: string }) => (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 flex-col items-center gap-1 sm:flex-row sm:gap-2">
       <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
         step === num ? 'bg-teal-700 text-white' : step > num ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-400'
       }`}>
         {step > num ? <CheckCircle className="h-4 w-4" /> : num}
       </div>
-      <span className={`text-xs font-medium ${step === num ? 'text-teal-700' : 'text-slate-400'}`}>{label}</span>
+      <span className={`text-center text-[11px] font-medium sm:text-xs ${step === num ? 'text-teal-700' : 'text-slate-400'}`}>{label}</span>
     </div>
   )
 
   return (
     <div className="space-y-4">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 grid grid-cols-[auto_1fr_auto_1fr_auto_1fr_auto] items-start gap-1 sm:flex sm:items-center sm:justify-between">
         <StepIndicator num={1} label="Service" />
         <div className="h-px flex-1 mx-2 bg-slate-200" />
         <StepIndicator num={2} label="Time" />
@@ -202,13 +202,13 @@ export function CustomerBookingPage() {
                     key={svc.id}
                     type="button"
                     onClick={() => setSelectedService(svc.id)}
-                    className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition-colors ${
+                    className={`flex w-full flex-col gap-3 rounded-xl border p-3 text-left transition-colors sm:flex-row sm:items-center sm:justify-between ${
                       selectedService === svc.id
                         ? 'border-teal-500 bg-teal-50 dark:bg-teal-500/5'
                         : 'border-slate-200 hover:border-slate-300 dark:border-slate-700'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">
                         <Scissors className="h-5 w-5" />
                       </div>
@@ -217,7 +217,7 @@ export function CustomerBookingPage() {
                         {svc.description && <p className="text-xs text-slate-400">{svc.description}</p>}
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="w-full text-left sm:w-auto sm:text-right">
                       <p className="font-semibold text-teal-700 dark:text-teal-300">RM {svc.price}</p>
                       <p className="text-xs text-slate-400">{svc.duration_minutes} min</p>
                     </div>
@@ -265,7 +265,7 @@ export function CustomerBookingPage() {
             {slots.length > 0 ? (
               <div>
                 <label className="mb-2 block text-xs font-medium text-slate-500">Available times</label>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {slots.map((slot, i) => (
                     <button
                       key={i}
@@ -308,7 +308,7 @@ export function CustomerBookingPage() {
                 </Button>
               </div>
             )}
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" onClick={() => setStep(1)} className="flex-1">Back</Button>
               <Button disabled={!selectedSlot} onClick={() => setStep(3)} className="flex-1">Continue</Button>
             </div>
@@ -332,7 +332,7 @@ export function CustomerBookingPage() {
             <Field label="Notes" description="Optional request, allergy, seating preference, or anything staff should know.">
               <textarea className="h-20 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Anything we should know?" value={notes} onChange={(e) => setNotes(e.target.value)} />
             </Field>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" onClick={() => setStep(2)} className="flex-1">Back</Button>
               <Button onClick={() => setStep(4)} className="flex-1">Review</Button>
             </div>
@@ -386,7 +386,7 @@ export function CustomerBookingPage() {
             {error && (
               <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>
             )}
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" onClick={() => setStep(3)} className="flex-1">Back</Button>
               <Button onClick={handleConfirm} disabled={loading} className="flex-1">{loading ? 'Booking...' : 'Confirm'}</Button>
             </div>

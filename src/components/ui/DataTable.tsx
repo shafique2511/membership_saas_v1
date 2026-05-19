@@ -13,8 +13,8 @@ export function DataTable<T extends Record<string, unknown>>({
   emptyMessage = 'No records found.',
 }: DataTableProps<T>) {
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-      <div className="overflow-x-auto">
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="overflow-x-auto overscroll-x-contain">
         <Table>
           <TableHeader>
             <TableRow>

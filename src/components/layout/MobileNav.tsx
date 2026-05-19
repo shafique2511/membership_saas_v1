@@ -22,7 +22,7 @@ export function MobileNav() {
         aria-label="Close navigation"
         onClick={() => setSidebarOpen(false)}
       />
-      <div className="absolute inset-y-0 left-0 w-80 max-w-[85vw] bg-white shadow-xl dark:bg-slate-950">
+      <div className="absolute inset-y-0 left-0 flex w-80 max-w-[88vw] flex-col bg-white shadow-xl dark:bg-slate-950">
         <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-700 text-white">
@@ -34,7 +34,7 @@ export function MobileNav() {
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <nav className="space-y-5 overflow-y-auto p-4">
+        <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 pb-8">
           {sections.map((section) => {
             const items = section.items.filter((item) => !item.module || canAccessModule(item.module))
             if (items.length === 0) return null
@@ -51,7 +51,7 @@ export function MobileNav() {
                       onClick={() => setSidebarOpen(false)}
                       className={({ isActive }) =>
                         cn(
-                          'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium',
+                          'flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium',
                           isActive
                             ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200'
                             : 'text-slate-600 dark:text-slate-300',
@@ -59,7 +59,7 @@ export function MobileNav() {
                       }
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
-                      {item.label}
+                      <span className="truncate">{item.label}</span>
                     </NavLink>
                   ))}
                 </div>

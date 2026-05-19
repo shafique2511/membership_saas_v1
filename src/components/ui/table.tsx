@@ -7,7 +7,7 @@ import {
 import { cn } from '@/lib/utils'
 
 export function Table({ className, ...props }: TableHTMLAttributes<HTMLTableElement>) {
-  return <table className={cn('w-full caption-bottom text-sm', className)} {...props} />
+  return <table className={cn('w-full min-w-max caption-bottom text-sm', className)} {...props} />
 }
 
 export function TableHeader({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
@@ -25,12 +25,12 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
 export function TableHead({ className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={cn('h-11 px-4 text-left align-middle text-xs font-semibold uppercase text-slate-500', className)}
+      className={cn('h-11 whitespace-nowrap px-3 text-left align-middle text-xs font-semibold uppercase text-slate-500 sm:px-4', className)}
       {...props}
     />
   )
 }
 
 export function TableCell({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn('px-4 py-3 align-middle', className)} {...props} />
+  return <td className={cn('px-3 py-3 align-middle sm:px-4', className)} {...props} />
 }

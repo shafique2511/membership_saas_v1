@@ -326,8 +326,8 @@ export function BookingsPage() {
         actions={<Button onClick={() => { resetForm(); setOpenCreate(true) }}><Plus className="h-4 w-4" />New booking</Button>}
       />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex rounded-lg border border-slate-200 dark:border-slate-700">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+        <div className="flex w-full overflow-x-auto rounded-lg border border-slate-200 xl:w-auto dark:border-slate-700">
           {(['list', 'daily', 'weekly', 'monthly'] as ViewMode[]).map((mode) => (
             <button
               key={mode}
@@ -339,7 +339,7 @@ export function BookingsPage() {
                   setFilters({ date: currentDate })
                 }
               }}
-              className={`px-3 py-1.5 text-xs font-medium first:rounded-l-lg last:rounded-r-lg ${
+              className={`min-h-9 min-w-12 flex-1 px-3 py-1.5 text-xs font-medium first:rounded-l-lg last:rounded-r-lg xl:flex-none ${
                 viewMode === mode
                   ? 'bg-teal-700 text-white'
                   : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -351,7 +351,7 @@ export function BookingsPage() {
         </div>
 
         {viewMode !== 'list' && (
-          <div className="flex items-center gap-1">
+          <div className="flex w-full items-center justify-between gap-1 xl:w-auto xl:justify-start">
             <Button size="sm" variant="outline" onClick={() => setCurrentDate(addDays(currentDate, viewMode === 'weekly' ? -7 : viewMode === 'monthly' ? -31 : -1))}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -367,20 +367,20 @@ export function BookingsPage() {
           </div>
         )}
 
-        <div className="flex flex-1 flex-wrap gap-2">
-          <select className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.status as string ?? ''} onChange={(e) => setFilters({ ...filters, status: (e.target.value || undefined) as BookingStatus | undefined })}>
+        <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4 xl:flex xl:flex-1 xl:flex-wrap">
+          <select className="h-9 min-w-0 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.status as string ?? ''} onChange={(e) => setFilters({ ...filters, status: (e.target.value || undefined) as BookingStatus | undefined })}>
             <option value="">All statuses</option>
             {statuses.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <select className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.staff_id ?? ''} onChange={(e) => setFilters({ ...filters, staff_id: e.target.value || undefined })}>
+          <select className="h-9 min-w-0 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.staff_id ?? ''} onChange={(e) => setFilters({ ...filters, staff_id: e.target.value || undefined })}>
             <option value="">All staff</option>
             {staffList.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
           </select>
-          <select className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.branch_id ?? ''} onChange={(e) => setFilters({ ...filters, branch_id: e.target.value || undefined })}>
+          <select className="h-9 min-w-0 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.branch_id ?? ''} onChange={(e) => setFilters({ ...filters, branch_id: e.target.value || undefined })}>
             <option value="">All branches</option>
             {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
-          <select className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.booking_type ?? ''} onChange={(e) => setFilters({ ...filters, booking_type: (e.target.value || undefined) as BookingType | undefined })}>
+          <select className="h-9 min-w-0 rounded-md border border-slate-200 bg-white px-2 text-xs dark:border-slate-700 dark:bg-slate-900" value={filters.booking_type ?? ''} onChange={(e) => setFilters({ ...filters, booking_type: (e.target.value || undefined) as BookingType | undefined })}>
             <option value="">All types</option>
             {bookingTypes.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -458,11 +458,12 @@ export function BookingsPage() {
       )}
 
       {viewMode === 'weekly' && (
-        <div className="grid grid-cols-7 gap-2">
-          {getWeekDays(currentDate).map((day) => {
-            const dayBookings = bookingsByDate[day] ?? []
-            return (
-              <div key={day} className="space-y-1">
+        <div className="overflow-x-auto pb-1">
+          <div className="grid min-w-[760px] grid-cols-7 gap-2">
+            {getWeekDays(currentDate).map((day) => {
+              const dayBookings = bookingsByDate[day] ?? []
+              return (
+                <div key={day} className="space-y-1">
                 <div className={`rounded-md p-2 text-center text-xs font-medium ${day === todayISO() ? 'bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-200' : 'bg-slate-50 dark:bg-slate-800'}`}>
                   <div>{new Date(day).toLocaleString('en', { weekday: 'short' })}</div>
                   <div className="text-lg">{new Date(day).getDate()}</div>
@@ -484,25 +485,27 @@ export function BookingsPage() {
                     <p className="text-center text-[10px] text-slate-400">+{dayBookings.length - 5} more</p>
                   )}
                 </div>
-              </div>
-            )
-          })}
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
       {viewMode === 'monthly' && (
-        <div className="grid grid-cols-7 gap-1">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-            <div key={d} className="p-2 text-center text-xs font-medium text-slate-500">{d}</div>
-          ))}
-          {monthDays.map((day, i) => {
-            const dayBookings = day ? (bookingsByDate[day] ?? []) : []
-            const isToday = day === todayISO()
-            return (
-              <div
-                key={i}
-                className={`min-h-[72px] rounded-md border p-1 ${isToday ? 'border-teal-500 bg-teal-50 dark:bg-teal-500/5' : 'border-slate-100 dark:border-slate-800'} ${!day ? 'invisible' : ''}`}
-              >
+        <div className="overflow-x-auto pb-1">
+          <div className="grid min-w-[700px] grid-cols-7 gap-1">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+              <div key={d} className="p-2 text-center text-xs font-medium text-slate-500">{d}</div>
+            ))}
+            {monthDays.map((day, i) => {
+              const dayBookings = day ? (bookingsByDate[day] ?? []) : []
+              const isToday = day === todayISO()
+              return (
+                <div
+                  key={i}
+                  className={`min-h-[72px] rounded-md border p-1 ${isToday ? 'border-teal-500 bg-teal-50 dark:bg-teal-500/5' : 'border-slate-100 dark:border-slate-800'} ${!day ? 'invisible' : ''}`}
+                >
                 {day && (
                   <>
                     <div className="text-right text-xs text-slate-500">{new Date(day).getDate()}</div>
@@ -522,9 +525,10 @@ export function BookingsPage() {
                     </div>
                   </>
                 )}
-              </div>
-            )
-          })}
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -544,8 +548,8 @@ export function BookingsPage() {
             </div>
             <Badge variant="muted">{waitlistEntries.length} active</Badge>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto overscroll-x-contain">
+            <table className="w-full min-w-[760px] text-sm">
               <thead>
                 <tr className="border-b text-left text-slate-500 dark:border-slate-800">
                   <th className="pb-2 font-medium">Customer</th>
@@ -578,8 +582,8 @@ export function BookingsPage() {
                       </td>
                       <td className="py-3">
                         <div className="flex flex-wrap gap-2">
-                          <Button size="sm" onClick={() => void handleConvertWaitlist(entry.id)}>Convert</Button>
-                          <Button size="sm" variant="outline" onClick={() => void handleCancelWaitlist(entry.id)}>Cancel</Button>
+                          <Button size="sm" className="flex-1 sm:flex-none" onClick={() => void handleConvertWaitlist(entry.id)}>Convert</Button>
+                          <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={() => void handleCancelWaitlist(entry.id)}>Cancel</Button>
                         </div>
                       </td>
                     </tr>
@@ -603,7 +607,7 @@ export function BookingsPage() {
         onSubmit={handleCreateBooking}
         onOpenChange={(v) => { setOpenCreate(v); if (!v) resetForm() }}
       >
-        <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field className="sm:col-span-2" label="Booking type" description="Controls how the booking is treated, such as appointment, table, room, event, or walk-in.">
             <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.booking_type} onChange={(e) => setForm({ ...form, booking_type: e.target.value as BookingType })}>
               {bookingTypes.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -729,7 +733,7 @@ export function BookingsPage() {
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
               />
             </Field>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <Field label="Deposit amount" description="Amount collected before the booking, if any.">
                 <Input type="number" placeholder="Deposit amount" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} />
               </Field>
@@ -748,7 +752,7 @@ export function BookingsPage() {
         onSubmit={handleEditBooking}
         onOpenChange={(v) => { if (!v) { setOpenEdit(null); resetForm() } }}
       >
-        <div className="grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Branch" description="Business location where this booking will happen.">
             <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
               <option value="">Select branch</option>
@@ -791,7 +795,7 @@ export function BookingsPage() {
             />
           </Field>
           <div className="sm:col-span-2 space-y-2">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <Field label="Deposit" description="Amount paid or required before the appointment.">
                 <Input type="number" placeholder="Deposit" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} />
               </Field>
@@ -806,7 +810,7 @@ export function BookingsPage() {
       {openDetail && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
           <div className="fixed inset-0 bg-black/40" onClick={() => setOpenDetail(null)} />
-          <div className="relative z-10 max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-t-xl bg-white p-6 shadow-xl sm:rounded-xl dark:bg-slate-900">
+          <div className="relative z-10 max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-xl bg-white p-4 shadow-xl sm:rounded-xl sm:p-6 dark:bg-slate-900">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold">Booking details</h3>
               <button onClick={() => setOpenDetail(null)} className="text-slate-400 hover:text-slate-600">&times;</button>
@@ -818,7 +822,7 @@ export function BookingsPage() {
                 <Badge variant="muted">{openDetail.booking_type}</Badge>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid gap-3 text-sm sm:grid-cols-2">
                 <div>
                   <p className="text-xs text-slate-500">Date</p>
                   <p className="font-medium">{new Date(openDetail.booking_date).toLocaleDateString('en', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
@@ -883,15 +887,15 @@ export function BookingsPage() {
 
               <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
                 {nextStatuses(openDetail.status).map((ns) => (
-                  <Button key={ns} size="sm" onClick={() => void handleStatusTransition(openDetail.id, ns)}>
+                  <Button key={ns} size="sm" className="flex-1 sm:flex-none" onClick={() => void handleStatusTransition(openDetail.id, ns)}>
                     {ns === 'confirmed' ? 'Confirm' : ns === 'checked_in' ? 'Check in' : ns === 'in_progress' ? 'Start' : ns === 'completed' ? 'Complete' : ns === 'cancelled' ? 'Cancel' : ns === 'no_show' ? 'No show' : ns}
                   </Button>
                 ))}
                 {openDetail.deposit_required_reason && !openDetail.deposit_override_at && (
-                  <Button size="sm" variant="outline" onClick={() => void handleOverrideDeposit(openDetail.id)}>Override deposit</Button>
+                  <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={() => void handleOverrideDeposit(openDetail.id)}>Override deposit</Button>
                 )}
-                <Button size="sm" variant="outline" onClick={openEditFromDetail}>Edit</Button>
-                <Button size="sm" variant="destructive" onClick={() => void handleDelete(openDetail.id)}>Delete</Button>
+                <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={openEditFromDetail}>Edit</Button>
+                <Button size="sm" variant="destructive" className="flex-1 sm:flex-none" onClick={() => void handleDelete(openDetail.id)}>Delete</Button>
               </div>
             </div>
           </div>

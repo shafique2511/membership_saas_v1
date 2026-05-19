@@ -13,25 +13,25 @@ export function Topbar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur lg:px-6 dark:border-slate-800 dark:bg-slate-950/95">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-slate-200 bg-white/95 px-3 backdrop-blur sm:h-16 sm:px-4 lg:px-6 dark:border-slate-800 dark:bg-slate-950/95">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
           <Menu className="h-5 w-5" />
         </Button>
-        <div className="flex items-center gap-3">
-          <span className="h-5 w-px bg-slate-200 lg:hidden dark:bg-slate-700" />
-          <div>
-            <p className="text-sm font-bold text-slate-900 dark:text-white">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <span className="hidden h-5 w-px bg-slate-200 sm:block lg:hidden dark:bg-slate-700" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
               {profile?.full_name || 'Business'}
             </p>
-            <p className="flex items-center gap-1 text-[11px] text-slate-500">
+            <p className="hidden items-center gap-1 text-[11px] text-slate-500 sm:flex">
               <Package className="h-3 w-3" />
               Starter package
             </p>
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
         <Button variant="ghost" size="icon" onClick={toggleDarkMode} aria-label="Toggle dark mode">
           {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
@@ -41,8 +41,8 @@ export function Topbar() {
         <Button variant="ghost" size="icon" aria-label="Logout" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
         </Button>
-        <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white">
+        <span className="mx-1 hidden h-5 w-px bg-slate-200 sm:block dark:bg-slate-700" />
+        <div className="hidden h-8 w-8 items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white sm:flex">
           {profile?.full_name
             ?.split(' ')
             .map((p) => p[0])

@@ -41,10 +41,10 @@ export function BookingRulesPage() {
         <p className="text-sm text-slate-500">Configure slot duration, notice periods, deposits, and cancellation policy.</p>
       </div>
       <SettingsTabs />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
         <Card>
           <CardHeader><CardTitle>Scheduling</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             <Field label="Slot duration" description="Default appointment length in minutes when a service does not override it.">
               <Input type="number" value={form.slot_duration_minutes} onChange={(e) => setForm({ ...form, slot_duration_minutes: Number(e.target.value) })} />
             </Field>
@@ -65,7 +65,7 @@ export function BookingRulesPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader><CardTitle>Confirmation & deposits</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <label className="flex items-start gap-2 text-sm">
                 <input className="mt-1" type="checkbox" checked={form.auto_confirm} onChange={(e) => setForm({ ...form, auto_confirm: e.target.checked })} />
                 <span><span className="font-medium">Auto-confirm bookings</span><span className="block text-xs text-slate-500 dark:text-slate-400">New bookings become confirmed automatically instead of waiting for staff approval.</span></span>
@@ -99,7 +99,7 @@ export function BookingRulesPage() {
           </Card>
           <Card>
             <CardHeader><CardTitle>Cancellation policy</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <Field label="Policy" description="Controls whether customers can cancel and whether a fee applies.">
                 <select className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm dark:bg-slate-900" value={form.cancellation_policy} onChange={(e) => setForm({ ...form, cancellation_policy: e.target.value })}>
                   <option value="free">Free cancellation</option>
@@ -120,8 +120,8 @@ export function BookingRulesPage() {
           </Card>
         </div>
       </div>
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save rules'}</Button>
+      <div className="sticky bottom-3 z-10 flex justify-end rounded-lg border border-slate-200 bg-white/90 p-3 shadow-sm backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none dark:border-slate-800 dark:bg-slate-950/90 sm:dark:bg-transparent">
+        <Button className="w-full sm:w-auto" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save rules'}</Button>
       </div>
     </div>
   )
