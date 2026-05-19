@@ -16,6 +16,7 @@ const tabs = [
   { href: '/business/settings/account', label: 'Account' },
   { href: '/business/settings/security', label: 'Security' },
   { href: '/business/settings/data-ownership', label: 'Data & Backup' },
+  { href: '/business/settings/import', label: 'CSV Import' },
   { href: '/business/settings/qr-codes', label: 'QR Codes' },
 ]
 

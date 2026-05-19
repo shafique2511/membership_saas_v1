@@ -108,6 +108,7 @@ import { AccountSettingsPage } from '@/pages/business/settings/AccountSettingsPa
 import { SecuritySettingsPage } from '@/pages/business/settings/SecuritySettingsPage'
 import { WhiteLabelSettingsPage } from '@/pages/business/settings/WhiteLabelSettingsPage'
 import { DataOwnershipPage } from '@/pages/business/settings/DataOwnershipPage'
+import { CsvImportPage } from '@/pages/business/settings/CsvImportPage'
 import { QrCodesPage } from '@/pages/business/settings/QrCodesPage'
 import { AddOnManagementPage } from '@/pages/business/AddOnManagementPage'
 import { BusinessModuleAccessPage } from '@/pages/business/BusinessModuleAccessPage'
@@ -340,6 +341,7 @@ function App() {
             </Route>
             <Route element={<ModuleRoute moduleKey="data_ownership_backup" moduleName="Data Ownership & Backup module" />}>
               <Route path="settings/data-ownership" element={<DataOwnershipPage />} />
+              <Route path="settings/import" element={<CsvImportPage />} />
             </Route>
           </Route>
         </Route>

@@ -75,6 +75,7 @@ export type Permission =
   | 'white_label.manage'
   | 'data.export'
   | 'data.backup.manage'
+  | 'data.import'
   | 'ai.assistant.access'
   | 'settings.manage'
   | 'settings.view'
