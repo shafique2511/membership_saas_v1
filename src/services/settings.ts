@@ -42,6 +42,15 @@ export interface StaffPermission {
   is_granted: boolean
 }
 
+export interface StaffCustomRole {
+  id: string
+  business_id: string
+  role_key: string
+  role_name: string
+  description: string | null
+  is_active: boolean
+}
+
 export interface StaffUserPermission {
   id: string
   staff_id: string
@@ -112,6 +121,30 @@ export async function setStaffPermission(businessId: string, role: string, permi
     p_role: role,
     p_permission_key: permissionKey,
     p_is_granted: isGranted,
+  })
+  if (error) throw error
+}
+
+export async function getStaffCustomRoles(businessId: string): Promise<StaffCustomRole[]> {
+  const { data } = await supabase.rpc('get_staff_custom_roles', { p_business_id: businessId })
+  return (data as StaffCustomRole[]) ?? []
+}
+
+export async function createStaffCustomRole(businessId: string, roleName: string, description?: string): Promise<StaffCustomRole> {
+  const { data, error } = await supabase.rpc('create_staff_custom_role', {
+    p_business_id: businessId,
+    p_role_name: roleName,
+    p_description: description ?? null,
+  })
+  if (error) throw error
+  return data as unknown as StaffCustomRole
+}
+
+export async function setStaffPermissionRole(businessId: string, staffId: string, roleKey: string | null): Promise<void> {
+  const { error } = await supabase.rpc('set_staff_permission_role', {
+    p_business_id: businessId,
+    p_staff_id: staffId,
+    p_role_key: roleKey,
   })
   if (error) throw error
 }

@@ -9,6 +9,7 @@ export interface Staff {
   phone: string | null
   email: string | null
   role: string
+  permission_role_key: string | null
   commission_rate: number
   commission_type: 'fixed' | 'percentage'
   target_sales: number

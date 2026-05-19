@@ -13,6 +13,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [enabledModules, setEnabledModules] = useState<ModuleKey[]>([])
   const [permissionOverrides, setPermissionOverrides] = useState<Record<string, boolean>>({})
+  const [customPermissionRoleActive, setCustomPermissionRoleActive] = useState(false)
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
@@ -27,6 +28,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setProfile(null)
       setEnabledModules([])
       setPermissionOverrides({})
+      setCustomPermissionRoleActive(false)
       setLoading(false)
       return
     }
@@ -43,6 +45,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!nextProfile?.business_id) {
       setEnabledModules(nextProfile?.role === 'super_admin' ? defaultModules : [])
       setPermissionOverrides({})
+      setCustomPermissionRoleActive(false)
       setLoading(false)
       return
     }
@@ -59,24 +62,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const modules = (moduleData ?? []).map((item) => item.module_key as ModuleKey)
     setEnabledModules(modules.length ? modules : defaultModules)
 
+    const { data: staffData } = await supabase
+      .from('staff')
+      .select('id,permission_role_key')
+      .eq('business_id', nextProfile.business_id)
+      .eq('user_id', resolvedUser.id)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    const permissionRoleKey = typeof staffData?.permission_role_key === 'string' ? staffData.permission_role_key : nextProfile.role
+    setCustomPermissionRoleActive(permissionRoleKey !== nextProfile.role)
+
     const { data: rolePermissionData } = await supabase
       .from('staff_permissions')
       .select('permission_key,is_granted')
       .eq('business_id', nextProfile.business_id)
-      .eq('role', nextProfile.role)
+      .eq('role', permissionRoleKey)
 
     const nextOverrides: Record<string, boolean> = {}
     for (const item of rolePermissionData ?? []) {
       nextOverrides[String(item.permission_key)] = Boolean(item.is_granted)
     }
-
-    const { data: staffData } = await supabase
-      .from('staff')
-      .select('id')
-      .eq('business_id', nextProfile.business_id)
-      .eq('user_id', resolvedUser.id)
-      .eq('status', 'active')
-      .maybeSingle()
 
     if (staffData?.id) {
       const { data: staffPermissionData } = await supabase
@@ -134,7 +140,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (profile?.role === 'super_admin' || profile?.role === 'owner') return true
         const permission = modulePermissionMap[module]
         if (!permission) return true
-        return permissionOverrides[permission] ?? roleHasPermission(profile?.role, permission)
+        if (typeof permissionOverrides[permission] === 'boolean') return permissionOverrides[permission]
+        if (customPermissionRoleActive) return false
+        return roleHasPermission(profile?.role, permission)
       },
       hasRole: (role) => {
         if (!profile) {
@@ -143,7 +151,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         return Array.isArray(role) ? role.includes(profile.role) : profile.role === role
       },
-      hasPermission: (permission: Permission) => permissionOverrides[permission] ?? roleHasPermission(profile?.role, permission),
+      hasPermission: (permission: Permission) => {
+        if (typeof permissionOverrides[permission] === 'boolean') return permissionOverrides[permission]
+        if (customPermissionRoleActive) return false
+        return roleHasPermission(profile?.role, permission)
+      },
       refreshAuth: () => loadAuthState(),
       logout: async () => {
         await signOut()
@@ -151,9 +163,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setProfile(null)
         setEnabledModules([])
         setPermissionOverrides({})
+        setCustomPermissionRoleActive(false)
       },
     }),
-    [darkMode, enabledModules, loading, permissionOverrides, profile, sidebarOpen, user],
+    [customPermissionRoleActive, darkMode, enabledModules, loading, permissionOverrides, profile, sidebarOpen, user],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
