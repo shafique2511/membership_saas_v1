@@ -123,6 +123,7 @@ export const adminNavSections: NavSection[] = [
     items: [
       { label: 'Usage', href: '/admin/usage', icon: Gauge },
       { label: 'Audit logs', href: '/admin/audit-logs', icon: FileText },
+      { label: 'Legal pages', href: '/admin/legal-pages', icon: FileText },
       { label: 'Data governance', href: '/admin/data-governance', icon: Database },
       { label: 'Backup & Migration', href: '/admin/backups', icon: FileArchive },
       { label: 'Shutdown Mode', href: '/admin/shutdown', icon: FileArchive },

@@ -12,6 +12,7 @@ export function RegisterPage() {
   const [ownerName, setOwnerName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedLegal, setAcceptedLegal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -19,6 +20,12 @@ export function RegisterPage() {
     event.preventDefault()
     setLoading(true)
     setError(null)
+
+    if (!acceptedLegal) {
+      setError('You must agree to the Terms of Service and Privacy Policy to create a workspace.')
+      setLoading(false)
+      return
+    }
 
     try {
       await registerBusinessOwner({ businessName, businessType, ownerName, email, password })
@@ -62,6 +69,21 @@ export function RegisterPage() {
         <Field label="Password" description="Minimum 8 characters. Use a secure password for the owner account.">
           <Input required minLength={8} type="password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} />
         </Field>
+        <label className="flex items-start gap-2 rounded-md border border-slate-200 p-3 text-sm dark:border-slate-700">
+          <input
+            className="mt-1"
+            required
+            type="checkbox"
+            checked={acceptedLegal}
+            onChange={(event) => setAcceptedLegal(event.target.checked)}
+          />
+          <span>
+            I agree to the{' '}
+            <Link className="text-teal-700 dark:text-teal-300" to="/terms" target="_blank">Terms of Service</Link>
+            {' '}and{' '}
+            <Link className="text-teal-700 dark:text-teal-300" to="/privacy" target="_blank">Privacy Policy</Link>.
+          </span>
+        </label>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button className="w-full" type="submit" disabled={loading}>
           {loading ? 'Creating account...' : 'Create account'}

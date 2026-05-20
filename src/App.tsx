@@ -13,6 +13,7 @@ import { BackupHistoryPage } from '@/pages/admin/BackupHistoryPage'
 import { BusinessDetailsPage } from '@/pages/admin/BusinessDetailsPage'
 import { BusinessesPage } from '@/pages/admin/BusinessesPage'
 import { DataGovernancePage } from '@/pages/admin/DataGovernancePage'
+import { LegalPagesAdminPage } from '@/pages/admin/LegalPagesAdminPage'
 import { ModuleManagementPage } from '@/pages/admin/ModuleManagementPage'
 import { PackageManagementPage } from '@/pages/admin/PackageManagementPage'
 import { PlatformSettingsPage } from '@/pages/admin/PlatformSettingsPage'
@@ -133,6 +134,7 @@ import { CustomerProfilePage } from '@/pages/customer/CustomerProfilePage'
 import { CustomerReviewPage } from '@/pages/customer/CustomerReviewPage'
 import { PublicHomePage } from '@/pages/public/PublicHomePage'
 import { PublicInfoPage } from '@/pages/public/PublicInfoPage'
+import { LegalPage } from '@/pages/public/LegalPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 function App() {
@@ -164,6 +166,12 @@ function App() {
           <Route path="pricing" element={<PublicInfoPage page="pricing" />} />
           <Route path="demo" element={<PublicInfoPage page="demo" />} />
           <Route path="contact" element={<PublicInfoPage page="contact" />} />
+          <Route path="terms" element={<LegalPage slug="terms" />} />
+          <Route path="privacy" element={<LegalPage slug="privacy" />} />
+          <Route path="data-ownership" element={<LegalPage slug="data-ownership" />} />
+          <Route path="refund-policy" element={<LegalPage slug="refund-policy" />} />
+          <Route path="shutdown-policy" element={<LegalPage slug="shutdown-policy" />} />
+          <Route path="acceptable-use" element={<LegalPage slug="acceptable-use" />} />
         </Route>
         <Route element={<ProtectedRoute roles={['super_admin']} />}>
           <Route path="admin" element={<DashboardLayout />}>
@@ -185,6 +193,7 @@ function App() {
             <Route path="shutdown" element={<ShutdownModePage />} />
             <Route path="system-health" element={<SystemHealthPage />} />
             <Route path="settings" element={<PlatformSettingsPage />} />
+            <Route path="legal-pages" element={<LegalPagesAdminPage />} />
             <Route path="data-governance" element={<DataGovernancePage />} />
             <Route path="audit-logs" element={<PlatformTablePage table="audit_logs" title="Audit logs" description="Platform and tenant audit history." showBusinessName />} />
             <Route path="*" element={<PlaceholderPage title="Admin page" description="Super admin workspace scaffold." />} />
