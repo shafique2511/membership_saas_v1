@@ -207,7 +207,9 @@ function App() {
             <Route path="marketing" element={<Navigate to="/business/marketing" replace />} />
             <Route path="branches" element={<Navigate to="/business/branches" replace />} />
             <Route path="settings" element={<Navigate to="/business/settings" replace />} />
-            <Route path="upgrade" element={<Navigate to="/business/upgrade" replace />} />
+            <Route path="upgrade" element={<DashboardLayout />}>
+              <Route index element={<UpgradePage />} />
+            </Route>
             <Route path="setup" element={<BusinessSetupWizardPage />} />
             <Route path="staff/dashboard" element={<Navigate to="/business/staff" replace />} />
           </Route>

@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom'
 import { UpgradePrompt } from '@/components/modules/UpgradePrompt'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { useAppContext } from '@/context/useAppContext'
-import { moduleRequiredPackages } from '@/services/permissions'
 import type { ModuleKey } from '@/types'
 
 interface ModuleRouteProps {
@@ -23,8 +22,8 @@ export function ModuleRoute({ moduleKey, moduleName }: ModuleRouteProps) {
 
   return (
     <UpgradePrompt
+      moduleKey={moduleKey}
       moduleName={moduleName}
-      packageName={moduleRequiredPackages[moduleKey] ?? 'a higher package'}
     />
   )
 }
