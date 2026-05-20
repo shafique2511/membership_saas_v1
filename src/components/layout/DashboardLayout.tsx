@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom'
+import { DemoModeBanner } from '@/components/layout/DemoModeBanner'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Topbar } from '@/components/layout/Topbar'
@@ -12,6 +13,7 @@ export function DashboardLayout() {
         <Topbar />
         <main className="min-w-0 flex-1 px-3 py-4 sm:px-6 lg:px-8 lg:py-8">
           <div className="mx-auto w-full max-w-[1600px]">
+            <DemoModeBanner />
             <Outlet />
           </div>
         </main>

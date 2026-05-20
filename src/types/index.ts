@@ -100,6 +100,7 @@ export interface UserProfile {
   role: UserRole
   avatar_url: string | null
   status: string
+  is_demo_user?: boolean
   created_at: string
   updated_at: string
 }

@@ -5,6 +5,7 @@ import { Field } from '@/components/ui/Field'
 import { Input } from '@/components/ui/input'
 import { useAppContext } from '@/context/useAppContext'
 import { getUserProfile, signInWithEmail } from '@/services/auth'
+import { demoCredentials, signInDemoBusiness, type DemoBusinessKey } from '@/services/demo'
 
 function getPostLoginPath(role: string | undefined) {
   switch (role) {
@@ -31,6 +32,13 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  async function finishLogin() {
+    const profile = await getUserProfile()
+    await refreshAuth()
+    const from = (location.state as { from?: string } | null)?.from ?? getPostLoginPath(profile?.role)
+    navigate(from, { replace: true })
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setLoading(true)
@@ -44,10 +52,22 @@ export function LoginPage() {
       return
     }
 
-    const profile = await getUserProfile()
-    await refreshAuth()
-    const from = (location.state as { from?: string } | null)?.from ?? getPostLoginPath(profile?.role)
-    navigate(from, { replace: true })
+    await finishLogin()
+    setLoading(false)
+  }
+
+  async function handleDemoLogin(key: DemoBusinessKey) {
+    setLoading(true)
+    setError(null)
+    const { error: loginError } = await signInDemoBusiness(key)
+
+    if (loginError) {
+      setError(`${loginError.message}. Demo users may need to be seeded in Supabase.`)
+      setLoading(false)
+      return
+    }
+
+    await finishLogin()
     setLoading(false)
   }
 
@@ -78,6 +98,17 @@ export function LoginPage() {
       <Link className="mt-4 inline-block text-sm text-teal-700 dark:text-teal-300" to="/auth/customer-register">
         Customer registration
       </Link>
+      <div className="mt-6 rounded-lg border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30">
+        <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Demo access</p>
+        <p className="mt-1 text-xs text-emerald-800 dark:text-emerald-200">Explore the dashboard with sample sales, bookings, POS, membership, loyalty, and reports.</p>
+        <div className="mt-3 grid gap-2">
+          {(Object.keys(demoCredentials) as DemoBusinessKey[]).map((key) => (
+            <Button key={key} variant="outline" className="w-full justify-start bg-white dark:bg-slate-900" onClick={() => void handleDemoLogin(key)} disabled={loading}>
+              Open {demoCredentials[key].label}
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
