@@ -33,6 +33,31 @@ function mapEntries(map: Map<string, number>, keyName: string, valueName = 'coun
   return Array.from(map.entries()).map(([key, value]) => ({ [keyName]: key, [valueName]: value }))
 }
 
+function addMoney(map: Map<string, number>, key: string, amount: number): void {
+  map.set(key, (map.get(key) ?? 0) + amount)
+}
+
+function startOfWeek(date: Date): Date {
+  const result = new Date(date)
+  const day = result.getDay()
+  const diff = result.getDate() - day + (day === 0 ? -6 : 1)
+  result.setDate(diff)
+  result.setHours(0, 0, 0, 0)
+  return result
+}
+
+function dateKey(value: string | null | undefined): string {
+  return (value ?? new Date().toISOString()).slice(0, 10)
+}
+
+function weekKey(value: string): string {
+  return startOfWeek(new Date(value)).toISOString().slice(0, 10)
+}
+
+function monthKey(value: string): string {
+  return value.slice(0, 7)
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -55,6 +80,356 @@ async function getServiceNames(businessId: string): Promise<Map<string, string>>
 async function getCustomerNames(businessId: string): Promise<Map<string, string>> {
   const { data } = await supabase.from('customers').select('id, full_name').eq('business_id', businessId)
   return namedMap(data as NamedRow[])
+}
+
+// -- Financial Summary --
+export interface FinancialPeriodSummary {
+  period: string
+  gross_sales: number
+  discounts: number
+  refunds: number
+  net_sales: number
+  estimated_profit: number
+}
+
+export interface FinancialLineItem {
+  name: string
+  revenue: number
+  cost?: number
+  commission?: number
+  profit?: number
+  quantity?: number
+}
+
+export interface FinancialSummaryReport {
+  gross_sales: number
+  discounts: number
+  refunds: number
+  net_sales: number
+  cash_sales: number
+  qr_sales: number
+  card_sales: number
+  membership_sales: number
+  product_sales: number
+  service_sales: number
+  estimated_profit: number
+  payment_methods: { method: string; total: number; count: number }[]
+  daily: FinancialPeriodSummary[]
+  weekly: FinancialPeriodSummary[]
+  monthly: FinancialPeriodSummary[]
+  product_profit: FinancialLineItem[]
+  service_revenue: FinancialLineItem[]
+  membership_revenue: FinancialLineItem[]
+}
+
+interface FinancialOrderRow {
+  id: string
+  subtotal: number | null
+  discount_amount: number | null
+  total_amount: number | null
+  order_status: string | null
+  created_at: string
+  completed_at: string | null
+}
+
+interface FinancialOrderItemRow {
+  order_id: string
+  item_type: 'product' | 'service' | 'membership' | string
+  item_id: string | null
+  item_name: string
+  quantity: number | null
+  total_price: number | null
+}
+
+interface FinancialBookingRow {
+  id: string
+  service_id: string | null
+  total_amount: number | null
+  booking_date: string
+  status: string | null
+  services?: { name: string } | { name: string }[] | null
+}
+
+interface ProductCostRow {
+  id: string
+  name: string
+  cost_price: number | null
+}
+
+interface CommissionRow {
+  source_type: string
+  source_id: string | null
+  commission_amount: number | null
+}
+
+function pushPeriod(map: Map<string, FinancialPeriodSummary>, period: string, values: Partial<FinancialPeriodSummary>): void {
+  const row = map.get(period) ?? { period, gross_sales: 0, discounts: 0, refunds: 0, net_sales: 0, estimated_profit: 0 }
+  row.gross_sales += values.gross_sales ?? 0
+  row.discounts += values.discounts ?? 0
+  row.refunds += values.refunds ?? 0
+  row.net_sales += values.net_sales ?? 0
+  row.estimated_profit += values.estimated_profit ?? 0
+  map.set(period, row)
+}
+
+function sortLineItems(rows: Map<string, FinancialLineItem>, key: keyof FinancialLineItem = 'revenue'): FinancialLineItem[] {
+  return Array.from(rows.values())
+    .sort((a, b) => Number(b[key] ?? 0) - Number(a[key] ?? 0))
+    .slice(0, 20)
+}
+
+export async function getFinancialSummaryReport(businessId: string, filter: ReportFilter = {}): Promise<FinancialSummaryReport> {
+  const period = getPeriod(filter)
+
+  const [{ data: orders }, { data: payments }, { data: refunds }, { data: bookings }, { data: commissions }] = await Promise.all([
+    supabase
+      .from('pos_orders')
+      .select('id, subtotal, discount_amount, total_amount, order_status, created_at, completed_at')
+      .eq('business_id', businessId)
+      .in('order_status', ['completed', 'refunded'])
+      .gte('created_at', period.start)
+      .lte('created_at', period.end),
+    supabase
+      .from('payments')
+      .select('payment_method, amount, status, paid_at, created_at')
+      .eq('business_id', businessId)
+      .eq('status', 'paid')
+      .gte('created_at', period.start)
+      .lte('created_at', period.end),
+    supabase
+      .from('refunds')
+      .select('amount, created_at')
+      .eq('business_id', businessId)
+      .in('status', ['approved', 'completed'])
+      .gte('created_at', period.start)
+      .lte('created_at', period.end),
+    supabase
+      .from('bookings')
+      .select('id, service_id, total_amount, booking_date, status, services(name)')
+      .eq('business_id', businessId)
+      .eq('status', 'completed')
+      .gte('booking_date', period.startDate)
+      .lte('booking_date', period.endDate),
+    supabase
+      .from('commission_records')
+      .select('source_type, source_id, commission_amount')
+      .eq('business_id', businessId)
+      .in('source_type', ['booking', 'pos_order'])
+      .gte('created_at', period.start)
+      .lte('created_at', period.end),
+  ])
+
+  const orderRows = (orders ?? []) as FinancialOrderRow[]
+  const orderIds = orderRows.map((order) => order.id)
+  const { data: orderItems } = orderIds.length
+    ? await supabase
+        .from('pos_order_items')
+        .select('order_id, item_type, item_id, item_name, quantity, total_price')
+        .in('order_id', orderIds)
+    : { data: [] }
+
+  const items = (orderItems ?? []) as FinancialOrderItemRow[]
+  const productIds = Array.from(new Set(items.filter((item) => item.item_type === 'product' && item.item_id).map((item) => item.item_id as string)))
+  const { data: products } = productIds.length
+    ? await supabase.from('products').select('id, name, cost_price').in('id', productIds)
+    : { data: [] }
+
+  const productCosts = new Map((products as ProductCostRow[] | null ?? []).map((product) => [product.id, Number(product.cost_price ?? 0)]))
+  const orderDate = new Map(orderRows.map((order) => [order.id, dateKey(order.completed_at ?? order.created_at)]))
+  const orderStatus = new Map(orderRows.map((order) => [order.id, order.order_status ?? 'completed']))
+  const commissionBySource = new Map<string, number>()
+  for (const commission of (commissions ?? []) as CommissionRow[]) {
+    if (!commission.source_id) continue
+    addMoney(commissionBySource, `${commission.source_type}:${commission.source_id}`, Number(commission.commission_amount ?? 0))
+  }
+
+  const paymentMethodMap = new Map<string, { method: string; total: number; count: number }>()
+  for (const payment of payments ?? []) {
+    const method = payment.payment_method ?? 'unknown'
+    const entry = paymentMethodMap.get(method) ?? { method, total: 0, count: 0 }
+    entry.total += Number(payment.amount ?? 0)
+    entry.count += 1
+    paymentMethodMap.set(method, entry)
+  }
+
+  const productMap = new Map<string, FinancialLineItem>()
+  const serviceMap = new Map<string, FinancialLineItem>()
+  const membershipMap = new Map<string, FinancialLineItem>()
+  const dailyMap = new Map<string, FinancialPeriodSummary>()
+  const weeklyMap = new Map<string, FinancialPeriodSummary>()
+  const monthlyMap = new Map<string, FinancialPeriodSummary>()
+
+  let productSales = 0
+  let serviceSales = 0
+  let membershipSales = 0
+  let productProfit = 0
+  let serviceCommissionTotal = 0
+
+  const grossSales = orderRows
+    .filter((order) => order.order_status === 'completed')
+    .reduce((total, order) => total + Number(order.subtotal ?? order.total_amount ?? 0), 0)
+  const discounts = orderRows
+    .filter((order) => order.order_status === 'completed')
+    .reduce((total, order) => total + Number(order.discount_amount ?? 0), 0)
+  const refundTotal = sum(refunds ?? [], (refund) => refund.amount)
+
+  for (const order of orderRows.filter((row) => row.order_status === 'completed')) {
+    const day = dateKey(order.completed_at ?? order.created_at)
+    const rowValues = {
+      gross_sales: Number(order.subtotal ?? order.total_amount ?? 0),
+      discounts: Number(order.discount_amount ?? 0),
+      refunds: 0,
+      net_sales: Number(order.total_amount ?? 0),
+      estimated_profit: 0,
+    }
+    pushPeriod(dailyMap, day, rowValues)
+    pushPeriod(weeklyMap, weekKey(day), rowValues)
+    pushPeriod(monthlyMap, monthKey(day), rowValues)
+  }
+
+  for (const item of items) {
+    if (orderStatus.get(item.order_id) !== 'completed') continue
+    const revenue = Number(item.total_price ?? 0)
+    const quantity = Number(item.quantity ?? 0)
+    const day = orderDate.get(item.order_id)
+
+    if (item.item_type === 'product') {
+      const cost = item.item_id ? productCosts.get(item.item_id) ?? 0 : 0
+      const lineCost = cost * quantity
+      const lineProfit = revenue - lineCost
+      productSales += revenue
+      productProfit += lineProfit
+      const key = item.item_id ?? item.item_name
+      const entry = productMap.get(key) ?? { name: item.item_name, revenue: 0, cost: 0, profit: 0, quantity: 0 }
+      entry.revenue += revenue
+      entry.cost = Number(entry.cost ?? 0) + lineCost
+      entry.profit = Number(entry.profit ?? 0) + lineProfit
+      entry.quantity = Number(entry.quantity ?? 0) + quantity
+      productMap.set(key, entry)
+      if (day) {
+        pushPeriod(dailyMap, day, { estimated_profit: lineProfit })
+        pushPeriod(weeklyMap, weekKey(day), { estimated_profit: lineProfit })
+        pushPeriod(monthlyMap, monthKey(day), { estimated_profit: lineProfit })
+      }
+    }
+
+    if (item.item_type === 'service') {
+      serviceSales += revenue
+      const key = item.item_id ?? item.item_name
+      const entry = serviceMap.get(key) ?? { name: item.item_name, revenue: 0, commission: 0, profit: 0, quantity: 0 }
+      entry.revenue += revenue
+      entry.quantity = Number(entry.quantity ?? 0) + quantity
+      serviceMap.set(key, entry)
+      if (day) {
+        pushPeriod(dailyMap, day, { estimated_profit: revenue })
+        pushPeriod(weeklyMap, weekKey(day), { estimated_profit: revenue })
+        pushPeriod(monthlyMap, monthKey(day), { estimated_profit: revenue })
+      }
+    }
+
+    if (item.item_type === 'membership') {
+      membershipSales += revenue
+      const key = item.item_id ?? item.item_name
+      const entry = membershipMap.get(key) ?? { name: item.item_name, revenue: 0, quantity: 0 }
+      entry.revenue += revenue
+      entry.quantity = Number(entry.quantity ?? 0) + quantity
+      membershipMap.set(key, entry)
+      if (day) {
+        pushPeriod(dailyMap, day, { estimated_profit: revenue })
+        pushPeriod(weeklyMap, weekKey(day), { estimated_profit: revenue })
+        pushPeriod(monthlyMap, monthKey(day), { estimated_profit: revenue })
+      }
+    }
+  }
+
+  const bookingRows = (bookings ?? []) as FinancialBookingRow[]
+
+  for (const booking of bookingRows) {
+    const service = Array.isArray(booking.services) ? booking.services[0] : booking.services
+    const revenue = Number(booking.total_amount ?? 0)
+    const commission = commissionBySource.get(`booking:${booking.id}`) ?? 0
+    serviceSales += revenue
+    serviceCommissionTotal += commission
+    const key = booking.service_id ?? service?.name ?? 'booking-service'
+    const entry = serviceMap.get(key) ?? { name: service?.name ?? 'Booking service', revenue: 0, commission: 0, profit: 0, quantity: 0 }
+    entry.revenue += revenue
+    entry.commission = Number(entry.commission ?? 0) + commission
+    entry.profit = Number(entry.profit ?? 0) + revenue - commission
+    entry.quantity = Number(entry.quantity ?? 0) + 1
+    serviceMap.set(key, entry)
+
+    const rowValues = {
+      gross_sales: revenue,
+      discounts: 0,
+      refunds: 0,
+      net_sales: revenue,
+      estimated_profit: revenue - commission,
+    }
+    pushPeriod(dailyMap, booking.booking_date, rowValues)
+    pushPeriod(weeklyMap, weekKey(booking.booking_date), rowValues)
+    pushPeriod(monthlyMap, monthKey(booking.booking_date), rowValues)
+  }
+
+  for (const order of orderRows.filter((row) => row.order_status === 'completed')) {
+    const commission = commissionBySource.get(`pos_order:${order.id}`) ?? 0
+    if (commission <= 0) continue
+    serviceCommissionTotal += commission
+    const day = orderDate.get(order.id)
+    if (day) {
+      pushPeriod(dailyMap, day, { estimated_profit: -commission })
+      pushPeriod(weeklyMap, weekKey(day), { estimated_profit: -commission })
+      pushPeriod(monthlyMap, monthKey(day), { estimated_profit: -commission })
+    }
+    const orderServices = items.filter((item) => item.order_id === order.id && item.item_type === 'service')
+    const serviceRevenue = orderServices.reduce((total, item) => total + Number(item.total_price ?? 0), 0)
+    for (const item of orderServices) {
+      const entry = serviceMap.get(item.item_id ?? item.item_name)
+      if (!entry) continue
+      const itemShare = serviceRevenue > 0 ? Number(item.total_price ?? 0) / serviceRevenue : 1 / orderServices.length
+      const itemCommission = commission * itemShare
+      entry.commission = Number(entry.commission ?? 0) + itemCommission
+      entry.profit = Number(entry.profit ?? 0) + Number(item.total_price ?? 0) - itemCommission
+    }
+  }
+
+  for (const item of items.filter((item) => item.item_type === 'service' && orderStatus.get(item.order_id) === 'completed')) {
+    const entry = serviceMap.get(item.item_id ?? item.item_name)
+    if (entry && Number(entry.profit ?? 0) === 0 && Number(entry.commission ?? 0) === 0) {
+      entry.profit = entry.revenue
+    }
+  }
+
+  const estimatedProfit = productProfit + serviceSales - serviceCommissionTotal + membershipSales
+
+  for (const refund of refunds ?? []) {
+    const day = dateKey(refund.created_at)
+    const amount = Number(refund.amount ?? 0)
+    const rowValues = { refunds: amount, net_sales: -amount, estimated_profit: -amount }
+    pushPeriod(dailyMap, day, rowValues)
+    pushPeriod(weeklyMap, weekKey(day), rowValues)
+    pushPeriod(monthlyMap, monthKey(day), rowValues)
+  }
+
+  return {
+    gross_sales: grossSales + bookingRows.reduce((total, booking) => total + Number(booking.total_amount ?? 0), 0),
+    discounts,
+    refunds: refundTotal,
+    net_sales: grossSales + bookingRows.reduce((total, booking) => total + Number(booking.total_amount ?? 0), 0) - discounts - refundTotal,
+    cash_sales: paymentMethodMap.get('cash')?.total ?? 0,
+    qr_sales: paymentMethodMap.get('qr')?.total ?? 0,
+    card_sales: paymentMethodMap.get('card')?.total ?? 0,
+    membership_sales: membershipSales,
+    product_sales: productSales,
+    service_sales: serviceSales,
+    estimated_profit: estimatedProfit - refundTotal,
+    payment_methods: Array.from(paymentMethodMap.values()).sort((a, b) => b.total - a.total),
+    daily: Array.from(dailyMap.values()).sort((a, b) => a.period.localeCompare(b.period)),
+    weekly: Array.from(weeklyMap.values()).sort((a, b) => a.period.localeCompare(b.period)),
+    monthly: Array.from(monthlyMap.values()).sort((a, b) => a.period.localeCompare(b.period)),
+    product_profit: sortLineItems(productMap, 'profit'),
+    service_revenue: sortLineItems(serviceMap, 'revenue'),
+    membership_revenue: sortLineItems(membershipMap, 'revenue'),
+  }
 }
 
 // -- Sales Report --

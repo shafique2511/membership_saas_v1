@@ -76,6 +76,7 @@ import { BroadcastsPage } from '@/pages/business/notifications/BroadcastsPage'
 import { NotificationSettingsPage } from '@/pages/business/notifications/NotificationSettingsPage'
 import { RetentionAutomationPage } from '@/pages/business/notifications/RetentionAutomationPage'
 import { ReportsDashboardPage } from '@/pages/business/reports/ReportsDashboardPage'
+import { FinancialSummaryPage } from '@/pages/business/reports/FinancialSummaryPage'
 import { SalesReportPage } from '@/pages/business/reports/SalesReportPage'
 import { BookingReportPage } from '@/pages/business/reports/BookingReportPage'
 import { MembershipReportPage } from '@/pages/business/reports/MembershipReportPage'
@@ -282,6 +283,7 @@ function App() {
 
             <Route element={<ModuleRoute moduleKey="reports" moduleName="Reports module" />}>
               <Route path="reports" element={<ReportsDashboardPage />} />
+              <Route path="reports/financial" element={<FinancialSummaryPage />} />
               <Route path="reports/sales" element={<SalesReportPage />} />
               <Route path="reports/bookings" element={<BookingReportPage />} />
               <Route path="reports/memberships" element={<MembershipReportPage />} />
