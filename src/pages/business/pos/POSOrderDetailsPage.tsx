@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
+import { toastError, toastSuccess } from '@/lib/toast'
 import { getOrder, getOrderItems, getOrderPayments, getOrderDiscounts, refundOrder, paymentMethodLabels, type POSOrder, type POSOrderItem, type POSDiscount, type POSPayment } from '@/services/pos'
+import { sendOrderReviewRequest } from '@/services/reviews'
 
 export function POSOrderDetailsPage() {
   const { orderId = '' } = useParams()
@@ -15,6 +17,7 @@ export function POSOrderDetailsPage() {
   const [discounts, setDiscounts] = useState<POSDiscount[]>([])
   const [refundOpen, setRefundOpen] = useState(false)
   const [refundReason, setRefundReason] = useState('')
+  const [reviewRequestUrl, setReviewRequestUrl] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!orderId) return
@@ -33,6 +36,21 @@ export function POSOrderDetailsPage() {
     await load()
   }
 
+  async function handleSendReviewRequest() {
+    if (!order) return
+    try {
+      const result = await sendOrderReviewRequest(order)
+      if (!result.success) {
+        toastError(result.error ?? 'No WhatsApp recipient found', 'Failed to create review request')
+        return
+      }
+      setReviewRequestUrl(result.actionUrl)
+      toastSuccess(result.actionUrl ? 'WhatsApp review link ready' : 'Review request sent')
+    } catch (error) {
+      toastError(error, 'Failed to create review request')
+    }
+  }
+
   if (!order) return <div className="py-20 text-center text-slate-500">Loading order...</div>
 
   const customer = (order as unknown as Record<string, unknown>).customers
@@ -45,8 +63,20 @@ export function POSOrderDetailsPage() {
           <h2 className="text-lg font-semibold">Order #{order.order_number}</h2>
           <p className="text-sm text-slate-500">{new Date(order.created_at).toLocaleString('en', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
         </div>
-        {order.order_status === 'completed' && <Button variant="destructive" onClick={() => setRefundOpen(true)}>Refund order</Button>}
+        <div className="flex flex-wrap justify-end gap-2">
+          {order.order_status === 'completed' && <Button variant="outline" onClick={() => void handleSendReviewRequest()}>Send review request</Button>}
+          {order.order_status === 'completed' && <Button variant="destructive" onClick={() => setRefundOpen(true)}>Refund order</Button>}
+        </div>
       </div>
+
+      {reviewRequestUrl && (
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-900 dark:bg-emerald-950/30">
+          <p className="font-medium text-emerald-800 dark:text-emerald-200">Review request ready</p>
+          <a href={reviewRequestUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+            Open WhatsApp
+          </a>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-4">
         <Card><CardContent className="p-5">

@@ -22,6 +22,7 @@ import {
   Bot,
   BellRing,
   LayoutDashboard,
+  MessageSquareText,
   type LucideIcon,
 } from 'lucide-react'
 import type { ModuleKey } from '@/types'
@@ -74,6 +75,7 @@ export const businessNavSections: NavSection[] = [
     items: [
       { label: 'Marketing', href: '/business/marketing', icon: Megaphone, module: 'marketing' },
       { label: 'Notifications', href: '/business/notifications', icon: BellRing, module: 'notification' },
+      { label: 'Reviews', href: '/business/reviews', icon: MessageSquareText, module: 'reports' },
       { label: 'Reports', href: '/business/reports', icon: BarChart3, module: 'reports' },
       { label: 'AI Assistant', href: '/business/ai-assistant', icon: Bot, module: 'ai_assistant' },
     ],

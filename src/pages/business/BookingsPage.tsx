@@ -16,6 +16,8 @@ import { DataTable } from '@/components/ui/DataTable'
 import { Field } from '@/components/ui/Field'
 import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
+import { toastError, toastSuccess } from '@/lib/toast'
+import { sendBookingReviewRequest } from '@/services/reviews'
 import {
   getBookings,
   getBooking,
@@ -119,6 +121,7 @@ export function BookingsPage() {
   const [openCreate, setOpenCreate] = useState(false)
   const [openDetail, setOpenDetail] = useState<BookingRow | null>(null)
   const [openEdit, setOpenEdit] = useState<BookingRow | null>(null)
+  const [reviewRequestUrl, setReviewRequestUrl] = useState<string | null>(null)
   const [form, setForm] = useState({
     branch_id: '', booking_type: 'appointment' as BookingType, service_id: '',
     staff_id: '', resource_id: '', booking_date: todayISO(), start_time: '09:00',
@@ -250,6 +253,20 @@ export function BookingsPage() {
     }
   }
 
+  async function handleSendReviewRequest(booking: BookingRow) {
+    try {
+      const result = await sendBookingReviewRequest(booking)
+      if (!result.success) {
+        toastError(result.error ?? 'No WhatsApp recipient found', 'Failed to create review request')
+        return
+      }
+      setReviewRequestUrl(result.actionUrl)
+      toastSuccess(result.actionUrl ? 'WhatsApp review link ready' : 'Review request sent')
+    } catch (error) {
+      toastError(error, 'Failed to create review request')
+    }
+  }
+
   async function handleOverrideDeposit(id: string) {
     await overrideBookingDepositRequirement(id)
     const updated = await getBooking(id)
@@ -303,6 +320,11 @@ export function BookingsPage() {
     })
     setOpenEdit(openDetail)
     setOpenDetail(null)
+  }
+
+  function openBookingDetail(booking: BookingRow) {
+    setReviewRequestUrl(null)
+    setOpenDetail(booking)
   }
 
   const selectedService = services.find((s) => s.id === form.service_id)
@@ -411,7 +433,7 @@ export function BookingsPage() {
                   const cls = getStatusColor(String(r.status))
                   return <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>{String(r.status)}</span>
                 }},
-                { key: 'actions', header: '', render: (r) => <Button size="sm" variant="ghost" onClick={() => setOpenDetail(r as unknown as BookingRow)}>View</Button> },
+                { key: 'actions', header: '', render: (r) => <Button size="sm" variant="ghost" onClick={() => openBookingDetail(r as unknown as BookingRow)}>View</Button> },
               ]}
               data={bookings as unknown as Record<string, unknown>[]}
               emptyMessage="No bookings found."
@@ -442,7 +464,7 @@ export function BookingsPage() {
                     return (
                       <button
                         key={b.id}
-                        onClick={() => setOpenDetail(b)}
+                        onClick={() => openBookingDetail(b)}
                         className={`cursor-pointer rounded px-2 py-1 text-left text-xs font-medium ${getStatusColor(b.status)}`}
                       >
                         <span>{formatTime(b.start_time)}</span>
@@ -474,7 +496,7 @@ export function BookingsPage() {
                     return (
                       <button
                         key={b.id}
-                        onClick={() => setOpenDetail(b)}
+                        onClick={() => openBookingDetail(b)}
                         className={`block w-full cursor-pointer rounded px-1.5 py-1 text-left text-[10px] font-medium leading-tight ${getStatusColor(b.status)}`}
                       >
                         <div>{formatTime(b.start_time)} {c?.full_name ?? 'Walk-in'}</div>
@@ -513,7 +535,7 @@ export function BookingsPage() {
                       {dayBookings.slice(0, 3).map((b) => (
                         <button
                           key={b.id}
-                          onClick={() => setOpenDetail(b)}
+                          onClick={() => openBookingDetail(b)}
                           className={`block w-full cursor-pointer rounded px-1 text-[9px] font-medium leading-tight ${getStatusColor(b.status)}`}
                         >
                           {formatTime(b.start_time)}
@@ -885,6 +907,15 @@ export function BookingsPage() {
                 </div>
               )}
 
+              {reviewRequestUrl && (
+                <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-900 dark:bg-emerald-950/30">
+                  <p className="font-medium text-emerald-800 dark:text-emerald-200">Review request ready</p>
+                  <a href={reviewRequestUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+                    Open WhatsApp
+                  </a>
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
                 {nextStatuses(openDetail.status).map((ns) => (
                   <Button key={ns} size="sm" className="flex-1 sm:flex-none" onClick={() => void handleStatusTransition(openDetail.id, ns)}>
@@ -893,6 +924,9 @@ export function BookingsPage() {
                 ))}
                 {openDetail.deposit_required_reason && !openDetail.deposit_override_at && (
                   <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={() => void handleOverrideDeposit(openDetail.id)}>Override deposit</Button>
+                )}
+                {openDetail.status === 'completed' && (
+                  <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={() => void handleSendReviewRequest(openDetail)}>Send review request</Button>
                 )}
                 <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={openEditFromDetail}>Edit</Button>
                 <Button size="sm" variant="destructive" className="flex-1 sm:flex-none" onClick={() => void handleDelete(openDetail.id)}>Delete</Button>

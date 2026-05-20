@@ -142,6 +142,10 @@ export async function logQrCodeScan(assetId: string, userAgent: string): Promise
 export async function submitPublicReview(payload: {
   businessId: string
   rating: number
+  staffRating?: number
+  serviceRating?: number
+  bookingId?: string | null
+  posOrderId?: string | null
   title?: string
   comment?: string
   customerName?: string
@@ -156,6 +160,10 @@ export async function submitPublicReview(payload: {
     p_customer_name: payload.customerName ?? null,
     p_phone: payload.phone ?? null,
     p_email: payload.email ?? null,
+    p_booking_id: payload.bookingId ?? null,
+    p_pos_order_id: payload.posOrderId ?? null,
+    p_staff_rating: payload.staffRating ?? null,
+    p_service_rating: payload.serviceRating ?? null,
   })
 
   if (error) throw error

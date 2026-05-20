@@ -86,6 +86,7 @@ const NOTIFICATION_TYPES = [
   'receipt_message', 'inactive_customer_promo', 'membership_expiring_soon',
   'birthday_reward', 'no_show_follow_up', 'first_time_thank_you',
   'high_spender_vip_reward', 'waitlist_slot_available',
+  'review_request',
 ] as const
 
 const CHANNELS = ['email', 'whatsapp', 'telegram', 'sms', 'in_app'] as const
@@ -94,6 +95,7 @@ const ALL_VARIABLES = [
   'customer_name', 'business_name', 'booking_date', 'booking_time',
   'service_name', 'staff_name', 'membership_name', 'expiry_date',
   'amount', 'payment_status', 'promo_code', 'reward_name',
+  'review_link',
 ] as const
 
 export function renderTemplate(template: string, variables: TemplateVariables): string {
@@ -168,6 +170,7 @@ export async function resetToDefaults(businessId: string): Promise<void> {
   await supabase.rpc('seed_default_templates', { p_business_id: businessId })
   await supabase.rpc('seed_phase17_notification_templates', { p_business_id: businessId })
   await supabase.rpc('seed_phase22_waitlist_templates', { p_business_id: businessId })
+  await supabase.rpc('seed_phase29_review_templates', { p_business_id: businessId })
 }
 
 // ---- Channel Settings ----

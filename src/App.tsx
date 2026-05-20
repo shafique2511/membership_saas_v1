@@ -31,6 +31,7 @@ import { BookingsPage } from '@/pages/business/BookingsPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
 import { BusinessSetupWizardPage } from '@/pages/business/BusinessSetupWizardPage'
 import { CustomerMembershipsPage as BizCustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
+import { ReviewsPage } from '@/pages/business/ReviewsPage'
 import { CrmPage } from '@/pages/business/crm/CrmPage'
 import { CustomerCrmDetailsPage } from '@/pages/business/crm/CustomerCrmDetailsPage'
 import { MembershipDetailsPage } from '@/pages/business/MembershipDetailsPage'
@@ -294,6 +295,7 @@ function App() {
               <Route path="reports/branches" element={<BranchReportPage />} />
               <Route path="reports/marketing" element={<MarketingReportPage />} />
               <Route path="reports/export" element={<ExportCenterPage />} />
+              <Route path="reviews" element={<ReviewsPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="notification" moduleName="Notification module" />}>
               <Route path="notifications" element={<NotificationTemplatesPage />} />
