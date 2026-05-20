@@ -66,7 +66,7 @@ export function SecuritySettingsPage() {
         <CardHeader><CardTitle className="flex items-center gap-2"><History className="h-4 w-4" /> Audit logs</CardTitle></CardHeader>
         <CardContent>
           <p className="text-sm text-slate-500">Review recent security events and changes made in your account.</p>
-          <Button variant="outline" className="mt-3" onClick={() => window.location.href = '/admin/audit-logs'}>
+          <Button variant="outline" className="mt-3" onClick={() => window.location.href = '/business/audit-logs'}>
             View audit logs
           </Button>
         </CardContent>

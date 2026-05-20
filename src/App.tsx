@@ -31,6 +31,7 @@ import { BookingsPage } from '@/pages/business/BookingsPage'
 import { AIAssistantPage } from '@/pages/business/AIAssistantPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
 import { BusinessSetupWizardPage } from '@/pages/business/BusinessSetupWizardPage'
+import { AuditLogsPage } from '@/pages/business/AuditLogsPage'
 import { CustomerMembershipsPage as BizCustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
 import { ReviewsPage } from '@/pages/business/ReviewsPage'
 import { CrmPage } from '@/pages/business/crm/CrmPage'
@@ -221,6 +222,7 @@ function App() {
             <Route path="module-access" element={<BusinessModuleAccessPage />} />
             <Route path="add-ons" element={<AddOnManagementPage />} />
             <Route path="usage" element={<UsageLimitsPage />} />
+            <Route path="audit-logs" element={<AuditLogsPage />} />
             <Route path="packages" element={<PackageComparisonPage />} />
             <Route element={<ModuleRoute moduleKey="core" moduleName="Simple CRM" />}>
               <Route path="customers" element={<CrmPage />} />
@@ -344,6 +346,7 @@ function App() {
               <Route path="settings/white-label" element={<WhiteLabelSettingsPage />} />
               <Route path="settings/account" element={<AccountSettingsPage />} />
               <Route path="settings/security" element={<SecuritySettingsPage />} />
+              <Route path="settings/audit-logs" element={<AuditLogsPage />} />
               <Route path="settings/qr-codes" element={<QrCodesPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="data_ownership_backup" moduleName="Data Ownership & Backup module" />}>

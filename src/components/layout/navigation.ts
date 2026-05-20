@@ -87,6 +87,7 @@ export const businessNavSections: NavSection[] = [
       { label: 'Modules', href: '/business/module-access', icon: Puzzle, module: 'core' },
       { label: 'Add-ons', href: '/business/add-ons', icon: Package, module: 'core' },
       { label: 'Usage', href: '/business/usage', icon: Gauge, module: 'core' },
+      { label: 'Audit logs', href: '/business/audit-logs', icon: FileText, module: 'core' },
       { label: 'Settings', href: '/business/settings', icon: Settings, module: 'core' },
       { label: 'Data & Backup', href: '/business/settings/data-ownership', icon: Database, module: 'data_ownership_backup' },
     ],
