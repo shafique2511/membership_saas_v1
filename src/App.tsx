@@ -28,6 +28,7 @@ import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { UnauthorizedPage } from '@/pages/auth/UnauthorizedPage'
 import { BookingsPage } from '@/pages/business/BookingsPage'
+import { AIAssistantPage } from '@/pages/business/AIAssistantPage'
 import { BusinessDashboardPage } from '@/pages/business/BusinessDashboardPage'
 import { BusinessSetupWizardPage } from '@/pages/business/BusinessSetupWizardPage'
 import { CustomerMembershipsPage as BizCustomerMembershipsPage } from '@/pages/business/CustomerMembershipsPage'
@@ -315,7 +316,7 @@ function App() {
               <Route path="marketing/report" element={<CampaignReportPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="ai_assistant" moduleName="AI Assistant module" />}>
-              <Route path="ai-assistant" element={<PlaceholderPage title="AI Assistant" description="AI assistant workspace for enterprise automation and operational help." />} />
+              <Route path="ai-assistant" element={<AIAssistantPage />} />
             </Route>
             <Route element={<ModuleRoute moduleKey="multi_branch" moduleName="Multi-branch module" />}>
               <Route path="branches" element={<BranchesPage />} />
