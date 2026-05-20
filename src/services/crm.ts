@@ -197,6 +197,30 @@ export async function getCrmCustomer(customerId: string): Promise<CrmCustomer | 
   return customer ?? null
 }
 
+export async function createCrmCustomer(input: {
+  business_id: string
+  full_name: string
+  phone?: string | null
+  email?: string | null
+  birthday?: string | null
+}): Promise<CrmCustomer | null> {
+  const { data, error } = await supabase
+    .from('customers')
+    .insert({
+      business_id: input.business_id,
+      full_name: input.full_name.trim(),
+      phone: input.phone?.trim() || null,
+      email: input.email?.trim() || null,
+      birthday: input.birthday || null,
+      status: 'active',
+    })
+    .select('id')
+    .single()
+
+  if (error) throw error
+  return getCrmCustomer(data.id)
+}
+
 export async function getCrmNotes(customerId: string): Promise<CrmNote[]> {
   const { data, error } = await supabase
     .from('crm_notes')

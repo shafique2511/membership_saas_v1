@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Calendar,
   ChevronLeft,
@@ -103,6 +104,7 @@ const HOURS = Array.from({ length: 14 }, (_, i) => `${String(i + 7).padStart(2, 
 
 export function BookingsPage() {
   const { profile } = useAppContext()
+  const [searchParams, setSearchParams] = useSearchParams()
   const businessId = profile?.business_id ?? ''
 
   const [bookings, setBookings] = useState<BookingRow[]>([])
@@ -164,6 +166,13 @@ export function BookingsPage() {
     const task = window.setTimeout(() => void loadRelated(), 0)
     return () => window.clearTimeout(task)
   }, [loadRelated])
+
+  useEffect(() => {
+    if (searchParams.get('new') !== '1') return
+    resetForm()
+    setOpenCreate(true)
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
 
   useEffect(() => {
     if (customerSearch.length < 2) { setCustomerResults([]); return }

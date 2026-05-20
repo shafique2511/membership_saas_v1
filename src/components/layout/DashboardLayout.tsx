@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { DemoModeBanner } from '@/components/layout/DemoModeBanner'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { MobileOwnerBottomNav } from '@/components/layout/MobileOwnerBottomNav'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Topbar } from '@/components/layout/Topbar'
 
@@ -11,13 +12,14 @@ export function DashboardLayout() {
       <MobileNav />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
-        <main className="min-w-0 flex-1 px-3 py-4 sm:px-6 lg:px-8 lg:py-8">
+        <main className="min-w-0 flex-1 px-3 pb-24 pt-4 sm:px-6 lg:px-8 lg:py-8">
           <div className="mx-auto w-full max-w-[1600px]">
             <DemoModeBanner />
             <Outlet />
           </div>
         </main>
       </div>
+      <MobileOwnerBottomNav />
     </div>
   )
 }

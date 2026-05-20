@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAppContext } from '@/context/useAppContext'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/DataTable'
 import { Field } from '@/components/ui/Field'
@@ -15,12 +16,15 @@ export function CustomerMembershipsPage() {
   const { profile } = useAppContext()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const businessId = profile?.business_id ?? ''
   const [memberships, setMemberships] = useState<Membership[]>([])
   const [plans, setPlans] = useState<Record<string, unknown>[]>([])
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [open, setOpen] = useState(false)
   const [customerSearch, setCustomerSearch] = useState('')
+  const [scanValue, setScanValue] = useState('')
+  const [showScan, setShowScan] = useState(false)
   const [customerResults, setCustomerResults] = useState<{ id: string; full_name: string; phone: string | null }[]>([])
   const [form, setForm] = useState({
     customer_id: '', plan_id: '', start_date: new Date().toISOString().slice(0, 10),
@@ -40,6 +44,12 @@ export function CustomerMembershipsPage() {
   }, [businessId])
 
   useEffect(() => { const t = window.setTimeout(() => { void load(); void loadPlans() }, 0); return () => window.clearTimeout(t) }, [load, loadPlans])
+
+  useEffect(() => {
+    if (searchParams.get('scan') !== '1') return
+    setShowScan(true)
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
 
   useEffect(() => {
     if (customerSearch.length < 2) { setCustomerResults([]); return }
@@ -72,6 +82,38 @@ export function CustomerMembershipsPage() {
         <button onClick={() => navigate('/business/memberships')} className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${location.pathname === '/business/memberships' ? 'border-teal-700 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>Members</button>
         <button onClick={() => navigate('/business/memberships/plans')} className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${location.pathname === '/business/memberships/plans' ? 'border-teal-700 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>Plans</button>
       </div>
+
+      {showScan && (
+        <Card className="border-emerald-200 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Membership scan</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input
+              autoFocus
+              placeholder="Scan QR or enter membership code"
+              value={scanValue}
+              onChange={(event) => setScanValue(event.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button
+                className="h-11 flex-1"
+                onClick={() => {
+                  const match = memberships.find((membership) =>
+                    membership.qr_code?.toLowerCase() === scanValue.trim().toLowerCase()
+                    || membership.id.toLowerCase() === scanValue.trim().toLowerCase(),
+                  )
+                  if (match) navigate(`/business/memberships/${match.id}`)
+                }}
+                disabled={!scanValue.trim()}
+              >
+                Find member
+              </Button>
+              <Button className="h-11" variant="outline" onClick={() => setShowScan(false)}>Close</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex gap-2">
         {statusFilters.map((s) => (

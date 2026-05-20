@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useAppContext } from '@/context/useAppContext'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { MobileOwnerDashboard } from '@/components/mobile/MobileOwnerDashboard'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,6 +34,8 @@ export function BusinessDashboardPage() {
   const hasPos = hasModule('pos')
   const hasInventory = hasModule('inventory')
   const hasStaff = hasModule('staff_commission')
+  const hasNotification = hasModule('notification')
+  const hasReports = hasModule('reports')
 
   const load = useCallback(async () => {
     if (!businessId) return
@@ -60,6 +63,17 @@ export function BusinessDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <MobileOwnerDashboard
+        data={data}
+        hasBooking={hasBooking}
+        hasMembership={hasMembership}
+        hasPos={hasPos}
+        hasNotification={hasNotification}
+        hasReports={hasReports}
+        onRefresh={load}
+      />
+
+      <div className="hidden space-y-6 lg:block">
       <PageHeader
         title="Business dashboard"
         description="Monitor bookings, sales, members, inventory, and team performance."
@@ -299,6 +313,7 @@ export function BusinessDashboardPage() {
 
       <div className="flex justify-center gap-2">
         <Button variant="outline" onClick={() => void load()}>Refresh dashboard</Button>
+      </div>
       </div>
     </div>
   )

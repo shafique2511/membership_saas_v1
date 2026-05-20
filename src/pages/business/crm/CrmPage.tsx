@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field } from '@/components/ui/Field'
+import { FormModal } from '@/components/ui/FormModal'
 import { Input } from '@/components/ui/input'
 import { useAppContext } from '@/context/useAppContext'
-import { defaultCrmTags, getCrmCustomers, type CrmCustomer, type CrmSegment } from '@/services/crm'
+import { createCrmCustomer, defaultCrmTags, getCrmCustomers, type CrmCustomer, type CrmSegment } from '@/services/crm'
 import { formatCurrency } from '@/utils/format'
 
 const segmentOptions: { value: CrmSegment; label: string }[] = [
@@ -20,12 +21,15 @@ const segmentOptions: { value: CrmSegment; label: string }[] = [
 
 export function CrmPage() {
   const { profile } = useAppContext()
+  const [searchParams, setSearchParams] = useSearchParams()
   const businessId = profile?.business_id ?? ''
   const [customers, setCustomers] = useState<CrmCustomer[]>([])
   const [segment, setSegment] = useState<CrmSegment>('all')
   const [search, setSearch] = useState('')
   const [inactiveDays, setInactiveDays] = useState(30)
   const [highSpenderMin, setHighSpenderMin] = useState(1000)
+  const [openCreate, setOpenCreate] = useState(false)
+  const [customerForm, setCustomerForm] = useState({ full_name: '', phone: '', email: '', birthday: '' })
 
   const load = useCallback(async () => {
     if (!businessId) return
@@ -36,6 +40,25 @@ export function CrmPage() {
     const t = window.setTimeout(() => void load(), 0)
     return () => window.clearTimeout(t)
   }, [load])
+
+  useEffect(() => {
+    if (searchParams.get('new') !== '1') return
+    setOpenCreate(true)
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  async function handleCreateCustomer() {
+    await createCrmCustomer({
+      business_id: businessId,
+      full_name: customerForm.full_name,
+      phone: customerForm.phone,
+      email: customerForm.email,
+      birthday: customerForm.birthday,
+    })
+    setCustomerForm({ full_name: '', phone: '', email: '', birthday: '' })
+    setOpenCreate(false)
+    await load()
+  }
 
   const stats = useMemo(() => {
     const birthday = customers.filter((customer) => customer.birthday?.slice(5, 7) === String(new Date().getMonth() + 1).padStart(2, '0')).length
@@ -55,6 +78,7 @@ export function CrmPage() {
           <h2 className="text-lg font-semibold">Simple CRM</h2>
           <p className="text-sm text-slate-500">Customer retention lists, tags, notes, and customer value tracking.</p>
         </div>
+        <Button className="h-11" onClick={() => setOpenCreate(true)}>New customer</Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-5">
@@ -140,6 +164,23 @@ export function CrmPage() {
           </div>
         </CardContent>
       </Card>
+
+      <FormModal open={openCreate} title="New customer" submitLabel="Create customer" onSubmit={handleCreateCustomer} onOpenChange={(v) => { if (!v) setOpenCreate(false) }}>
+        <div className="grid gap-3">
+          <Field label="Name" description="Customer name used for booking, POS, membership, and loyalty lookup.">
+            <Input value={customerForm.full_name} onChange={(event) => setCustomerForm({ ...customerForm, full_name: event.target.value })} required placeholder="Full name" />
+          </Field>
+          <Field label="Phone" description="Mobile number for WhatsApp and quick customer search.">
+            <Input value={customerForm.phone} onChange={(event) => setCustomerForm({ ...customerForm, phone: event.target.value })} placeholder="+60..." />
+          </Field>
+          <Field label="Email" description="Optional email for customer records.">
+            <Input type="email" value={customerForm.email} onChange={(event) => setCustomerForm({ ...customerForm, email: event.target.value })} placeholder="customer@example.com" />
+          </Field>
+          <Field label="Birthday" description="Optional birthday for retention campaigns.">
+            <Input type="date" value={customerForm.birthday} onChange={(event) => setCustomerForm({ ...customerForm, birthday: event.target.value })} />
+          </Field>
+        </div>
+      </FormModal>
     </div>
   )
 }
