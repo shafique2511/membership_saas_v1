@@ -510,6 +510,47 @@ export interface ShutdownSettingsRow {
   updated_at: string
 }
 
+export type HealthStatus = 'healthy' | 'warning' | 'critical'
+
+export interface SystemErrorLogRow {
+  id: string
+  source: string
+  severity: 'info' | 'warning' | 'critical'
+  message: string
+  details: Record<string, unknown>
+  resolved_at: string | null
+  created_at: string
+}
+
+export interface SystemJobRow {
+  id: string
+  job_type: string
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'retrying' | 'cancelled'
+  attempts: number
+  max_attempts: number
+  payload: Record<string, unknown>
+  last_error: string | null
+  run_after: string
+  created_at: string
+  updated_at: string
+}
+
+export interface SystemHealthSnapshot {
+  indicators: Record<string, HealthStatus>
+  totalBusinesses: number
+  activeUsers: number
+  failedPayments: number
+  failedNotifications: number
+  storageUsage: string
+  databaseUsage: string
+  backupStatus: HealthStatus
+  apiStatus: HealthStatus
+  supabaseConnectionStatus: HealthStatus
+  recentErrors: SystemErrorLogRow[]
+  recentFailedJobs: SystemJobRow[]
+  recentBackups: BackupRequestRow[]
+}
+
 export async function getPlatformSettings(): Promise<PlatformSettings | null> {
   const { data, error } = await supabase.from('platform_settings').select('*').single()
   if (error) {
@@ -523,6 +564,120 @@ export async function savePlatformSettings(settings: Partial<PlatformSettings>) 
   const { data, error } = await supabase.from('platform_settings').update(settings).eq('id', 1).select('*').single()
   if (error) throw error
   return data as PlatformSettings
+}
+
+function indicatorFromCount(count: number, warningAt = 1, criticalAt = 10): HealthStatus {
+  if (count >= criticalAt) return 'critical'
+  if (count >= warningAt) return 'warning'
+  return 'healthy'
+}
+
+export async function logSystemError(input: {
+  source: string
+  severity?: 'info' | 'warning' | 'critical'
+  message: string
+  details?: Record<string, unknown>
+}) {
+  const { data, error } = await supabase.rpc('log_system_error', {
+    p_source: input.source,
+    p_severity: input.severity ?? 'warning',
+    p_message: input.message,
+    p_details: input.details ?? {},
+  })
+  if (error) throw error
+  return data as string
+}
+
+export async function retrySystemJob(jobId: string) {
+  const { data, error } = await supabase.rpc('retry_system_job', { p_job_id: jobId })
+  if (error) throw error
+  return data as SystemJobRow
+}
+
+export async function getSystemHealthSnapshot(): Promise<SystemHealthSnapshot> {
+  const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  const [
+    businessesResult,
+    usersResult,
+    failedPaymentsResult,
+    failedNotificationsResult,
+    recentErrorsResult,
+    failedJobsResult,
+    recentBackupsResult,
+    storageResult,
+    databaseResult,
+  ] = await Promise.all([
+    supabase.from('businesses').select('id', { count: 'exact', head: true }),
+    supabase.from('user_profiles').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+    supabase.from('payments').select('id', { count: 'exact', head: true }).in('status', ['failed']).gte('created_at', since7d),
+    supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('status', 'failed').gte('created_at', since7d),
+    supabase.from('system_error_logs').select('*').is('resolved_at', null).order('created_at', { ascending: false }).limit(10),
+    supabase.from('system_jobs').select('*').in('status', ['failed', 'retrying']).order('created_at', { ascending: false }).limit(10),
+    supabase.from('backup_requests').select('*').order('created_at', { ascending: false }).limit(10),
+    supabase.storage.listBuckets(),
+    supabase.from('audit_logs').select('id', { count: 'exact', head: true }),
+  ])
+
+  const connectionErrors = [
+    businessesResult.error,
+    usersResult.error,
+    failedPaymentsResult.error,
+    failedNotificationsResult.error,
+    recentErrorsResult.error,
+    failedJobsResult.error,
+    recentBackupsResult.error,
+    databaseResult.error,
+  ].filter(Boolean)
+
+  if (connectionErrors.length) {
+    await logSystemError({
+      source: 'system-health',
+      severity: 'critical',
+      message: 'System health query failed',
+      details: { errors: connectionErrors.map((error) => error?.message) },
+    }).catch(() => {})
+  }
+
+  const failedPayments = failedPaymentsResult.count ?? 0
+  const failedNotifications = failedNotificationsResult.count ?? 0
+  const recentErrors = ((recentErrorsResult.data ?? []) as SystemErrorLogRow[])
+  const recentFailedJobs = ((failedJobsResult.data ?? []) as SystemJobRow[])
+  const recentBackups = ((recentBackupsResult.data ?? []) as BackupRequestRow[])
+  const latestBackup = recentBackups[0]
+  const failedBackupCount = recentBackups.filter((backup) => backup.status === 'failed').length
+
+  const supabaseConnectionStatus: HealthStatus = businessesResult.error || databaseResult.error ? 'critical' : storageResult.error ? 'warning' : 'healthy'
+  const apiStatus: HealthStatus = connectionErrors.length >= 2 ? 'critical' : connectionErrors.length ? 'warning' : 'healthy'
+  const backupStatus: HealthStatus = failedBackupCount > 0 ? 'critical' : latestBackup && latestBackup.status !== 'ready' && latestBackup.status !== 'downloaded' ? 'warning' : 'healthy'
+
+  return {
+    indicators: {
+      businesses: businessesResult.error ? 'critical' : 'healthy',
+      users: usersResult.error ? 'critical' : 'healthy',
+      failedPayments: indicatorFromCount(failedPayments, 1, 5),
+      failedNotifications: indicatorFromCount(failedNotifications, 1, 10),
+      storage: storageResult.error ? 'warning' : 'healthy',
+      database: databaseResult.error ? 'critical' : 'healthy',
+      backups: backupStatus,
+      errors: indicatorFromCount(recentErrors.filter((error) => error.severity === 'critical').length, 1, 3),
+      jobs: indicatorFromCount(recentFailedJobs.filter((job) => job.status === 'failed').length, 1, 5),
+      api: apiStatus,
+      supabase: supabaseConnectionStatus,
+    },
+    totalBusinesses: businessesResult.count ?? 0,
+    activeUsers: usersResult.count ?? 0,
+    failedPayments,
+    failedNotifications,
+    storageUsage: storageResult.error ? 'Storage check failed' : `${storageResult.data?.length ?? 0} buckets`,
+    databaseUsage: databaseResult.error ? 'Database check failed' : `${(databaseResult.count ?? 0).toLocaleString()} audit rows tracked`,
+    backupStatus,
+    apiStatus,
+    supabaseConnectionStatus,
+    recentErrors,
+    recentFailedJobs,
+    recentBackups,
+  }
 }
 
 export async function listBackupRequests() {
