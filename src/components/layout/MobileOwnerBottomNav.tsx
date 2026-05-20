@@ -34,7 +34,7 @@ export function MobileOwnerBottomNav() {
               className={() =>
                 cn(
                   'flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-1 text-[11px] font-medium text-slate-500',
-                  location.pathname === item.href.split('?')[0] && 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200',
+                  location.pathname === item.href.split('?')[0] && 'bg-slate-950 text-white dark:bg-emerald-300 dark:text-slate-950',
                 )
               }
             >

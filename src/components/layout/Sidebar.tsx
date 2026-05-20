@@ -13,7 +13,7 @@ function NavItemLink({ item, onClick }: { item: NavItem; onClick?: () => void })
       className={({ isActive }) =>
         cn(
           'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800',
-          isActive && 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200',
+          isActive && 'bg-slate-950 text-white hover:bg-slate-950 dark:bg-emerald-300 dark:text-slate-950 dark:hover:bg-emerald-300',
         )
       }
     >
@@ -54,7 +54,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white lg:flex lg:flex-col dark:border-slate-800 dark:bg-slate-950">
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-slate-200 px-5 dark:border-slate-800">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-700 text-white">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-amber-300 dark:bg-emerald-300 dark:text-slate-950">
           <Sparkles className="h-4 w-4" />
         </div>
         <div className="leading-tight">

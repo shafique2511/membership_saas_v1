@@ -13,6 +13,7 @@ import { BackupHistoryPage } from '@/pages/admin/BackupHistoryPage'
 import { BusinessDetailsPage } from '@/pages/admin/BusinessDetailsPage'
 import { BusinessesPage } from '@/pages/admin/BusinessesPage'
 import { DataGovernancePage } from '@/pages/admin/DataGovernancePage'
+import { DesignSystemPage } from '@/pages/admin/DesignSystemPage'
 import { LegalPagesAdminPage } from '@/pages/admin/LegalPagesAdminPage'
 import { ModuleManagementPage } from '@/pages/admin/ModuleManagementPage'
 import { PackageManagementPage } from '@/pages/admin/PackageManagementPage'
@@ -192,6 +193,7 @@ function App() {
             <Route path="backups" element={<BackupHistoryPage />} />
             <Route path="shutdown" element={<ShutdownModePage />} />
             <Route path="system-health" element={<SystemHealthPage />} />
+            <Route path="design-system" element={<DesignSystemPage />} />
             <Route path="settings" element={<PlatformSettingsPage />} />
             <Route path="legal-pages" element={<LegalPagesAdminPage />} />
             <Route path="data-governance" element={<DataGovernancePage />} />

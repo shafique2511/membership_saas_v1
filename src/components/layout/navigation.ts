@@ -23,6 +23,7 @@ import {
   BellRing,
   LayoutDashboard,
   MessageSquareText,
+  Palette,
   type LucideIcon,
 } from 'lucide-react'
 import type { ModuleKey } from '@/types'
@@ -122,6 +123,8 @@ export const adminNavSections: NavSection[] = [
     title: 'System',
     items: [
       { label: 'Usage', href: '/admin/usage', icon: Gauge },
+      { label: 'System health', href: '/admin/system-health', icon: Gauge },
+      { label: 'Design system', href: '/admin/design-system', icon: Palette },
       { label: 'Audit logs', href: '/admin/audit-logs', icon: FileText },
       { label: 'Legal pages', href: '/admin/legal-pages', icon: FileText },
       { label: 'Data governance', href: '/admin/data-governance', icon: Database },
