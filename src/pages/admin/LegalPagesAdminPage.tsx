@@ -16,7 +16,7 @@ export function LegalPagesAdminPage() {
   useEffect(() => {
     void listLegalPages().then((nextPages) => {
       setPages(nextPages)
-      setDraft(nextPages.find((page) => page.slug === selectedSlug) ?? nextPages[0] ?? null)
+      setDraft(nextPages.find((page) => page.slug === 'terms') ?? nextPages[0] ?? null)
     })
   }, [])
 

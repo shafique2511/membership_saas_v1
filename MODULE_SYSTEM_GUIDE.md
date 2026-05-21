@@ -45,6 +45,7 @@ multi_branch
 customer_portal
 white_label
 data_ownership_backup
+ai_assistant
 ```
 
 ## Frontend Enforcement
@@ -98,9 +99,20 @@ Limits live in `package_modules.limit_config` and effective business access rows
 - `customers`
 - `bookings_per_month`
 - `products`
-- `notifications_per_month`
+- `whatsapp_messages_per_month`
 
 Use `usage_counters` to track period usage. New write actions should check the relevant counter before creating rows.
+
+## Locked Module UX
+
+Locked modules must not appear in the normal business sidebar. They should appear as upgrade opportunities on `/business/upgrade`, and module-specific locked routes should render `UpgradePrompt`.
+
+Implementation points:
+
+- `src/components/layout/navigation.ts` stores module metadata for each nav item.
+- `Sidebar`, `MobileNav`, and `MobileOwnerBottomNav` filter items through `canAccessModule`.
+- `ModuleRoute` guards direct URL access and renders the upgrade prompt.
+- Upgrade benefits and required packages are defined through `src/services/upgradeCatalog.ts`.
 
 ## Operational Review
 

@@ -2,28 +2,12 @@
 
 ## Required Order
 
-Apply every migration in `supabase/migrations` by filename order:
+Apply every migration in `supabase/migrations` by filename order. Do not skip later phase files; they add production features, RLS hardening, indexes, audit logs, demo mode, legal pages, and system health tables.
 
-```text
-202605160001_phase_2_schema.sql
-202605160002_phase_3_staff_invitations.sql
-202605160003_phase_3_auth_triggers.sql
-202605160004_phase_4_package_module_system.sql
-202605160005_phase_5_super_admin.sql
-202605160006_phase_8_membership.sql
-202605160007_phase_9_loyalty.sql
-202605160008_phase_10_pos.sql
-202605160009_phase_11_inventory.sql
-202605160010_phase_12_staff.sql
-202605160011_phase_13_payment.sql
-202605160012_phase_14_notification.sql
-202605160013_phase_16_marketing.sql
-202605160014_phase_17_multi_branch.sql
-202605160015_phase_18_customer_portal.sql
-202605160016_phase_19_white_label.sql
-202605160017_phase_20_settings.sql
-202605170001_phase_24_staff_permission_hardening.sql
-202605170002_phase_25_data_ownership_backup.sql
+Use the file list from the folder itself:
+
+```powershell
+Get-ChildItem supabase\migrations -File | Sort-Object Name | Select-Object Name
 ```
 
 Then apply seed files:
@@ -32,6 +16,7 @@ Then apply seed files:
 supabase/seed/phase_2_seed.sql
 supabase/seed/phase_4_package_rules.sql
 supabase/seed/202605170001_phase_22_seed_data.sql
+supabase/seed/202605210001_phase_39_seed_data.sql
 ```
 
 ## Supabase SQL Editor Setup
@@ -68,7 +53,7 @@ The complete schema is the ordered set of migration files in `supabase/migration
 - RLS enablement and policies
 - RPC functions used by service code
 - Delegated manager and individual staff permission functions
-- Data ownership export logs and platform backup logs
+- Data ownership export logs, platform backup logs, backup requests, backup downloads, shutdown settings, shutdown notice tracking, review collection, demo mode flags, audit logs, legal pages, and system health tables
 
 ## Seed Data
 
@@ -78,7 +63,7 @@ Seed files include:
 - Module definitions
 - Demo tenants, staff, customers, services, bookings, memberships, products, orders, payments, notifications, and reports data
 
-Before using production, either remove demo seed rows or create a clean production seed with only packages, modules, and pricing rules.
+Before using production, either skip demo seed rows or create a clean production seed with only packages, modules, and pricing rules. The Phase 39 seed is safe and idempotent, but it intentionally creates demo businesses and realistic demo records.
 
 ## Admin Setup
 
@@ -108,10 +93,11 @@ Run this only from a trusted SQL console.
 
 ## Validation
 
-Run the validation SQL after applying seeds:
+This repo uses Vitest service/static validation instead of a live SQL validation file:
 
-```text
-src/__tests__/validation.sql
+```powershell
+npm run test
+npm run build
 ```
 
-It checks tenant isolation, package/module access, referential integrity, booking overlaps, membership balances, POS totals, stock, payments, and loyalty ledger consistency.
+The tests check tenant isolation, package/module access, locked module behavior, booking overlaps, membership balances, POS stock/payment flows, loyalty points, reports, customer portal isolation, backup/export scoping, shutdown guards, RLS policy presence, seed integrity, mobile shell behavior, and audit-log rules.

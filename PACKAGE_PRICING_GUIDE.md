@@ -9,6 +9,7 @@ Seeded packages:
 - `starter`
 - `growth`
 - `pro`
+- `business_suite`
 - `enterprise`
 
 Exact prices and limits are defined in:
@@ -44,17 +45,42 @@ Pro:
 - Marketing
 - More advanced limits
 
+Business Suite:
+
+- Pro capabilities
+- Reviews
+- Financial summary
+- Demo mode for sales walkthroughs
+- Audit log visibility
+- Mobile owner workflows
+- Data ownership and backup
+
 Enterprise:
 
 - Full module set
 - Multi-branch
 - White label
+- AI assistant
+- System health and advanced admin support
 - Highest or unlimited limits
 - Manual commercial terms if needed
 
 ## Add-ons
 
 Use add-ons when a business needs one module without upgrading the full package. Add-ons should create or update `business_module_access` with `source = 'addon'`.
+
+## Locked Module Sales Flow
+
+Locked modules should not appear as broken pages. When a user reaches a locked feature, show:
+
+- Feature name
+- Required package
+- Upgrade benefits
+- Package comparison button
+- Contact support button
+- Upgrade plan button
+
+The upgrade page is `/business/upgrade`. Sidebar navigation should only show enabled modules; locked modules belong in the upgrade page and package comparison.
 
 ## Pricing Change Workflow
 
@@ -79,6 +105,15 @@ Business actions that create limited resources should:
 2. Load or increment `usage_counters`.
 3. Block the action when `used_count >= limit_count`.
 4. Show an upgrade prompt.
+
+Common limit keys:
+
+- `customers`
+- `staff`
+- `branches`
+- `bookings_per_month`
+- `whatsapp_messages_per_month`
+- `storage_mb`
 
 ## Billing Notes
 

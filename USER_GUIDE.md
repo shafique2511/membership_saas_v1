@@ -12,6 +12,10 @@ Main tasks:
 - Review billing invoices and payments.
 - Inspect usage counters.
 - Review audit logs.
+- Review system health.
+- Manage template legal pages.
+- Review platform backups.
+- Control shutdown mode if the platform must be paused.
 - Manage platform settings.
 
 Super admins should avoid editing tenant data directly unless fixing an operational issue.
@@ -32,6 +36,8 @@ Recommended onboarding:
 8. Configure payment settings.
 9. Configure notification templates.
 10. Test customer portal booking flow.
+11. Review upgrade page and package limits.
+12. Export a business backup before launch.
 
 Permission setup:
 
@@ -47,6 +53,25 @@ Data ownership:
 2. Review the ownership and shutdown policy.
 3. Export business data when needed for backup, audit, migration, or offboarding.
 4. Keep exported files secure because they may contain customer personal data.
+
+Reviews:
+
+1. Send review links after completed bookings or orders.
+2. Review customer comments and ratings.
+3. Hide inappropriate reviews from public display.
+4. Track average rating, best staff, low-rated services, and trends.
+
+AI assistant:
+
+1. Open the AI assistant only if the package includes it.
+2. Ask for sales summaries, inactive customers, best-selling services or products, staff performance, no-show patterns, campaign suggestions, and report explanations.
+3. Treat AI output as operational guidance and verify before sending promotions or changing pricing.
+
+Upgrade flow:
+
+1. Open `/business/upgrade`.
+2. Review current package, usage, locked modules, add-ons, and package comparison.
+3. Use Contact Support or Upgrade Plan when a locked feature is needed.
 
 ## Manager
 
@@ -131,9 +156,13 @@ Use date filters before exporting reports. Validate reports against payments, PO
 Before launch, test on a small phone viewport and a tablet viewport:
 
 - Login
-- Sidebar/mobile navigation
+- Sidebar and bottom mobile navigation
 - Booking creation
+- Check-in customer
 - POS checkout
+- Membership scan
+- Owner sales summary
 - Customer portal booking
 - Reports filters
+- Upgrade prompts
 - Dark mode readability

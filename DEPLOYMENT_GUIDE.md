@@ -52,8 +52,9 @@ Required settings:
 4. Enable email provider settings.
 5. Configure backups.
 6. Create or promote the first super admin.
-7. Validate RLS with `src/__tests__/validation.sql`.
+7. Verify package modules, add-ons, and locked module prompts.
 8. Verify the Data Ownership & Backup module exists and is enabled for active businesses.
+9. Run the automated validation suite.
 
 ## Smoke Test
 
@@ -68,6 +69,26 @@ After deployment:
 7. Login as a customer and confirm only own data is visible.
 8. Test mobile viewport for dashboard, booking, POS, and customer portal.
 9. Toggle dark mode if enabled by layout/theme controls or system preference.
+10. Open `/admin/system-health` as super admin and confirm status cards load.
+11. Export owner business backup from Settings > Data & Backup.
+12. Create or review a platform backup from the super admin data governance area.
+13. Enable and disable shutdown mode in a controlled non-production test tenant.
+14. Open demo barber and demo coffee accounts if demo data is installed.
+
+## Mobile Test Matrix
+
+Before launch, test these workflows at small phone, large phone, and tablet widths:
+
+- Owner dashboard and bottom navigation
+- Today bookings
+- Create booking
+- Customer check-in
+- POS checkout
+- Membership scan
+- Sales summary
+- Notifications
+- Customer portal booking
+- Upgrade prompt and package comparison
 
 ## Performance Notes
 
@@ -85,3 +106,4 @@ After deployment:
 - Do not run destructive migrations without a restore plan.
 - Treat package/pricing changes as configuration changes and export current package mappings before edits.
 - Log full platform backups in `/admin/data-governance` and keep backup files outside the frontend deployment.
+- Keep a copy of package, module, and RLS migrations with every release artifact.

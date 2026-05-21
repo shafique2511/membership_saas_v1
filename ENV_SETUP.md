@@ -33,8 +33,21 @@ The production build throws an error if either required value is missing. This p
 
 - Never add `SUPABASE_SERVICE_ROLE_KEY` to any `VITE_` variable.
 - Never use service role keys in browser code.
+- Keep service role keys only in trusted server, Supabase Edge Function, or CI secret contexts.
 - Restrict production Auth redirect URLs in Supabase to the deployed domain.
 - Rotate anon keys if they are accidentally committed or shared outside the team.
+- Use separate Supabase projects for local, staging, and production.
+- Do not point a local test build at production unless you are intentionally validating read-only behavior.
+
+## Production Checklist
+
+- Auth site URL points to the production domain.
+- Redirect URLs include only approved production and staging domains.
+- Email templates are reviewed.
+- Database backups are enabled.
+- Super admin accounts are created intentionally and reviewed.
+- Demo data is installed only where sales/demo access is required.
+- Package and module seed data is applied before onboarding businesses.
 
 ## Local Verification
 

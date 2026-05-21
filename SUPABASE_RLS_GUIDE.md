@@ -57,6 +57,12 @@ or public.customer_owns_record(customer_id)
 - Individual staff permission changes are owner-only unless the owner grants a manager `staff.permissions.manage`.
 - Business export logs are tenant-readable and require `data_ownership_backup` plus `data.export`.
 - Platform backup logs are super-admin only.
+- Reviews are tenant-readable by business staff, customer-readable by the owning customer, and public display must only include visible/approved reviews.
+- Audit logs are append-only for normal users. Owners can view tenant audit logs; super admins can view platform audit logs.
+- Backup requests and backup download logs are scoped to the requesting business or super admin role.
+- Shutdown mode settings are super-admin managed.
+- Demo businesses and demo users must remain scoped to their demo business IDs and must not receive broad write access to real tenant data.
+- Legal page content is super-admin managed and publicly readable only when published.
 
 ## Locked Module Protection
 
@@ -88,7 +94,9 @@ select public.has_module_access('TARGET_BUSINESS_UUID', 'pos');
 select public.customer_owns_record('TARGET_CUSTOMER_UUID');
 ```
 
-Use `src/__tests__/validation.sql` after seed data to check common policy and data-integrity assumptions.
+Use the automated validation suite after seed data to check common policy and data-integrity assumptions.
+
+The current suite is under `src/__tests__`. It covers tenant isolation, locked module access, usage limits, booking conflicts, membership balance behavior, POS stock deduction, payment status, loyalty points, backup/export access, shutdown mode, and audit log expectations.
 
 ## Production Hardening
 
