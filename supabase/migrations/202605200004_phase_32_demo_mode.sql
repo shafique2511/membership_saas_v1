@@ -280,8 +280,8 @@ begin
 
   insert into public.membership_plans (id, business_id, name, plan_type, description, price, duration_days, visit_limit, points_bonus, is_active)
   values
-    (v_barber_plan_id, v_barber_biz_id, 'Demo Grooming Pass', 'visit_based', 'Demo 5-visit haircut package.', 180.00, 90, 5, 200, true),
-    (v_coffee_plan_id, v_coffee_biz_id, 'Demo Coffee Club', 'credit', 'Demo prepaid coffee membership.', 100.00, 60, null, 100, true)
+    (v_barber_plan_id, v_barber_biz_id, 'Demo Grooming Pass', 'visit_package', 'Demo 5-visit haircut package.', 180.00, 90, 5, 200, true),
+    (v_coffee_plan_id, v_coffee_biz_id, 'Demo Coffee Club', 'prepaid_credit', 'Demo prepaid coffee membership.', 100.00, 60, null, 100, true)
   on conflict (id) do update set
     name = excluded.name,
     business_id = excluded.business_id,
